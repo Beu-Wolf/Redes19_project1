@@ -10,7 +10,32 @@
 #include <arpa/inet.h>
 
 
-void readLineArgs(char* serverIP, char* port){
+extern char *optarg;
+
+
+void readLineArgs(int argc, char* argv[], char* serverIP, char* port, int *flagToUse){
+    int n, opt;
+    n = gethostname(serverIP, 128);
+    if(n == -1) exit(1);
+
+    strcpy(port, "58036");
+    *flagToUse = 0;
+    
+    while((opt = getopt(argc, argv, "n:p:")) != -1) {
+        switch (opt) {
+        case 'n':
+            strcpy(serverIP, optarg);
+            printf("%s\n", serverIP);
+            *flagToUse = 1;
+            break;
+        case 'p':
+            strcpy(port, optarg);
+            printf("%s\n", port);
+            break;
+        default:
+            break;
+        }
+    }
 
 }
 
@@ -33,7 +58,10 @@ void setAddrStruct(char* hostname, char* port, struct addrinfo* hints_TCP,
 
 
     n = getaddrinfo(hostname, port, hints_TCP, res_TCP);
-    if(n != 0) exit(1); 
+    if(n != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(n));
+        exit(1); 
+    } 
 
     memset(hints_UDP, 0, sizeof(hints_UDP));
     hints_UDP->ai_family = AF_INET;
@@ -70,22 +98,8 @@ int main(int argc, char* argv[]) {
     char buffer[INET_ADDRSTRLEN];
     struct in_addr *addr;
 
-
-
-    if(argc == 1){
-        n = gethostname(hostname, 128);
-        if(n == -1)  exit(1);
-        strcpy(port, "58036");
-        flagToUse = 0;
-
-        setAddrStruct(hostname, port, &hints_TCP, &res_TCP, &hints_UDP, &res_UDP, flagToUse);
-
-
-    } else {
-        readLineArgs(serverIP, port);
-        setAddrStruct(serverIP, port, &hints_TCP, &res_TCP, &hints_UDP, &res_UDP, flagToUse);
-    }
-
+    readLineArgs(argc, argv, serverIP, port, &flagToUse);
+    setAddrStruct(serverIP, port, &hints_TCP, &res_TCP, &hints_UDP, &res_UDP, flagToUse);
 
     addr=&((struct sockaddr_in *) res_UDP->ai_addr)->sin_addr;
     printf("cenas: %s\n", inet_ntop(res_UDP->ai_family, addr, buffer, sizeof buffer));
