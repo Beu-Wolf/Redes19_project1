@@ -90,10 +90,13 @@ void setAddrStruct(char* hostname, char* port, struct addrinfo* hints_TCP,
 
 int main(int argc, char* argv[]) {
 
-    char serverIP[128], port[128], hostname[128];
+    char serverIP[128], port[128], hostname[128], sendMsg[128];
     struct addrinfo hints_TCP, *res_TCP;
     struct addrinfo hints_UDP, *res_UDP;
     int n, flagToUse;
+    int fdTCP, fdUDP;
+
+    ssize_t sentB, sendBLeft;
 
     char buffer[INET_ADDRSTRLEN];
     struct in_addr *addr;
@@ -106,5 +109,43 @@ int main(int argc, char* argv[]) {
     addr=&((struct sockaddr_in *) res_TCP->ai_addr)->sin_addr;
     printf("cenas: %s\n", inet_ntop(res_TCP->ai_family, addr, buffer, sizeof buffer));
 
+
+    while(1) {
+        fgets(sendMsg, 128, stdin);
+        if(atoi(sendMsg) == 1) {
+            fdUDP = socket(res_UDP->ai_family, res_UDP->ai_socktype, res_UDP->ai_protocol);
+
+            if(fdUDP == -1) exit(1);
+
+            n = sendto(fdUDP, "TestUDP\n", 8, 0, res_UDP->ai_addr, res_UDP->ai_addrlen);
+
+            close(fdUDP);
+
+
+        } else if(atoi(sendMsg) == 2){
+            fdTCP = socket(res_TCP->ai_family, res_TCP->ai_socktype, res_TCP->ai_protocol);
+            if(fdTCP == -1) exit(1);
+
+            n = connect(fdTCP, res_TCP->ai_addr, res_TCP->ai_addrlen);
+            if(n == -1) exit(1);
+
+            strcpy(sendMsg, "Hello\n");
+            sendBLeft = 7;
+            while(sendBLeft > 0){
+                sentB = write(fdTCP, sendMsg, sendBLeft);
+                if(sentB <= 0) exit(1);
+
+                sendBLeft -= sentB;
+
+                close(fdTCP);
+            }
+
+
+
+        } else {
+            printf("Error\n");
+            break;
+        }
+    }
 
 }
