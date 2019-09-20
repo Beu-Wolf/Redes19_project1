@@ -9,13 +9,14 @@
 
 #include <arpa/inet.h>
 
+#define BUFFER_SIZE 128
 
 extern char *optarg;
 
 
 void readLineArgs(int argc, char* argv[], char* serverIP, char* port, int *flagToUse){
     int n, opt;
-    n = gethostname(serverIP, 128);
+    n = gethostname(serverIP, BUFFER_SIZE);
     if(n == -1) exit(1);
 
     strcpy(port, "58036");
@@ -90,9 +91,14 @@ void setAddrStruct(char* hostname, char* port, struct addrinfo* hints_TCP,
 
 int main(int argc, char* argv[]) {
 
-    char serverIP[128], port[128], hostname[128], sendMsg[128];
+    char serverIP[BUFFER_SIZE];
+    char port[BUFFER_SIZE];
+    char hostname[BUFFER_SIZE];
+    char sendMsg[BUFFER_SIZE];
+
     struct addrinfo hints_TCP, *res_TCP;
     struct addrinfo hints_UDP, *res_UDP;
+
     int n, flagToUse;
     int fdTCP, fdUDP;
 
@@ -111,7 +117,7 @@ int main(int argc, char* argv[]) {
 
 
     while(1) {
-        fgets(sendMsg, 128, stdin);
+        fgets(sendMsg, BUFFER_SIZE, stdin);
         if(atoi(sendMsg) == 1) {
             fdUDP = socket(res_UDP->ai_family, res_UDP->ai_socktype, res_UDP->ai_protocol);
 
