@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 
 #define BUFFER_SIZE 128
+#define DEFAULT_PORT "58036"
 
 extern char *optarg;
 
@@ -19,7 +20,7 @@ void readLineArgs(int argc, char* argv[], char* serverIP, char* port, int *flagT
     n = gethostname(serverIP, BUFFER_SIZE);
     if(n == -1) exit(1);
 
-    strcpy(port, "58036");
+    strcpy(port, DEFAULT_PORT);
     *flagToUse = 0;
     
     while((opt = getopt(argc, argv, "n:p:")) != -1) {
@@ -49,14 +50,13 @@ void setAddrStruct(char* hostname, char* port, struct addrinfo* hints_TCP,
     memset(hints_TCP, 0, sizeof(hints_TCP));
     hints_TCP->ai_family = AF_INET;
     hints_TCP->ai_socktype = SOCK_STREAM;
+    hints_TCP->ai_protocol = IPPROTO_TCP;
 
     if(!flagToUse){
         hints_TCP->ai_flags = AI_NUMERICSERV;
     } else {
         hints_TCP->ai_flags = AI_NUMERICHOST;
     }
-    
-
 
     n = getaddrinfo(hostname, port, hints_TCP, res_TCP);
     if(n != 0) {
