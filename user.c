@@ -14,25 +14,45 @@
 
 extern char *optarg;
 
+enum flags {
+    GET_BY_IP,
+    GET_BY_NAME,
+};
 
-void readLineArgs(int argc, char* argv[], char* serverIP, char* port, int *flagToUse){
+typedef struct service {
+        char serverIP[BUFFER_SIZE];
+        char port[BUFFER_SIZE];
+} service;
+
+typedef struct addressInfoSet {
+
+    struct addrinfo hints_TCP;
+    struct addrinfo* res_TCP;
+    struct addrinfo hints_UDP;
+    struct addrinfo* res_UDP;
+
+} addressInfoSet;
+
+enum flags flags;
+
+void readLineArgs(int argc, char* argv[], service* newService){
     int n, opt;
-    n = gethostname(serverIP, BUFFER_SIZE);
+    n = gethostname(newService->serverIP, BUFFER_SIZE);
     if(n == -1) exit(1);
 
-    strcpy(port, DEFAULT_PORT);
-    *flagToUse = 0;
+    strcpy(newService->port, DEFAULT_PORT);
+    flags = GET_BY_NAME;
     
     while((opt = getopt(argc, argv, "n:p:")) != -1) {
         switch (opt) {
         case 'n':
-            strcpy(serverIP, optarg);
-            printf("%s\n", serverIP);
-            *flagToUse = 1;
+            strcpy(newService->serverIP, optarg);
+            printf("%s\n", newService->serverIP);
+            flags = GET_BY_IP;
             break;
         case 'p':
-            strcpy(port, optarg);
-            printf("%s\n", port);
+            strcpy(newService->port, optarg);
+            printf("%s\n", newService->port);
             break;
         default:
             break;
@@ -41,43 +61,43 @@ void readLineArgs(int argc, char* argv[], char* serverIP, char* port, int *flagT
 
 }
 
-void setAddrStruct(char* hostname, char* port, struct addrinfo* hints_TCP,
- struct addrinfo** res_TCP, struct addrinfo* hints_UDP, 
- struct addrinfo** res_UDP, int flagToUse){
+void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
 
     int n;
 
-    memset(hints_TCP, 0, sizeof(hints_TCP));
-    hints_TCP->ai_family = AF_INET;
-    hints_TCP->ai_socktype = SOCK_STREAM;
-    hints_TCP->ai_protocol = IPPROTO_TCP;
+    memset(&(newAddrInfoSet->hints_TCP), 0, sizeof(newAddrInfoSet->hints_TCP));
+    newAddrInfoSet->hints_TCP.ai_family = AF_INET;
+    newAddrInfoSet->hints_TCP.ai_socktype = SOCK_STREAM;
+    newAddrInfoSet->hints_TCP.ai_protocol = IPPROTO_TCP;
 
-    if(!flagToUse){
-        hints_TCP->ai_flags = AI_NUMERICSERV;
-    } else {
-        hints_TCP->ai_flags = AI_NUMERICHOST;
+    if(flags == GET_BY_NAME){
+        newAddrInfoSet->hints_TCP.ai_flags = AI_NUMERICSERV;
+    } else if (flags == GET_BY_IP) {
+        newAddrInfoSet->hints_TCP.ai_flags = AI_NUMERICHOST;
     }
 
-    n = getaddrinfo(hostname, port, hints_TCP, res_TCP);
+    n = getaddrinfo(newService->serverIP, newService->port, 
+    &(newAddrInfoSet->hints_TCP), &(newAddrInfoSet->res_TCP));
     if(n != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(n));
         exit(1); 
     } 
 
-    memset(hints_UDP, 0, sizeof(hints_UDP));
-    hints_UDP->ai_family = AF_INET;
-    hints_UDP->ai_socktype = SOCK_DGRAM;
-    hints_UDP->ai_protocol = IPPROTO_UDP;
+    memset(&(newAddrInfoSet->hints_UDP), 0, sizeof(newAddrInfoSet->hints_UDP));
+    newAddrInfoSet->hints_UDP.ai_family = AF_INET;
+    newAddrInfoSet->hints_UDP.ai_socktype = SOCK_DGRAM;
+    newAddrInfoSet->hints_UDP.ai_protocol = IPPROTO_UDP;
 
 
-    if(!flagToUse){
-        hints_UDP->ai_flags = AI_NUMERICSERV;
-    } else {
-        hints_UDP->ai_flags = AI_NUMERICHOST;
+    if(flags == GET_BY_NAME){
+        newAddrInfoSet->hints_UDP.ai_flags = AI_NUMERICSERV;
+    } else if(flags == GET_BY_IP) {
+        newAddrInfoSet->hints_UDP.ai_flags = AI_NUMERICHOST;
     }
 
      
-    n = getaddrinfo(hostname, port, hints_UDP, res_UDP);
+    n = getaddrinfo(newService->serverIP, newService->port, 
+    &(newAddrInfoSet->hints_UDP), &(newAddrInfoSet->res_UDP));
     if(n != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(n));
         exit(1); 
@@ -91,15 +111,13 @@ void setAddrStruct(char* hostname, char* port, struct addrinfo* hints_TCP,
 
 int main(int argc, char* argv[]) {
 
-    char serverIP[BUFFER_SIZE];
-    char port[BUFFER_SIZE];
     char hostname[BUFFER_SIZE];
     char sendMsg[BUFFER_SIZE];
 
-    struct addrinfo hints_TCP, *res_TCP;
-    struct addrinfo hints_UDP, *res_UDP;
+    service newService; 
+    addressInfoSet newAddrInfoSet;
 
-    int n, flagToUse;
+    int n;
     int fdTCP, fdUDP;
 
     ssize_t sentB, sendBLeft;
@@ -107,32 +125,36 @@ int main(int argc, char* argv[]) {
     char buffer[INET_ADDRSTRLEN];
     struct in_addr *addr;
 
-    readLineArgs(argc, argv, serverIP, port, &flagToUse);
-    setAddrStruct(serverIP, port, &hints_TCP, &res_TCP, &hints_UDP, &res_UDP, flagToUse);
+    readLineArgs(argc, argv, &newService);
+    setAddrStruct(&newService, &newAddrInfoSet);
 
-    addr=&((struct sockaddr_in *) res_UDP->ai_addr)->sin_addr;
-    printf("cenas: %s\n", inet_ntop(res_UDP->ai_family, addr, buffer, sizeof buffer));
-    addr=&((struct sockaddr_in *) res_TCP->ai_addr)->sin_addr;
-    printf("cenas: %s\n", inet_ntop(res_TCP->ai_family, addr, buffer, sizeof buffer));
+    addr=&((struct sockaddr_in *) (newAddrInfoSet.res_UDP)->ai_addr)->sin_addr;
+    printf("cenas: %s\n", inet_ntop((newAddrInfoSet.res_UDP)->ai_family, addr, buffer, sizeof buffer));
+    addr=&((struct sockaddr_in *) (newAddrInfoSet.res_TCP)->ai_addr)->sin_addr;
+    printf("cenas: %s\n", inet_ntop((newAddrInfoSet.res_TCP)->ai_family, addr, buffer, sizeof buffer));
 
 
     while(1) {
         fgets(sendMsg, BUFFER_SIZE, stdin);
         if(atoi(sendMsg) == 1) {
-            fdUDP = socket(res_UDP->ai_family, res_UDP->ai_socktype, res_UDP->ai_protocol);
+            fdUDP = socket(newAddrInfoSet.res_UDP->ai_family, 
+            newAddrInfoSet.res_UDP->ai_socktype, newAddrInfoSet.res_UDP->ai_protocol);
 
             if(fdUDP == -1) exit(1);
 
-            n = sendto(fdUDP, "TestUDP\n", 8, 0, res_UDP->ai_addr, res_UDP->ai_addrlen);
+            n = sendto(fdUDP, "TestUDP\n", 8, 0, newAddrInfoSet.res_UDP->ai_addr, 
+            newAddrInfoSet.res_UDP->ai_addrlen);
 
             close(fdUDP);
 
 
         } else if(atoi(sendMsg) == 2){
-            fdTCP = socket(res_TCP->ai_family, res_TCP->ai_socktype, res_TCP->ai_protocol);
+            fdTCP = socket(newAddrInfoSet.res_TCP->ai_family, 
+            newAddrInfoSet.res_TCP->ai_socktype, newAddrInfoSet.res_TCP->ai_protocol);
             if(fdTCP == -1) exit(1);
 
-            n = connect(fdTCP, res_TCP->ai_addr, res_TCP->ai_addrlen);
+            n = connect(fdTCP, newAddrInfoSet.res_TCP->ai_addr, 
+            newAddrInfoSet.res_TCP->ai_addrlen);
             if(n == -1) exit(1);
 
             strcpy(sendMsg, "Hello\n");
