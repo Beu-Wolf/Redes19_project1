@@ -6,11 +6,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
-
 #include <arpa/inet.h>
+#include "util.h"
 
 #define INPUT_SIZE 64
-#define INP_NUM_ARGS 4
 
 #define BUFFER_SIZE 128
 #define DEFAULT_PORT "58036"
@@ -129,36 +128,6 @@ void readCommand(char** bufPtr, int* bufSize) {
     exit(1);
   }
   (*bufPtr)[i] = '\0';
-}
-
-// parse input (similar to strtok. prepared to ignore in-quote spaces)
-char** tokenize(char* string) {
-  int numArgs, i;
-  char* currChar, *currArg;
-  char** args;
-
-  numArgs = INP_NUM_ARGS;
-  args = (char**)malloc(INP_NUM_ARGS * sizeof(char*));
-  if(args == NULL) exit(1);
-
-  i = 0;
-  currChar = currArg = string;
-  while(*currChar != '\0'){
-    if(*currChar == ' ') {
-      *currChar = '\0';
-      args[i++] = currArg;
-      if(i == numArgs - 1) {
-        numArgs += INP_NUM_ARGS;
-        args = realloc(args, numArgs * sizeof(char*));
-      }
-      currArg = currChar+1;
-    }
-    currChar++;
-  }
-  args[i++] = currArg;
-  args[i] = NULL;
-
-  return args;
 }
 
 
