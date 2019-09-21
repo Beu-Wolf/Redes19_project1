@@ -9,6 +9,9 @@
 
 #include <arpa/inet.h>
 
+#define INPUT_SIZE 64
+#define INP_NUM_ARGS 4
+
 #define BUFFER_SIZE 128
 #define DEFAULT_PORT "58036"
 
@@ -107,12 +110,65 @@ void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
 
 }
 
+// return list of inserted words (separated by ' ')
+char** readCommand(char** bufPtr, int* bufSize) {
+  int i, numArgs;
+  char c;
+  char* currChar, *currArg;
+  char** args;
+
+  // read from stdin
+  i = 0;
+  while((c = getchar()) != '\n' && c != '\0' && c != EOF) {
+    (*bufPtr)[i++] = c;
+    if(i == *bufSize) {
+      *bufSize += INPUT_SIZE;
+      *bufPtr = (char*)realloc(*bufPtr, *bufSize * sizeof(char));
+    }
+  }
+  if(c == EOF) {
+    printf("Read EOF. Exiting\n");
+    exit(1);
+  }
+  (*bufPtr)[i] = '\0';
+  // printf("read size %d:\n|%s|\n", i, *bufPtr);
+
+  // parse input (similar to strtok. able to ignore in-quote spaces)
+  numArgs = INP_NUM_ARGS;
+  args = (char**)malloc(INP_NUM_ARGS * sizeof(char*));
+  if(args == NULL) {
+    printf("Error allocating buffer\n");
+    exit(1);
+  }
+  i = 0;
+  currChar = currArg = *bufPtr;
+  while(*currChar != '\0'){
+    if(*currChar == ' ') {
+      *currChar = '\0';
+      args[i++] = currArg;
+      if(i == numArgs - 1) {
+        numArgs += INP_NUM_ARGS;
+        args = realloc(args, numArgs * sizeof(char*));
+      }
+      currArg = currChar+1;
+    }
+    currChar++;
+  }
+  args[i++] = currArg;
+  args[i] = NULL;
+
+  return args;
+}
 
 
 int main(int argc, char* argv[]) {
 
     char hostname[BUFFER_SIZE];
     char sendMsg[BUFFER_SIZE];
+
+    int inpSize;
+    char* input;
+    char** parsedInput;
 
     service newService; 
     addressInfoSet newAddrInfoSet;
@@ -133,8 +189,24 @@ int main(int argc, char* argv[]) {
     addr=&((struct sockaddr_in *) (newAddrInfoSet.res_TCP)->ai_addr)->sin_addr;
     printf("cenas: %s\n", inet_ntop((newAddrInfoSet.res_TCP)->ai_family, addr, buffer, sizeof buffer));
 
-
+    inpSize = INPUT_SIZE;
+    input = (char*)malloc(inpSize * sizeof(char));
+    if(input == NULL) exit(1);
     while(1) {
+      parsedInput = readCommand(&input, &inpSize);
+      printf("Got input!\n");
+      int i = 0;
+      while(parsedInput[i] != NULL) {
+        printf("[%d] -> %s\n", i, parsedInput[i]);
+        i++;
+      }
+
+      free(parsedInput);
+    }
+
+    free(input);
+
+    while(0) {
         fgets(sendMsg, BUFFER_SIZE, stdin);
         if(atoi(sendMsg) == 1) {
             fdUDP = socket(newAddrInfoSet.res_UDP->ai_family, 
