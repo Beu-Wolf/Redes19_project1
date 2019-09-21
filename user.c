@@ -111,11 +111,9 @@ void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
 }
 
 // return list of inserted words (separated by ' ')
-char** readCommand(char** bufPtr, int* bufSize) {
-  int i, numArgs;
+void readCommand(char** bufPtr, int* bufSize) {
+  int i;
   char c;
-  char* currChar, *currArg;
-  char** args;
 
   // read from stdin
   i = 0;
@@ -131,17 +129,20 @@ char** readCommand(char** bufPtr, int* bufSize) {
     exit(1);
   }
   (*bufPtr)[i] = '\0';
-  // printf("read size %d:\n|%s|\n", i, *bufPtr);
+}
 
-  // parse input (similar to strtok. able to ignore in-quote spaces)
+// parse input (similar to strtok. prepared to ignore in-quote spaces)
+char** tokenize(char* string) {
+  int numArgs, i;
+  char* currChar, *currArg;
+  char** args;
+
   numArgs = INP_NUM_ARGS;
   args = (char**)malloc(INP_NUM_ARGS * sizeof(char*));
-  if(args == NULL) {
-    printf("Error allocating buffer\n");
-    exit(1);
-  }
+  if(args == NULL) exit(1);
+
   i = 0;
-  currChar = currArg = *bufPtr;
+  currChar = currArg = string;
   while(*currChar != '\0'){
     if(*currChar == ' ') {
       *currChar = '\0';
@@ -193,8 +194,9 @@ int main(int argc, char* argv[]) {
     input = (char*)malloc(inpSize * sizeof(char));
     if(input == NULL) exit(1);
     while(1) {
-      parsedInput = readCommand(&input, &inpSize);
-      printf("Got input!\n");
+      readCommand(&input, &inpSize);
+      printf("read: |%s|\n", input);
+      parsedInput = tokenize(input);
       int i = 0;
       while(parsedInput[i] != NULL) {
         printf("[%d] -> %s\n", i, parsedInput[i]);
