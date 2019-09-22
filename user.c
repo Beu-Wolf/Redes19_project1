@@ -134,6 +134,44 @@ void readCommand(char** bufPtr, int* bufSize) {
   (*bufPtr)[i] = '\0';
 }
 
+void processRegister(char** parsedInput) {
+  printf("Want to register\n");
+}
+
+void processTopicList(char** parsedInput) {
+  printf("Want topic list\n");
+}
+
+void processTopicSelect(char** parsedInput, short argumentShort){
+  if(argumentShort) 
+    printf("Want topic number\n");
+  else
+    printf("Want topic\n");
+}
+
+void processTopicPropose(char** parsedInput) {
+  printf("Want to propose topic\n");
+}
+
+void processQuestionList(char** parsedInput) {
+  printf("Want question list\n");
+}
+
+void processQuestionGet(char** parsedInput, short argumentShort) {
+  if(argumentShort) 
+    printf("Want question number\n");
+  else
+    printf("Want question\n");
+}
+
+void processQuestionSubmit(char** parsedInput) {
+  printf("Want to submit question\n");
+}
+
+void processAnswerSubmit(char** parsedInput) {
+  printf("Want to submit answer\n");
+}
+
 
 int main(int argc, char* argv[]) {
 
@@ -143,6 +181,7 @@ int main(int argc, char* argv[]) {
     int inpSize;
     char* input;
     char** parsedInput;
+    short argumentShort;
 
     service newService; 
     addressInfoSet newAddrInfoSet;
@@ -170,12 +209,60 @@ int main(int argc, char* argv[]) {
       readCommand(&input, &inpSize);
       printf("read: |%s|\n", input);
       parsedInput = tokenize(input);
-      int i = 0;
+      
+      /*int i = 0;
       while(parsedInput[i] != NULL) {
         printf("[%d] -> %s\n", i, parsedInput[i]);
         i++;
-      }
+      }*/
+      if(parsedInput[0] != NULL) {
+        if(!strcmp(parsedInput[0], "register") || !strcmp(parsedInput[0], "reg")) {
+          processRegister(parsedInput);
+        
+        } else if(!strcmp(parsedInput[0], "topic_list") || 
+        !strcmp(parsedInput[0], "tl")) {
+          processTopicList(parsedInput);
+        
+        } else if(!strcmp(parsedInput[0], "topic_select")){
+          argumentShort = 0;
+          processTopicSelect(parsedInput, argumentShort);
+        
+        } else if(!strcmp(parsedInput[0], "ts")) {
+          argumentShort = 1;
+          processTopicSelect(parsedInput, argumentShort);
+        
+        } else if(!strcmp(parsedInput[0], "topic_propose") || 
+        !strcmp(parsedInput[0], "tp")) {
+          processTopicPropose(parsedInput);
+        
+        } else if(!strcmp(parsedInput[0], "question_list") || 
+        !strcmp(parsedInput[0], "ql")) {
+          processQuestionList(parsedInput);
+        
+        } else if(!strcmp(parsedInput[0], "question_get")){ 
+          argumentShort = 0;
+          processQuestionGet(parsedInput, argumentShort);
+        
+        } else if(!strcmp(parsedInput[0], "qg")) {
+          argumentShort = 1;
+          processQuestionGet(parsedInput, argumentShort);
+        
+        } else if(!strcmp(parsedInput[0], "question_submit") || 
+        !strcmp(parsedInput[0], "qs")) {
+          processQuestionSubmit(parsedInput);
 
+        } else if(!strcmp(parsedInput[0], "answer_submit") || 
+        !strcmp(parsedInput[0], "as")) {
+        processAnswerSubmit(parsedInput); 
+        
+        } else if(!strcmp(parsedInput[0], "exit")) {
+          free(parsedInput);
+          break;
+        
+        } else {
+          printf("command not valid. Please try again\n");
+        }
+      }
       free(parsedInput);
     }
 
