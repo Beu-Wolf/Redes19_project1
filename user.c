@@ -123,8 +123,8 @@ void readCommand(char** bufPtr, int* bufSize) {
       *bufPtr = (char*)realloc(*bufPtr, *bufSize * sizeof(char));
     }
   }
-  if(c == EOF) {
-    printf("Read EOF. Exiting\n");
+  if(c == EOF && i == 0) {
+    printf("End of Input. Exiting\n");
     exit(1);
   }
   (*bufPtr)[i] = '\0';
