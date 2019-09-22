@@ -114,7 +114,7 @@ void readCommand(char** bufPtr, int* bufSize) {
   int i;
   char c;
 
-  // read from stdin
+  // read from stdin (char by char) reallocates if necessary
   i = 0;
   while((c = getchar()) != '\n' && c != '\0' && c != EOF) {
     (*bufPtr)[i++] = c;
@@ -123,10 +123,14 @@ void readCommand(char** bufPtr, int* bufSize) {
       *bufPtr = (char*)realloc(*bufPtr, *bufSize * sizeof(char));
     }
   }
+
+  // check if end of input
   if(c == EOF && i == 0) {
     printf("End of Input. Exiting\n");
     exit(1);
   }
+
+  // terminate string
   (*bufPtr)[i] = '\0';
 }
 
