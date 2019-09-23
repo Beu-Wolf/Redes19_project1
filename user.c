@@ -173,6 +173,15 @@ void processAnswerSubmit(char** parsedInput) {
 }
 
 
+// TODO: Remove (debug function)
+void printArgs(char** buffer) {
+      int i = 0;
+      while(buffer[i] != NULL) {
+        printf("[%d] -> %s\n", i, buffer[i]);
+        i++;
+      }
+}
+
 int main(int argc, char* argv[]) {
 
     char hostname[BUFFER_SIZE];
@@ -209,12 +218,9 @@ int main(int argc, char* argv[]) {
       readCommand(&input, &inpSize);
       printf("read: |%s|\n", input);
       parsedInput = tokenize(input);
+
+      // printArgs(parsedInput);
       
-      /*int i = 0;
-      while(parsedInput[i] != NULL) {
-        printf("[%d] -> %s\n", i, parsedInput[i]);
-        i++;
-      }*/
       if(parsedInput[0] != NULL) {
         if(!strcmp(parsedInput[0], "register") || !strcmp(parsedInput[0], "reg")) {
           processRegister(parsedInput);
