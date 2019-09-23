@@ -109,30 +109,6 @@ void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
 
 }
 
-// return list of inserted words (separated by ' ')
-void readCommand(char** bufPtr, int* bufSize) {
-  int i;
-  char c;
-
-  // read from stdin (char by char) reallocates if necessary
-  i = 0;
-  while((c = getchar()) != '\n' && c != '\0' && c != EOF) {
-    (*bufPtr)[i++] = c;
-    if(i == *bufSize) {
-      *bufSize += INPUT_SIZE;
-      *bufPtr = (char*)realloc(*bufPtr, *bufSize * sizeof(char));
-    }
-  }
-
-  // check if end of input
-  if(c == EOF && i == 0) {
-    printf("End of Input. Exiting\n");
-    exit(1);
-  }
-
-  // terminate string
-  (*bufPtr)[i] = '\0';
-}
 
 void processRegister(char** parsedInput) {
   printf("Want to register\n");
