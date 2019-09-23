@@ -16,6 +16,8 @@
 
 void receiveConnections(char *port);
 int setupServerSocket(char *port, int socktype);
+void handleTcp(int fd);
+void handleUdp(int fd);
 
 int main(int argc, char *argv[]) {
 	char *port = DEFAULT_PORT;
@@ -56,12 +58,12 @@ int main(int argc, char *argv[]) {
 
 void receiveConnections(char *port) {
 	int udpSocket, tcpSocket;
+	int ret;
 
-	//TODO: remove maybe
-	char buffer[BUFFER_SIZE];
+	int newfd;
+
 	struct sockaddr_in addr;
 	socklen_t addrlen;
-	int newfd;
 
 	int maxfd, counter;
 	fd_set rfds;
@@ -80,20 +82,16 @@ void receiveConnections(char *port) {
 		if (counter <= 0) exit(1);
 
 		if (FD_ISSET(udpSocket, &rfds)) {
-			memset(buffer, 0, BUFFER_SIZE);
-			recvfrom(udpSocket, buffer, BUFFER_SIZE, 0,
-					(struct sockaddr *)&addr, &addrlen);
-			printf("%s\n", buffer);
+			handleUdp(udpSocket);
 		}
 
 		if (FD_ISSET(tcpSocket, &rfds)) {
-			memset(buffer, 0, BUFFER_SIZE);
-			newfd = accept(tcpSocket, (struct sockaddr *)&addr,
+			newfd = accept(tcpSocket,
+					(struct sockaddr *)&addr,
 					&addrlen);
 			if (newfd == -1) exit(1);
 
-			read(newfd, buffer, BUFFER_SIZE);
-			printf("%s\n", buffer);
+			handleTcp(newfd);
 		}
 	}
 }
@@ -123,4 +121,40 @@ int setupServerSocket(char *port, int socktype) {
 	}
 
 	return fd;
+}
+
+void handleTcp(int fd) {
+	int pid, ret;
+	char buffer[BUFFER_SIZE];
+
+	ret = fork();
+	if (ret != 0) {
+		if (ret == -1) {
+			exit(-1);
+		} else { // parent process
+			close(fd);
+			return;
+		}
+	}
+
+	pid = getpid();
+	printf("Forked. PID = %d\n", pid);
+	while (1) {
+		memset(buffer, 0, BUFFER_SIZE);
+		if (read(fd, buffer, BUFFER_SIZE) == 0) {
+			exit(0);
+		}
+		printf("[TCP][%d] %s\n", pid, buffer);
+	}
+}
+
+void handleUdp(int fd) {
+	char buffer[BUFFER_SIZE];
+	struct sockaddr_in addr;
+	socklen_t addrlen;
+
+	memset(buffer, 0, BUFFER_SIZE);
+	recvfrom(fd, buffer, BUFFER_SIZE, 0,
+			(struct sockaddr *)&addr, &addrlen);
+	printf("[UDP] %s\n", buffer);
 }
