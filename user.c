@@ -7,11 +7,12 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <arpa/inet.h>
+#include <errno.h>
 #include "util.h"
 
-#define INPUT_SIZE 64
+#define INPUT_SIZE 1024
 
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 1024
 #define DEFAULT_PORT "58036"
 
 extern char *optarg;
@@ -36,6 +37,7 @@ typedef struct addressInfoSet {
 } addressInfoSet;
 
 enum flags flags;
+
 
 void readLineArgs(int argc, char* argv[], service* newService){
     int n, opt;
@@ -111,72 +113,125 @@ void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
 
 // return list of inserted words (separated by ' ')
 void readCommand(char** bufPtr, int* bufSize) {
-  int i;
-  char c;
+int i;
+char c;
 
-  // read from stdin (char by char) reallocates if necessary
-  i = 0;
-  while((c = getchar()) != '\n' && c != '\0' && c != EOF) {
+// read from stdin (char by char) reallocates if necessary
+i = 0;
+while((c = getchar()) != '\n' && c != '\0' && c != EOF) {
     (*bufPtr)[i++] = c;
     if(i == *bufSize) {
-      *bufSize += INPUT_SIZE;
-      *bufPtr = (char*)realloc(*bufPtr, *bufSize * sizeof(char));
+    *bufSize += INPUT_SIZE;
+    *bufPtr = (char*)realloc(*bufPtr, *bufSize * sizeof(char));
     }
-  }
+}
 
-  // check if end of input
-  if(c == EOF && i == 0) {
+// check if end of input
+if(c == EOF && i == 0) {
     printf("End of Input. Exiting\n");
     exit(1);
-  }
+}
 
-  // terminate string
-  (*bufPtr)[i] = '\0';
+// terminate string
+(*bufPtr)[i] = '\0';
 }
 
 void processRegister(char** parsedInput) {
-  printf("Want to register\n");
+    printf("Want to register\n");
+}
+
+void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
+    int n;
+    char sendMsg[BUFFER_SIZE];
+    memset(sendMsg, 0, BUFFER_SIZE);
+
+    strcpy(sendMsg, "REG ");
+    strcat(sendMsg, parsedInput[1]);
+    strcat(sendMsg, "\n");
+
+    printf("%s:%ld\n", sendMsg, strlen(sendMsg));
+
+    n = sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr, 
+            newAddrInfoSet.res_UDP->ai_addrlen);
+
+   
+    if(n == -1){
+        printf("error message: %s\n", strerror(errno));
+        exit(1);
+    }
+
+}
+
+void receiveRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet,
+struct sockaddr_in receiveAddr, socklen_t receiveAddrlen, int* userID) {
+    int n;
+
+    char receivedMessage[BUFFER_SIZE];
+    char ** tokenedMessage;
+
+    memset(receivedMessage, 0, BUFFER_SIZE);
+
+    printf("Estou a espera\n");
+
+    n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr, 
+    &receiveAddrlen);
+
+    if(n == -1) exit(1);
+
+    tokenedMessage = tokenize(receivedMessage);
+    if(!strcmp(tokenedMessage[1], "OK\n") && *userID == 0) {
+        *userID = strtol(parsedInput[1], NULL, 0);
+        printf("userID: %d\n", *userID);
+        
+        printf("VALID ID CARALHOOOOOOOOOOO!\n");
+    } else if (!strcmp(tokenedMessage[1], "NOK\n")){
+        printf("error: invalid userID\n");
+        
+    } else if(*userID != 0){
+        printf("Cant register more than once\n");
+    }
+    
+
 }
 
 void processTopicList(char** parsedInput) {
-  printf("Want topic list\n");
+    printf("Want topic list\n");
 }
 
 void processTopicSelect(char** parsedInput, short argumentShort){
-  if(argumentShort) 
+if(argumentShort) 
     printf("Want topic number\n");
-  else
+else
     printf("Want topic\n");
 }
 
 void processTopicPropose(char** parsedInput) {
-  printf("Want to propose topic\n");
+    printf("Want to propose topic\n");
 }
 
 void processQuestionList(char** parsedInput) {
-  printf("Want question list\n");
+    printf("Want question list\n");
 }
 
 void processQuestionGet(char** parsedInput, short argumentShort) {
-  if(argumentShort) 
+if(argumentShort) 
     printf("Want question number\n");
-  else
+else
     printf("Want question\n");
 }
 
 void processQuestionSubmit(char** parsedInput) {
-  printf("Want to submit question\n");
+    printf("Want to submit question\n");
 }
 
 void processAnswerSubmit(char** parsedInput) {
-  printf("Want to submit answer\n");
+    printf("Want to submit answer\n");
 }
 
 
 int main(int argc, char* argv[]) {
 
     char hostname[BUFFER_SIZE];
-    char sendMsg[BUFFER_SIZE];
 
     int inpSize;
     char* input;
@@ -186,21 +241,26 @@ int main(int argc, char* argv[]) {
     service newService; 
     addressInfoSet newAddrInfoSet;
 
+    struct sockaddr_in receiveAddr;
+    socklen_t receiveAddrlen;
+
     int n;
     int fdTCP, fdUDP;
 
     ssize_t sentB, sendBLeft;
 
     char buffer[INET_ADDRSTRLEN];
-    struct in_addr *addr;
+
+    int userID = 0;
 
     readLineArgs(argc, argv, &newService);
     setAddrStruct(&newService, &newAddrInfoSet);
 
-    addr=&((struct sockaddr_in *) (newAddrInfoSet.res_UDP)->ai_addr)->sin_addr;
-    printf("cenas: %s\n", inet_ntop((newAddrInfoSet.res_UDP)->ai_family, addr, buffer, sizeof buffer));
-    addr=&((struct sockaddr_in *) (newAddrInfoSet.res_TCP)->ai_addr)->sin_addr;
-    printf("cenas: %s\n", inet_ntop((newAddrInfoSet.res_TCP)->ai_family, addr, buffer, sizeof buffer));
+
+    fdUDP = socket(newAddrInfoSet.res_UDP->ai_family, 
+            newAddrInfoSet.res_UDP->ai_socktype, newAddrInfoSet.res_UDP->ai_protocol);
+
+    if(fdUDP == -1) exit(1);
 
     inpSize = INPUT_SIZE;
     input = (char*)malloc(inpSize * sizeof(char));
@@ -209,15 +269,14 @@ int main(int argc, char* argv[]) {
       readCommand(&input, &inpSize);
       printf("read: |%s|\n", input);
       parsedInput = tokenize(input);
-      
-      /*int i = 0;
-      while(parsedInput[i] != NULL) {
-        printf("[%d] -> %s\n", i, parsedInput[i]);
-        i++;
-      }*/
+    
+
       if(parsedInput[0] != NULL) {
         if(!strcmp(parsedInput[0], "register") || !strcmp(parsedInput[0], "reg")) {
           processRegister(parsedInput);
+          sendRegister(fdUDP, parsedInput, newAddrInfoSet);
+          receiveRegister(fdUDP, parsedInput, newAddrInfoSet, receiveAddr, receiveAddrlen,
+          &userID);
         
         } else if(!strcmp(parsedInput[0], "topic_list") || 
         !strcmp(parsedInput[0], "tl")) {
@@ -257,7 +316,7 @@ int main(int argc, char* argv[]) {
         
         } else if(!strcmp(parsedInput[0], "exit")) {
           free(parsedInput);
-          break;
+          exit(0);
         
         } else {
           printf("command not valid. Please try again\n");
@@ -268,13 +327,10 @@ int main(int argc, char* argv[]) {
 
     free(input);
 
-    while(0) {
+    /*while(0) {
         fgets(sendMsg, BUFFER_SIZE, stdin);
         if(atoi(sendMsg) == 1) {
-            fdUDP = socket(newAddrInfoSet.res_UDP->ai_family, 
-            newAddrInfoSet.res_UDP->ai_socktype, newAddrInfoSet.res_UDP->ai_protocol);
-
-            if(fdUDP == -1) exit(1);
+            
 
             n = sendto(fdUDP, "TestUDP\n", 8, 0, newAddrInfoSet.res_UDP->ai_addr, 
             newAddrInfoSet.res_UDP->ai_addrlen);
@@ -308,6 +364,6 @@ int main(int argc, char* argv[]) {
             printf("Error\n");
             break;
         }
-    }
+    }*/
 
 }
