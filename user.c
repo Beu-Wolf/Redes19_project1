@@ -107,34 +107,8 @@ void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
         exit(1); 
     }
 
-   
-
 }
 
-// return list of inserted words (separated by ' ')
-void readCommand(char** bufPtr, int* bufSize) {
-int i;
-char c;
-
-// read from stdin (char by char) reallocates if necessary
-i = 0;
-while((c = getchar()) != '\n' && c != '\0' && c != EOF) {
-    (*bufPtr)[i++] = c;
-    if(i == *bufSize) {
-    *bufSize += INPUT_SIZE;
-    *bufPtr = (char*)realloc(*bufPtr, *bufSize * sizeof(char));
-    }
-}
-
-// check if end of input
-if(c == EOF && i == 0) {
-    printf("End of Input. Exiting\n");
-    exit(1);
-}
-
-// terminate string
-(*bufPtr)[i] = '\0';
-}
 
 void processRegister(char** parsedInput) {
     printf("Want to register\n");
@@ -229,6 +203,15 @@ void processAnswerSubmit(char** parsedInput) {
 }
 
 
+// TODO: Remove (debug function)
+void printArgs(char** buffer) {
+      int i = 0;
+      while(buffer[i] != NULL) {
+        printf("[%d] -> %s\n", i, buffer[i]);
+        i++;
+      }
+}
+
 int main(int argc, char* argv[]) {
 
     char hostname[BUFFER_SIZE];
@@ -269,8 +252,9 @@ int main(int argc, char* argv[]) {
       readCommand(&input, &inpSize);
       printf("read: |%s|\n", input);
       parsedInput = tokenize(input);
-    
 
+      // printArgs(parsedInput);
+      
       if(parsedInput[0] != NULL) {
         if(!strcmp(parsedInput[0], "register") || !strcmp(parsedInput[0], "reg")) {
           processRegister(parsedInput);
