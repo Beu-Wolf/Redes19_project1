@@ -161,7 +161,10 @@ void handleUdp(int fd, char* port) {
 
 	char** tokenizedMessage;
 	struct sockaddr_in addr;
-	socklen_t addrlen;
+	socklen_t addrlen = sizeof addr;
+
+    memset(&addr, 0, sizeof(addr));
+
 
     int n;
 
