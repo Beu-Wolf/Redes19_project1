@@ -4,12 +4,14 @@
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <netdb.h>
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <dirent.h>
 
 #include "util.h"
 
@@ -23,6 +25,7 @@ int setupServerSocket(char *port, int socktype);
 void handleTcp(int fd, char* port);
 void handleUdp(int fd, char*port);
 char* processRegister(char** tokenizedMessage);
+char* processTopicPropose(char** tokenizedMessage);
 
 int main(int argc, char *argv[]) {
 	char *port = DEFAULT_PORT;
@@ -182,7 +185,12 @@ void handleUdp(int fd, char* port) {
 
         printf("status: %s", messageToSend);    
 
-	}
+	} else if (!strcmp(tokenizedMessage[0], "PTP")) {
+        printf("Topic propose request sent by: %s at %s\n", 
+        inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr,
+		messageSender, INET_ADDRSTRLEN),  port);
+        messageToSend = processTopicPropose(tokenizedMessage);
+    }
 
     n = sendto(fd, messageToSend, strlen(messageToSend), 0, (struct sockaddr *)&addr, addrlen);
     if(n == -1) {
@@ -219,4 +227,62 @@ char* processRegister(char** tokenizedMessage) {
 
     return registerStatus;
 
+}
+
+char* processTopicPropose(char** tokenizedMessage) {
+    char* topicProposeStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
+    if (!topicProposeStatus) exit(1);
+
+    DIR* dirp = opendir(".");
+    struct dirent* dp;
+    int dircount = 0, n;
+
+    char newTopic[11];
+    char topicDatafile[16];
+
+    if(tokenizedMessage[1] == NULL || tokenizedMessage[2] == NULL) {
+        strcpy(topicProposeStatus, "ERR\n");
+        closedir(dirp);
+        return topicProposeStatus;
+    }
+    
+    while(dirp) {
+        if((dp = readdir(dirp)) != NULL) {
+            if(!strcmp(dp->d_name, tokenizedMessage[2])){
+                closedir(dirp);
+                strcpy(topicProposeStatus, "PTR DUP\n");
+                break;
+            } else {
+                dircount++;
+            }
+
+            if(dircount == 100) {
+                strcpy(topicProposeStatus, "PTR FUL\n");
+                closedir(dirp);
+                break;
+            }
+        } else {
+            strcpy(newTopic, tokenizedMessage[2]);
+            n = mkdir(newTopic, 0700);
+
+            if(n == -1) {
+                strcpy(topicProposeStatus, "PTR NOK\n");
+                closedir(dirp);
+                break;
+            }
+
+
+            sprintf(topicDatafile, "%s/%sdata", tokenizedMessage[2], tokenizedMessage[2]);
+
+            FILE *topicData = fopen(topicDatafile, "w");
+
+            fputs(tokenizedMessage[1], topicData);
+
+            fclose(topicData);
+
+            strcpy(topicProposeStatus, "PTR OK\n");
+            closedir(dirp);
+            return topicProposeStatus;
+        }
+    }
 }

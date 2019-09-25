@@ -119,9 +119,7 @@ void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) 
     char sendMsg[BUFFER_SIZE];
     memset(sendMsg, 0, BUFFER_SIZE);
 
-    strcpy(sendMsg, "REG ");
-    strcat(sendMsg, parsedInput[1]);
-    strcat(sendMsg, "\n");
+    sprintf(sendMsg, "REG %s\n", parsedInput[1]);
 
     printf("%s:%ld\n", sendMsg, strlen(sendMsg));
 
@@ -136,7 +134,7 @@ void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) 
 
 }
 
-void receiveRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet,
+void receiveRegister(int fdUDP, char** parsedInput,
 struct sockaddr_in receiveAddr, socklen_t receiveAddrlen, int* userID) {
     int n;
 
@@ -145,7 +143,6 @@ struct sockaddr_in receiveAddr, socklen_t receiveAddrlen, int* userID) {
 
     memset(receivedMessage, 0, BUFFER_SIZE);
 
-    printf("Estou a espera\n");
 
     n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr, 
     &receiveAddrlen);
@@ -157,7 +154,7 @@ struct sockaddr_in receiveAddr, socklen_t receiveAddrlen, int* userID) {
         *userID = strtol(parsedInput[1], NULL, 0);
         printf("userID: %d\n", *userID);
         
-        printf("VALID ID CARALHOOOOOOOOOOO!\n");
+        printf("userID registered\n");
     } else if (!strcmp(tokenedMessage[1], "NOK\n")){
         printf("error: invalid userID\n");
         
@@ -181,6 +178,56 @@ else
 
 void processTopicPropose(char** parsedInput) {
     printf("Want to propose topic\n");
+}
+
+void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet, 
+int userID) {
+    int n;
+    char sendMsg[BUFFER_SIZE];
+
+    sprintf(sendMsg, "PTP %d %s\n", userID, parsedInput[1]);
+
+    printf("%s:%ld\n", sendMsg, strlen(sendMsg));
+
+    n = sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr, 
+            newAddrInfoSet.res_UDP->ai_addrlen);
+
+   
+    if(n == -1){
+        printf("error message: %s\n", strerror(errno));
+        exit(1);
+    }
+
+}
+
+void receiveTopicPropose(int fdUDP, struct sockaddr_in receiveAddr, 
+socklen_t receiveAddrlen ) {
+
+    int n;
+
+    char receivedMessage[BUFFER_SIZE];
+    char ** tokenedMessage;
+
+    n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr, 
+    &receiveAddrlen);
+
+    if(n == -1) exit(1);
+
+    tokenedMessage = tokenize(receivedMessage);
+
+    if(!strcmp(tokenedMessage[0], "ERR\n")) {
+        printf("Error: Bad command\n");
+    }
+
+    if(!strcmp(tokenedMessage[1], "OK\n")) {
+        printf("Topic successfuly created!\n");
+    } else if(!strcmp(tokenedMessage[1], "DUP\n")) {
+        printf("Topic already exists\n");
+    } else if(!strcmp(tokenedMessage[1], "FUL\n")) {
+        printf("Topic list full\n");
+    } else if(!strcmp(tokenedMessage[1], "NOK\n")) {
+        printf("Error while creating topic\n");
+    }
 }
 
 void processQuestionList(char** parsedInput) {
@@ -259,7 +306,7 @@ int main(int argc, char* argv[]) {
         if(!strcmp(parsedInput[0], "register") || !strcmp(parsedInput[0], "reg")) {
           processRegister(parsedInput);
           sendRegister(fdUDP, parsedInput, newAddrInfoSet);
-          receiveRegister(fdUDP, parsedInput, newAddrInfoSet, receiveAddr, receiveAddrlen,
+          receiveRegister(fdUDP, parsedInput, receiveAddr, receiveAddrlen,
           &userID);
         
         } else if(!strcmp(parsedInput[0], "topic_list") || 
@@ -276,8 +323,14 @@ int main(int argc, char* argv[]) {
         
         } else if(!strcmp(parsedInput[0], "topic_propose") || 
         !strcmp(parsedInput[0], "tp")) {
-          processTopicPropose(parsedInput);
-        
+            if(userID == 0) {
+                printf("Can't send message without being registered\n");
+            } else {
+                processTopicPropose(parsedInput);
+                sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet, userID);
+                receiveTopicPropose(fdUDP, receiveAddr, receiveAddrlen);
+            }
+
         } else if(!strcmp(parsedInput[0], "question_list") || 
         !strcmp(parsedInput[0], "ql")) {
           processQuestionList(parsedInput);
