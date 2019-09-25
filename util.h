@@ -8,4 +8,6 @@ char **tokenize(char *string);
 int sendString(int sockfd, char* buffer);
 int recv_line(int sockfd, char** buffer, int* size);
 
+void stripnewLine(char* str);
+
 #endif

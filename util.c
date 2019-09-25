@@ -107,3 +107,14 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
   *ptr = '\0';
   return strlen(*buffer);
 }
+
+void stripnewLine(char* str) {
+	int i = 0;
+
+	while(str[i] != '\n' && str[i] != '\0'){
+		i++;
+	}
+	if(str[i] == '\n'){
+		str[i] = '\0';
+	}
+}
