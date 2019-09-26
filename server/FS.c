@@ -13,7 +13,7 @@
 #include <errno.h>
 #include <dirent.h>
 
-#include "util.h"
+#include "../lib/util.h"
 
 #define DEFAULT_PORT "58036"
 #define BUFFER_SIZE 1024

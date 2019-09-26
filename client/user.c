@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <errno.h>
-#include "util.h"
+#include "../lib/util.h"
 
 #define INPUT_SIZE 1024
 

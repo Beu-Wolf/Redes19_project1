@@ -1,7 +1,7 @@
 all: user FS
 
-user: user.c
-	gcc -g user.c util.c -o user
+user: client/*.c lib/*.c
+	gcc -g client/*.c lib/*.c -o user
 
-FS: FS.c
-	gcc -g FS.c util.c -o FS
+FS: server/*.c lib/*.c
+	gcc -g server/*.c lib/*.c -o FS
