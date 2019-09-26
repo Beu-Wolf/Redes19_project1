@@ -14,6 +14,7 @@
 #include <dirent.h>
 
 #include "../lib/util.h"
+#include "commands.h"
 
 #define DEFAULT_PORT "58036"
 #define BUFFER_SIZE 1024
@@ -24,9 +25,6 @@ void receiveConnections(char *port);
 int setupServerSocket(char *port, int socktype);
 void handleTcp(int fd, char* port);
 void handleUdp(int fd, char*port);
-char* processRegister(char** tokenizedMessage);
-char* processTopicPropose(char** tokenizedMessage);
-char* processTopicList(char** tokenizedMessage);
 
 int main(int argc, char *argv[]) {
 	char *port = DEFAULT_PORT;
@@ -201,7 +199,8 @@ void handleUdp(int fd, char* port) {
         printf("%s", messageToSend);
     }
 
-    n = sendto(fd, messageToSend, strlen(messageToSend), 0, (struct sockaddr *)&addr, addrlen);
+    n = sendto(fd, messageToSend, strlen(messageToSend), 0,
+		    (struct sockaddr *)&addr, addrlen);
     if(n == -1) {
         printf("error message: %s\n", strerror(errno));
         exit(1);
@@ -209,154 +208,5 @@ void handleUdp(int fd, char* port) {
 
     free(messageToSend);
 
-
-
 }
 
-char* processRegister(char** tokenizedMessage) {
-    char* registerStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
-    if (!registerStatus) fatal("Allocation error");
-
-    errno = 0;
-
-    if(tokenizedMessage[1] == NULL) {
-        strcpy(registerStatus, "ERR\n");
-        return registerStatus;
-    }
-
-    int number = strtol(tokenizedMessage[1], NULL, 0);
-    if(errno == EINVAL) {
-        strcpy(registerStatus, "ERR\n");
-        return registerStatus;
-    }
-    
-    if(number >= 10000 && number <= 99999) {
-        strcpy(registerStatus, "RGR OK\n");
-    } else {
-        strcpy(registerStatus, "RGR NOK\n");
-    }
-
-    return registerStatus;
-
-}
-
-char* processTopicPropose(char** tokenizedMessage) {
-    char* topicProposeStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
-    if (!topicProposeStatus) exit(1);
-
-    DIR* dirp = opendir("./topics");
-    struct dirent* dp;
-    int dircount = 0, n;
-
-    char newTopic[11];
-    char topicDatafile[16];
-
-    if(tokenizedMessage[1] == NULL || tokenizedMessage[2] == NULL) {
-        strcpy(topicProposeStatus, "ERR\n");
-        closedir(dirp);
-        return topicProposeStatus;
-    }
-
-    stripnewLine(tokenizedMessage[2]);
-    printf("%s", tokenizedMessage[2]);
-    
-    while(dirp) {
-        if((dp = readdir(dirp)) != NULL) {
-            if(!strcmp(dp->d_name, tokenizedMessage[2])){
-                closedir(dirp);
-                strcpy(topicProposeStatus, "PTR DUP\n");
-                break;
-            } else {
-                dircount++;
-            }
-
-            if(dircount == 50) {
-                strcpy(topicProposeStatus, "PTR FUL\n");
-                closedir(dirp);
-                break;
-            }
-        } else {
-            sprintf(newTopic, "./topics/%s", tokenizedMessage[2]);
-            n = mkdir(newTopic, 0700);
-
-            if(n == -1) {
-                strcpy(topicProposeStatus, "PTR NOK\n");
-                closedir(dirp);
-                break;
-            }
-
-
-            sprintf(topicDatafile, "topics/%s/%sdata", tokenizedMessage[2], tokenizedMessage[2]);
-
-            FILE *topicData = fopen(topicDatafile, "w");
-
-            fputs(tokenizedMessage[1], topicData);
-
-            fclose(topicData);
-
-            strcpy(topicProposeStatus, "PTR OK\n");
-            closedir(dirp);
-            return topicProposeStatus;
-        }
-    }
-}
-
-char* processTopicList(char** tokenizedMessage) {
-    char* topicListStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
-    if (!topicListStatus) exit(1);
-
-
-    char topicDatafile[BUFFER_SIZE];
-
-    char topicUserID[6];
-    char numDirs[4];
-
-    char topicNameAndUser[BUFFER_SIZE];
-
-    char topicsInfo[BUFFER_SIZE];
-
-    memset(topicsInfo, 0, BUFFER_SIZE);
-
-    DIR* dirp = opendir("./topics");
-    struct dirent* dp;
-    int dircount = 0, n;
-    int errno;
-
-    if(tokenizedMessage[0] == NULL) {
-        strcpy(topicListStatus, "ERR\n");
-        closedir(dirp);
-        return topicListStatus;
-    }
-
-    strncpy(topicListStatus, "LTR ", BUFFER_SIZE);
-
-    while(dirp) {
-        if((dp = readdir(dirp)) != NULL) {
-            if(strcmp(dp->d_name, ".") && strcmp(dp->d_name, "..") && dp->d_type == DT_DIR) {
-                dircount++;
-                sprintf(topicDatafile, "./topics/%s/%sdata", dp->d_name, dp->d_name);
-
-                FILE * topicData = fopen(topicDatafile, "r");
-                if (topicData == NULL) {
-                    printf("%d\n", errno);
-                    exit(1);
-                }
-
-                n = fread(topicUserID,  1, 5, topicData);
-                if(n == 0) exit(1);
-
-                sprintf(topicNameAndUser, " %s:%s", dp->d_name, topicUserID);
-                strcat(topicsInfo, topicNameAndUser);
-            }
-        } else {
-            sprintf(numDirs, "%d", dircount);
-            strcat(topicListStatus, numDirs);
-            strcat(topicListStatus, topicsInfo);
-            strcat(topicListStatus, "\n");
-
-            closedir(dirp);
-            return topicListStatus;
-        }
-    }
-
-}
