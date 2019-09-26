@@ -38,6 +38,17 @@ typedef struct addressInfoSet {
 
 enum flags flags;
 
+int userID;
+
+
+// TODO: Remove (debug function)
+void printArgs(char** buffer) {
+      int i = 0;
+      while(buffer[i] != NULL) {
+        printf("[%d] -> %s\n", i, buffer[i]);
+        i++;
+      }
+}
 
 void readLineArgs(int argc, char* argv[], service* newService){
     int n, opt;
@@ -135,7 +146,7 @@ void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) 
 }
 
 void receiveRegister(int fdUDP, char** parsedInput,
-struct sockaddr_in receiveAddr, socklen_t receiveAddrlen, int* userID) {
+struct sockaddr_in receiveAddr, socklen_t receiveAddrlen) {
     int n;
 
     char receivedMessage[BUFFER_SIZE];
@@ -152,16 +163,14 @@ struct sockaddr_in receiveAddr, socklen_t receiveAddrlen, int* userID) {
     tokenedMessage = tokenize(receivedMessage);
 
     stripnewLine(tokenedMessage[1]);
-    if(!strcmp(tokenedMessage[1], "OK") && *userID == 0) {
-        *userID = strtol(parsedInput[1], NULL, 0);
-        printf("userID: %d\n", *userID);
-        
-        printf("userID registered\n");
+    if(userID == 0 && !strcmp(tokenedMessage[1], "OK")) {
+        userID = strtol(parsedInput[1], NULL, 0);
+        printf("userID registered (id: %d)\n", userID);
     } else if (!strcmp(tokenedMessage[1], "NOK")){
         printf("error: invalid userID\n");
         
-    } else if(*userID != 0){
-        printf("Cant register more than once\n");
+    } else if(userID != 0){
+        printf("Can't register more than once\n");
     }
     
 
@@ -234,8 +243,7 @@ void processTopicPropose(char** parsedInput) {
     printf("Want to propose topic\n");
 }
 
-void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet, 
-int userID) {
+void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
     int n;
     char sendMsg[BUFFER_SIZE];
 
@@ -306,14 +314,7 @@ void processAnswerSubmit(char** parsedInput) {
 }
 
 
-// TODO: Remove (debug function)
-void printArgs(char** buffer) {
-      int i = 0;
-      while(buffer[i] != NULL) {
-        printf("[%d] -> %s\n", i, buffer[i]);
-        i++;
-      }
-}
+
 
 int main(int argc, char* argv[]) {
 
@@ -336,8 +337,6 @@ int main(int argc, char* argv[]) {
     ssize_t sentB, sendBLeft;
 
     char buffer[INET_ADDRSTRLEN];
-
-    int userID = 0;
 
     char* topicList[50] = {0};
 
@@ -364,8 +363,7 @@ int main(int argc, char* argv[]) {
         if(!strcmp(parsedInput[0], "register") || !strcmp(parsedInput[0], "reg")) {
           processRegister(parsedInput);
           sendRegister(fdUDP, parsedInput, newAddrInfoSet);
-          receiveRegister(fdUDP, parsedInput, receiveAddr, receiveAddrlen,
-          &userID);
+          receiveRegister(fdUDP, parsedInput, receiveAddr, receiveAddrlen);
         
         } else if(!strcmp(parsedInput[0], "topic_list") || 
         !strcmp(parsedInput[0], "tl")) {
@@ -392,7 +390,7 @@ int main(int argc, char* argv[]) {
                 printf("Can't send message without being registered\n");
             } else {
                 processTopicPropose(parsedInput);
-                sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet, userID);
+                sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
                 receiveTopicPropose(fdUDP, receiveAddr, receiveAddrlen);
             }
 
