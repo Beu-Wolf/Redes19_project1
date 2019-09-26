@@ -40,6 +40,8 @@ enum flags flags;
 
 int userID;
 
+char* selectedTopic;
+
 
 // TODO: Remove (debug function)
 void printArgs(char** buffer) {
@@ -232,11 +234,43 @@ socklen_t receiveAddrlen, char** topicList ) {
 
 }
 
-void processTopicSelect(char** parsedInput, short argumentShort){
-if(argumentShort) 
-    printf("Want topic number\n");
-else
-    printf("Want topic\n");
+void processTopicSelect(char** parsedInput, short argumentShort, char** topicList){
+
+    int wantedNumber;
+    errno = 0;
+    
+    stripnewLine(parsedInput[1]);
+
+    if(argumentShort) {
+        printf("Want topic number\n");
+        wantedNumber = strtol(parsedInput[1], NULL, 0);
+
+        if(errno != 0) {
+            printf("Invalid number\n");
+        }
+        
+        for(int i = 0 ; topicList[i] != 0; i++) {
+            if(i == wantedNumber){
+                selectedTopic = topicList[i];
+                printf("Topic selected: %s\n", selectedTopic);
+                return;
+            }
+        }
+
+        printf("Please select a number from the available topics\n");
+
+    } else {
+        printf("Want topic\n");
+
+        for(int i = 0; topicList[i] != 0; i++){
+            if(!strcmp(parsedInput[1], topicList[i])) {
+                selectedTopic = topicList[i];
+                printf("Topic selected: %s\n", selectedTopic);
+                return;
+            }
+        }
+        printf("Please select a valid topic name\n");
+    }
 }
 
 void processTopicPropose(char** parsedInput) {
@@ -378,11 +412,11 @@ int main(int argc, char* argv[]) {
         
         } else if(!strcmp(parsedInput[0], "topic_select")){
           argumentShort = 0;
-          processTopicSelect(parsedInput, argumentShort);
+          processTopicSelect(parsedInput, argumentShort, topicList);
         
         } else if(!strcmp(parsedInput[0], "ts")) {
           argumentShort = 1;
-          processTopicSelect(parsedInput, argumentShort);
+          processTopicSelect(parsedInput, argumentShort, topicList);
         
         } else if(!strcmp(parsedInput[0], "topic_propose") || 
         !strcmp(parsedInput[0], "tp")) {
