@@ -100,7 +100,7 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
     if(ptr - (*buffer) >= *size) { // resize buffer
       *buffer = (char*)realloc(*buffer, 2 * *size);
       if(!(*buffer))
-        fatal("Allocation error\n");
+        fatal("Allocation error");
       (*size) *= 2;
     }
   }

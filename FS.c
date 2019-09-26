@@ -207,13 +207,15 @@ void handleUdp(int fd, char* port) {
         exit(1);
     }
 
+    free(messageToSend);
+
 
 
 }
 
 char* processRegister(char** tokenizedMessage) {
     char* registerStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
-    if (!registerStatus) exit(1);
+    if (!registerStatus) fatal("Allocation error");
 
     errno = 0;
 

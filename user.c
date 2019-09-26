@@ -217,7 +217,7 @@ socklen_t receiveAddrlen, char** topicList ) {
             topicUserID = strtok(NULL, ":");
 
 
-            printf("[%d]->%s %s\n", i, topicName, topicUserID);
+            printf("%d - %s (proposed by %s)\n", i, topicName, topicUserID);
         }
     }
 
