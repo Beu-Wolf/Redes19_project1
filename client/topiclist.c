@@ -33,7 +33,7 @@ socklen_t receiveAddrlen, char** topicList ) {
 
     tokenizedMessage = tokenize(sendMsg);
 
-    int topicNumber = strtol(tokenizedMessage[1], NULL, 0);
+    long topicNumber = strtol(tokenizedMessage[1], NULL, 10);
     
     if(topicNumber == 0) {
         printf("No topics to show\n");
