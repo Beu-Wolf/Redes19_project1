@@ -161,7 +161,7 @@ void handleUdp(int fd, char* port) {
 
     char* messageToSend;
 
-    char** tokenizedMessage;
+    char** args;
     struct sockaddr_in addr;
     socklen_t addrlen = sizeof addr;
 
@@ -175,27 +175,27 @@ void handleUdp(int fd, char* port) {
             (struct sockaddr *)&addr, &addrlen);
     printf("[UDP] %s", buffer);
 
-    tokenizedMessage = tokenize(buffer);
+    args = tokenize(buffer);
 
-    if (!strcmp(tokenizedMessage[0], "REG")) {
+    if (!strcmp(args[0], "REG")) {
         printf("Register request sent by: %s at %s\n", inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr,
                     messageSender, INET_ADDRSTRLEN),  port);
-        messageToSend = processRegister(tokenizedMessage);
+        messageToSend = processRegister(args);
 
         printf("status: %s", messageToSend);
 
-    } else if (!strcmp(tokenizedMessage[0], "PTP")) {
+    } else if (!strcmp(args[0], "PTP")) {
         printf("Topic propose request sent by: %s at %s\n",
                 inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr,
                     messageSender, INET_ADDRSTRLEN),  port);
-        messageToSend = processTopicPropose(tokenizedMessage);
+        messageToSend = processTopicPropose(args);
 
-    } else if (!strcmp(tokenizedMessage[0], "LTP\n")) {
+    } else if (!strcmp(args[0], "LTP\n")) {
         printf("Topic list request sent by: %s at %s\n",
                 inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr,
                     messageSender, INET_ADDRSTRLEN),  port);
 
-        messageToSend = processTopicList(tokenizedMessage);
+        messageToSend = processTopicList(args);
         printf("%s", messageToSend);
     }
 

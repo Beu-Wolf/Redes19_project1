@@ -2,7 +2,7 @@
 
 #define DIRECTORY "./topics"
 
-char* processTopicList(char** tokenizedMessage) {
+char* processTopicList(char** args) {
     char* topicListStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
     if (!topicListStatus) exit(1);
 
@@ -23,7 +23,7 @@ char* processTopicList(char** tokenizedMessage) {
     int dircount = 0, n;
     int errno;
 
-    if(tokenizedMessage[0] == NULL) {
+    if(args[0] == NULL) {
         strcpy(topicListStatus, "ERR\n");
         closedir(dirp);
         return topicListStatus;

@@ -29,7 +29,7 @@ void receiveRegister(int fdUDP, char** parsedInput,
     int n;
 
     char receivedMessage[BUFFER_SIZE];
-    char ** tokenedMessage;
+    char ** args;
 
     memset(receivedMessage, 0, BUFFER_SIZE);
 
@@ -39,13 +39,13 @@ void receiveRegister(int fdUDP, char** parsedInput,
 
     if(n == -1) exit(1);
 
-    tokenedMessage = tokenize(receivedMessage);
+    args = tokenize(receivedMessage);
 
-    stripnewLine(tokenedMessage[1]);
-    if(userID == 0 && !strcmp(tokenedMessage[1], "OK")) {
+    stripnewLine(args[1]);
+    if(userID == 0 && !strcmp(args[1], "OK")) {
         userID = strtol(parsedInput[1], NULL, 0);
         printf("userID registered (id: %d)\n", userID);
-    } else if (!strcmp(tokenedMessage[1], "NOK")){
+    } else if (!strcmp(args[1], "NOK")){
         printf("error: invalid userID\n");
 
     } else if(userID != 0){

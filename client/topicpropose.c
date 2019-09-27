@@ -30,28 +30,28 @@ void receiveTopicPropose(int fdUDP, struct sockaddr_in receiveAddr,
     int n;
 
     char receivedMessage[BUFFER_SIZE];
-    char ** tokenedMessage;
+    char ** args;
 
     n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr,
             &receiveAddrlen);
 
     if(n == -1) exit(1);
 
-    tokenedMessage = tokenize(receivedMessage);
+    args = tokenize(receivedMessage);
 
-    stripnewLine(tokenedMessage[0]);
-    if(!strcmp(tokenedMessage[0], "ERR")) {
+    stripnewLine(args[0]);
+    if(!strcmp(args[0], "ERR")) {
         printf("Error: Bad command\n");
     }
 
-    stripnewLine(tokenedMessage[1]);
-    if(!strcmp(tokenedMessage[1], "OK")) {
+    stripnewLine(args[1]);
+    if(!strcmp(args[1], "OK")) {
         printf("Topic successfuly created!\n");
-    } else if(!strcmp(tokenedMessage[1], "DUP")) {
+    } else if(!strcmp(args[1], "DUP")) {
         printf("Topic already exists\n");
-    } else if(!strcmp(tokenedMessage[1], "FUL")) {
+    } else if(!strcmp(args[1], "FUL")) {
         printf("Topic list full\n");
-    } else if(!strcmp(tokenedMessage[1], "NOK")) {
+    } else if(!strcmp(args[1], "NOK")) {
         printf("Error while creating topic\n");
     }
 }

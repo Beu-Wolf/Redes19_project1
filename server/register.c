@@ -1,17 +1,17 @@
 #include "commands.h"
 
-char* processRegister(char** tokenizedMessage) {
+char* processRegister(char** args) {
     char* registerStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
     if (!registerStatus) fatal("Allocation error");
 
     errno = 0;
 
-    if(tokenizedMessage[1] == NULL) {
+    if(args[1] == NULL) {
         strcpy(registerStatus, "ERR\n");
         return registerStatus;
     }
 
-    int number = strtol(tokenizedMessage[1], NULL, 0);
+    int number = strtol(args[1], NULL, 0);
     if(errno == EINVAL) {
         strcpy(registerStatus, "ERR\n");
         return registerStatus;

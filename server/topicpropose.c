@@ -1,6 +1,6 @@
 #include "commands.h"
 
-char* processTopicPropose(char** tokenizedMessage) {
+char* processTopicPropose(char** args) {
     char* topicProposeStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
     if (!topicProposeStatus) exit(1);
 
@@ -11,18 +11,18 @@ char* processTopicPropose(char** tokenizedMessage) {
     char newTopic[11];
     char topicDatafile[16];
 
-    if(tokenizedMessage[1] == NULL || tokenizedMessage[2] == NULL) {
+    if(args[1] == NULL || args[2] == NULL) {
         strcpy(topicProposeStatus, "ERR\n");
         closedir(dirp);
         return topicProposeStatus;
     }
 
-    stripnewLine(tokenizedMessage[2]);
-    printf("%s", tokenizedMessage[2]);
+    stripnewLine(args[2]);
+    printf("%s", args[2]);
 
     while(dirp) {
         if((dp = readdir(dirp)) != NULL) {
-            if(!strcmp(dp->d_name, tokenizedMessage[2])){
+            if(!strcmp(dp->d_name, args[2])){
                 closedir(dirp);
                 strcpy(topicProposeStatus, "PTR DUP\n");
                 break;
@@ -36,7 +36,7 @@ char* processTopicPropose(char** tokenizedMessage) {
                 break;
             }
         } else {
-            sprintf(newTopic, "./topics/%s", tokenizedMessage[2]);
+            sprintf(newTopic, "./topics/%s", args[2]);
             n = mkdir(newTopic, 0700);
 
             if(n == -1) {
@@ -46,11 +46,11 @@ char* processTopicPropose(char** tokenizedMessage) {
             }
 
 
-            sprintf(topicDatafile, "topics/%s/%sdata", tokenizedMessage[2], tokenizedMessage[2]);
+            sprintf(topicDatafile, "topics/%s/%sdata", args[2], args[2]);
 
             FILE *topicData = fopen(topicDatafile, "w");
 
-            fputs(tokenizedMessage[1], topicData);
+            fputs(args[1], topicData);
 
             fclose(topicData);
 

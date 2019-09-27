@@ -23,8 +23,8 @@
 
 #define MAX(A,B) ((A)>= (B) ? (A):(B))
 
-char *processRegister(char **tokenizedMessage);
-char *processTopicPropose(char **tokenizedMessage);
-char *processTopicList(char **tokenizedMessage);
+char *processRegister(char **args);
+char *processTopicPropose(char **args);
+char *processTopicList(char **args);
 
 #endif

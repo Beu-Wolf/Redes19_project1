@@ -22,7 +22,7 @@ void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr,
         socklen_t receiveAddrlen, char** topicList ) {
     int n, i;
     char sendMsg[BUFFER_SIZE];
-    char** tokenizedMessage;
+    char** args;
     char* topicName;
     char* topicUserID;
 
@@ -31,9 +31,9 @@ void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr,
     if(n == -1) exit(1);
 
 
-    tokenizedMessage = tokenize(sendMsg);
+    args = tokenize(sendMsg);
 
-    long topicNumber = strtol(tokenizedMessage[1], NULL, 10);
+    long topicNumber = strtol(args[1], NULL, 10);
 
     if(topicNumber == 0) {
         printf("No topics to show\n");
@@ -41,10 +41,10 @@ void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr,
         for(i = 0; i < topicNumber; i++) {
 
             if(i == topicNumber - 1){
-                stripnewLine(tokenizedMessage[i+2]);
+                stripnewLine(args[i+2]);
             }
 
-            topicName = strtok(tokenizedMessage[i+2], ":");
+            topicName = strtok(args[i+2], ":");
             topicList[i] = topicName;
             topicUserID = strtok(NULL, ":");
 
