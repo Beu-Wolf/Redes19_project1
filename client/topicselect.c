@@ -4,7 +4,7 @@ void processTopicSelect(char** parsedInput, short argumentShort, char** topicLis
 
     int wantedNumber;
     errno = 0;
-    
+
     stripnewLine(parsedInput[1]);
 
     if(argumentShort) {
@@ -14,7 +14,7 @@ void processTopicSelect(char** parsedInput, short argumentShort, char** topicLis
         if(errno != 0) {
             printf("Invalid number\n");
         }
-        
+
         for(int i = 0 ; topicList[i] != 0; i++) {
             if(i == wantedNumber){
                 selectedTopic = topicList[i];

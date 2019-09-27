@@ -19,7 +19,7 @@ char* processTopicPropose(char** tokenizedMessage) {
 
     stripnewLine(tokenizedMessage[2]);
     printf("%s", tokenizedMessage[2]);
-    
+
     while(dirp) {
         if((dp = readdir(dirp)) != NULL) {
             if(!strcmp(dp->d_name, tokenizedMessage[2])){

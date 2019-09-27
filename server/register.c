@@ -16,7 +16,7 @@ char* processRegister(char** tokenizedMessage) {
         strcpy(registerStatus, "ERR\n");
         return registerStatus;
     }
-    
+
     if(number >= 10000 && number <= 99999) {
         strcpy(registerStatus, "RGR OK\n");
     } else {

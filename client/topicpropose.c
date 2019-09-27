@@ -13,10 +13,10 @@ void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoS
 
     printf("%s:%ld\n", sendMsg, strlen(sendMsg));
 
-    n = sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr, 
+    n = sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr,
             newAddrInfoSet.res_UDP->ai_addrlen);
 
-   
+
     if(n == -1){
         printf("error message: %s\n", strerror(errno));
         exit(1);
@@ -24,16 +24,16 @@ void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoS
 
 }
 
-void receiveTopicPropose(int fdUDP, struct sockaddr_in receiveAddr, 
-socklen_t receiveAddrlen ) {
+void receiveTopicPropose(int fdUDP, struct sockaddr_in receiveAddr,
+        socklen_t receiveAddrlen ) {
 
     int n;
 
     char receivedMessage[BUFFER_SIZE];
     char ** tokenedMessage;
 
-    n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr, 
-    &receiveAddrlen);
+    n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr,
+            &receiveAddrlen);
 
     if(n == -1) exit(1);
 

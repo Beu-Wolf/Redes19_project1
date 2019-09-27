@@ -32,28 +32,28 @@ char* processTopicList(char** tokenizedMessage) {
     strncpy(topicListStatus, "LTR ", BUFFER_SIZE);
 
     if (dirp == NULL) {
-	    strcat(topicListStatus, "0\n");
-	    mkdir(DIRECTORY, 0755);
-	    return topicListStatus;
+        strcat(topicListStatus, "0\n");
+        mkdir(DIRECTORY, 0755);
+        return topicListStatus;
     }
 
     while (dp = readdir(dirp)) {
-	    if(strcmp(dp->d_name, ".") && strcmp(dp->d_name, "..") && dp->d_type == DT_DIR) {
-		    dircount++;
-		    sprintf(topicDatafile, DIRECTORY"/%s/%sdata", dp->d_name, dp->d_name);
+        if(strcmp(dp->d_name, ".") && strcmp(dp->d_name, "..") && dp->d_type == DT_DIR) {
+            dircount++;
+            sprintf(topicDatafile, DIRECTORY"/%s/%sdata", dp->d_name, dp->d_name);
 
-		    FILE * topicData = fopen(topicDatafile, "r");
-		    if (topicData == NULL) {
-			    printf("%d\n", errno);
-			    exit(1);
-		    }
+            FILE * topicData = fopen(topicDatafile, "r");
+            if (topicData == NULL) {
+                printf("%d\n", errno);
+                exit(1);
+            }
 
-		    n = fread(topicUserID,  1, 5, topicData);
-		    if(n == 0) exit(1);
+            n = fread(topicUserID,  1, 5, topicData);
+            if(n == 0) exit(1);
 
-		    sprintf(topicNameAndUser, " %s:%s", dp->d_name, topicUserID);
-		    strcat(topicsInfo, topicNameAndUser);
-	    }
+            sprintf(topicNameAndUser, " %s:%s", dp->d_name, topicUserID);
+            strcat(topicsInfo, topicNameAndUser);
+        }
     }
 
     sprintf(numDirs, "%d", dircount);

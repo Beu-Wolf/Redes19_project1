@@ -14,11 +14,11 @@
 
 // TODO: Remove (debug function)
 void printArgs(char** buffer) {
-      int i = 0;
-      while(buffer[i] != NULL) {
+    int i = 0;
+    while(buffer[i] != NULL) {
         printf("[%d] -> %s\n", i, buffer[i]);
         i++;
-      }
+    }
 }
 
 void readLineArgs(int argc, char* argv[], service* newService){
@@ -28,20 +28,20 @@ void readLineArgs(int argc, char* argv[], service* newService){
 
     strcpy(newService->port, DEFAULT_PORT);
     flags = GET_BY_NAME;
-    
+
     while((opt = getopt(argc, argv, "n:p:")) != -1) {
         switch (opt) {
-        case 'n':
-            strcpy(newService->serverIP, optarg);
-            printf("%s\n", newService->serverIP);
-            flags = GET_BY_IP;
-            break;
-        case 'p':
-            strcpy(newService->port, optarg);
-            printf("%s\n", newService->port);
-            break;
-        default:
-            break;
+            case 'n':
+                strcpy(newService->serverIP, optarg);
+                printf("%s\n", newService->serverIP);
+                flags = GET_BY_IP;
+                break;
+            case 'p':
+                strcpy(newService->port, optarg);
+                printf("%s\n", newService->port);
+                break;
+            default:
+                break;
         }
     }
 
@@ -62,12 +62,12 @@ void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
         newAddrInfoSet->hints_TCP.ai_flags = AI_NUMERICHOST;
     }
 
-    n = getaddrinfo(newService->serverIP, newService->port, 
-    &(newAddrInfoSet->hints_TCP), &(newAddrInfoSet->res_TCP));
+    n = getaddrinfo(newService->serverIP, newService->port,
+            &(newAddrInfoSet->hints_TCP), &(newAddrInfoSet->res_TCP));
     if(n != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(n));
-        exit(1); 
-    } 
+        exit(1);
+    }
 
     memset(&(newAddrInfoSet->hints_UDP), 0, sizeof(newAddrInfoSet->hints_UDP));
     newAddrInfoSet->hints_UDP.ai_family = AF_INET;
@@ -81,12 +81,12 @@ void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
         newAddrInfoSet->hints_UDP.ai_flags = AI_NUMERICHOST;
     }
 
-     
-    n = getaddrinfo(newService->serverIP, newService->port, 
-    &(newAddrInfoSet->hints_UDP), &(newAddrInfoSet->res_UDP));
+
+    n = getaddrinfo(newService->serverIP, newService->port,
+            &(newAddrInfoSet->hints_UDP), &(newAddrInfoSet->res_UDP));
     if(n != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(n));
-        exit(1); 
+        exit(1);
     }
 
 }
@@ -97,10 +97,10 @@ void processQuestionList(char** parsedInput) {
 }
 
 void processQuestionGet(char** parsedInput, short argumentShort) {
-if(argumentShort) 
-    printf("Want question number\n");
-else
-    printf("Want question\n");
+    if(argumentShort)
+        printf("Want question number\n");
+    else
+        printf("Want question\n");
 }
 
 void processQuestionSubmit(char** parsedInput) {
@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
     char** parsedInput;
     short argumentShort;
 
-    service newService; 
+    service newService;
     addressInfoSet newAddrInfoSet;
 
     struct sockaddr_in receiveAddr;
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
     setAddrStruct(&newService, &newAddrInfoSet);
 
 
-    fdUDP = socket(newAddrInfoSet.res_UDP->ai_family, 
+    fdUDP = socket(newAddrInfoSet.res_UDP->ai_family,
             newAddrInfoSet.res_UDP->ai_socktype, newAddrInfoSet.res_UDP->ai_protocol);
 
     if(fdUDP == -1) exit(1);
@@ -151,117 +151,117 @@ int main(int argc, char* argv[]) {
     input = (char*)malloc(inpSize * sizeof(char));
     if(input == NULL) exit(1);
     while(1) {
-      readCommand(&input, &inpSize);
-      printf("read: |%s|\n", input);
-      parsedInput = tokenize(input);
+        readCommand(&input, &inpSize);
+        printf("read: |%s|\n", input);
+        parsedInput = tokenize(input);
 
-      // printArgs(parsedInput);
-      
-      if(parsedInput[0] != NULL) {
-        if(!strcmp(parsedInput[0], "register") || !strcmp(parsedInput[0], "reg")) {
-          processRegister(parsedInput);
-          sendRegister(fdUDP, parsedInput, newAddrInfoSet);
-          receiveRegister(fdUDP, parsedInput, receiveAddr, receiveAddrlen);
-        
-        } else if(!strcmp(parsedInput[0], "topic_list") || 
-        !strcmp(parsedInput[0], "tl")) {
-            if(userID == 0) {
-                printf("Can't send message without being registered\n");
+        // printArgs(parsedInput);
+
+        if(parsedInput[0] != NULL) {
+            if(!strcmp(parsedInput[0], "register") || !strcmp(parsedInput[0], "reg")) {
+                processRegister(parsedInput);
+                sendRegister(fdUDP, parsedInput, newAddrInfoSet);
+                receiveRegister(fdUDP, parsedInput, receiveAddr, receiveAddrlen);
+
+            } else if(!strcmp(parsedInput[0], "topic_list") ||
+                    !strcmp(parsedInput[0], "tl")) {
+                if(userID == 0) {
+                    printf("Can't send message without being registered\n");
+                } else {
+                    processTopicList(parsedInput);
+                    sendTopicList(fdUDP, newAddrInfoSet);
+                    receiveTopicList(fdUDP, receiveAddr, receiveAddrlen, topicList);
+
+                }
+
+            } else if(!strcmp(parsedInput[0], "topic_select")){
+                argumentShort = 0;
+                processTopicSelect(parsedInput, argumentShort, topicList);
+
+            } else if(!strcmp(parsedInput[0], "ts")) {
+                argumentShort = 1;
+                processTopicSelect(parsedInput, argumentShort, topicList);
+
+            } else if(!strcmp(parsedInput[0], "topic_propose") ||
+                    !strcmp(parsedInput[0], "tp")) {
+                if(userID == 0) {
+                    printf("Can't send message without being registered\n");
+                } else {
+                    processTopicPropose(parsedInput);
+                    sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
+                    receiveTopicPropose(fdUDP, receiveAddr, receiveAddrlen);
+                }
+
+            } else if(!strcmp(parsedInput[0], "question_list") ||
+                    !strcmp(parsedInput[0], "ql")) {
+                processQuestionList(parsedInput);
+
+            } else if(!strcmp(parsedInput[0], "question_get")){
+                argumentShort = 0;
+                processQuestionGet(parsedInput, argumentShort);
+
+            } else if(!strcmp(parsedInput[0], "qg")) {
+                argumentShort = 1;
+                processQuestionGet(parsedInput, argumentShort);
+
+            } else if(!strcmp(parsedInput[0], "question_submit") ||
+                    !strcmp(parsedInput[0], "qs")) {
+                processQuestionSubmit(parsedInput);
+
+            } else if(!strcmp(parsedInput[0], "answer_submit") ||
+                    !strcmp(parsedInput[0], "as")) {
+                processAnswerSubmit(parsedInput);
+
+            } else if(!strcmp(parsedInput[0], "exit")) {
+                free(parsedInput);
+                exit(0);
+
             } else {
-                processTopicList(parsedInput);
-                sendTopicList(fdUDP, newAddrInfoSet);
-                receiveTopicList(fdUDP, receiveAddr, receiveAddrlen, topicList);
-
+                printf("command not valid. Please try again\n");
             }
-        
-        } else if(!strcmp(parsedInput[0], "topic_select")){
-          argumentShort = 0;
-          processTopicSelect(parsedInput, argumentShort, topicList);
-        
-        } else if(!strcmp(parsedInput[0], "ts")) {
-          argumentShort = 1;
-          processTopicSelect(parsedInput, argumentShort, topicList);
-        
-        } else if(!strcmp(parsedInput[0], "topic_propose") || 
-        !strcmp(parsedInput[0], "tp")) {
-            if(userID == 0) {
-                printf("Can't send message without being registered\n");
-            } else {
-                processTopicPropose(parsedInput);
-                sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
-                receiveTopicPropose(fdUDP, receiveAddr, receiveAddrlen);
-            }
-
-        } else if(!strcmp(parsedInput[0], "question_list") || 
-        !strcmp(parsedInput[0], "ql")) {
-          processQuestionList(parsedInput);
-        
-        } else if(!strcmp(parsedInput[0], "question_get")){ 
-          argumentShort = 0;
-          processQuestionGet(parsedInput, argumentShort);
-        
-        } else if(!strcmp(parsedInput[0], "qg")) {
-          argumentShort = 1;
-          processQuestionGet(parsedInput, argumentShort);
-        
-        } else if(!strcmp(parsedInput[0], "question_submit") || 
-        !strcmp(parsedInput[0], "qs")) {
-          processQuestionSubmit(parsedInput);
-
-        } else if(!strcmp(parsedInput[0], "answer_submit") || 
-        !strcmp(parsedInput[0], "as")) {
-        processAnswerSubmit(parsedInput); 
-        
-        } else if(!strcmp(parsedInput[0], "exit")) {
-          free(parsedInput);
-          exit(0);
-        
-        } else {
-          printf("command not valid. Please try again\n");
         }
-      }
-      free(parsedInput);
+        free(parsedInput);
     }
 
     free(input);
 
     /*while(0) {
-        fgets(sendMsg, BUFFER_SIZE, stdin);
-        if(atoi(sendMsg) == 1) {
-            
-
-            n = sendto(fdUDP, "TestUDP\n", 8, 0, newAddrInfoSet.res_UDP->ai_addr, 
-            newAddrInfoSet.res_UDP->ai_addrlen);
-
-            close(fdUDP);
+      fgets(sendMsg, BUFFER_SIZE, stdin);
+      if(atoi(sendMsg) == 1) {
 
 
-        } else if(atoi(sendMsg) == 2){
-            fdTCP = socket(newAddrInfoSet.res_TCP->ai_family, 
-            newAddrInfoSet.res_TCP->ai_socktype, newAddrInfoSet.res_TCP->ai_protocol);
-            if(fdTCP == -1) exit(1);
+      n = sendto(fdUDP, "TestUDP\n", 8, 0, newAddrInfoSet.res_UDP->ai_addr,
+      newAddrInfoSet.res_UDP->ai_addrlen);
 
-            n = connect(fdTCP, newAddrInfoSet.res_TCP->ai_addr, 
-            newAddrInfoSet.res_TCP->ai_addrlen);
-            if(n == -1) exit(1);
-
-            strcpy(sendMsg, "Hello\n");
-            sendBLeft = 7;
-            while(sendBLeft > 0){
-                sentB = write(fdTCP, sendMsg, sendBLeft);
-                if(sentB <= 0) exit(1);
-
-                sendBLeft -= sentB;
-
-                close(fdTCP);
-            }
+      close(fdUDP);
 
 
+      } else if(atoi(sendMsg) == 2){
+      fdTCP = socket(newAddrInfoSet.res_TCP->ai_family,
+      newAddrInfoSet.res_TCP->ai_socktype, newAddrInfoSet.res_TCP->ai_protocol);
+      if(fdTCP == -1) exit(1);
 
-        } else {
-            printf("Error\n");
-            break;
-        }
-    }*/
+      n = connect(fdTCP, newAddrInfoSet.res_TCP->ai_addr,
+      newAddrInfoSet.res_TCP->ai_addrlen);
+      if(n == -1) exit(1);
+
+      strcpy(sendMsg, "Hello\n");
+      sendBLeft = 7;
+      while(sendBLeft > 0){
+      sentB = write(fdTCP, sendMsg, sendBLeft);
+      if(sentB <= 0) exit(1);
+
+      sendBLeft -= sentB;
+
+      close(fdTCP);
+      }
+
+
+
+      } else {
+      printf("Error\n");
+      break;
+      }
+      }*/
 
 }

@@ -8,7 +8,7 @@ void sendTopicList(int fdUDP, addressInfoSet newAddrInfoSet) {
     int n;
     char* sendMsg = "LTP\n";
 
-    n = sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr, 
+    n = sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr,
             newAddrInfoSet.res_UDP->ai_addrlen);
 
     if(n == -1){
@@ -18,8 +18,8 @@ void sendTopicList(int fdUDP, addressInfoSet newAddrInfoSet) {
 
 }
 
-void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr, 
-socklen_t receiveAddrlen, char** topicList ) {
+void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr,
+        socklen_t receiveAddrlen, char** topicList ) {
     int n, i;
     char sendMsg[BUFFER_SIZE];
     char** tokenizedMessage;
@@ -27,14 +27,14 @@ socklen_t receiveAddrlen, char** topicList ) {
     char* topicUserID;
 
     n = recvfrom(fdUDP, sendMsg, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr,
-     &receiveAddrlen);
+            &receiveAddrlen);
     if(n == -1) exit(1);
 
 
     tokenizedMessage = tokenize(sendMsg);
 
     long topicNumber = strtol(tokenizedMessage[1], NULL, 10);
-    
+
     if(topicNumber == 0) {
         printf("No topics to show\n");
     } else {
