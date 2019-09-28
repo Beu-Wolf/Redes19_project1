@@ -17,6 +17,7 @@ void readCommand(char** bufPtr, int* bufSize) {
     char c;
 
     // read from stdin (char by char) reallocates if necessary
+    printf("$ ");
     i = 0;
     while((c = getchar()) != '\n' && c != '\0' && c != EOF) {
         (*bufPtr)[i++] = c;
