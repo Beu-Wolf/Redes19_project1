@@ -117,7 +117,7 @@ void processAnswerSubmit(char** parsedInput) {
 int main(int argc, char* argv[]) {
 
     int inpSize;
-    char* input;
+    char* input, cmd;
     char** parsedInput;
 
     service newService;
@@ -133,7 +133,6 @@ int main(int argc, char* argv[]) {
     char buffer[INET_ADDRSTRLEN];
 
     char* topicList[50] = {0};
-    char* cmd;
 
     readLineArgs(argc, argv, &newService);
     setAddrStruct(&newService, &newAddrInfoSet);
