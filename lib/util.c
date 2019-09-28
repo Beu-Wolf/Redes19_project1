@@ -1,4 +1,5 @@
 #include "util.h"
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -16,8 +17,10 @@ void readCommand(char** bufPtr, int* bufSize) {
     int i;
     char c;
 
+    // prompt
+    write(1, "$ ", 2);
+
     // read from stdin (char by char) reallocates if necessary
-    printf("$ ");
     i = 0;
     while((c = getchar()) != '\n' && c != '\0' && c != EOF) {
         (*bufPtr)[i++] = c;
