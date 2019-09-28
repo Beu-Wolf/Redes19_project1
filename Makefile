@@ -7,4 +7,4 @@ FS: server/*.c lib/*.c
 	gcc -g server/*.c lib/*.c -o FS
 
 clean:
-	rm user FS
+	rm -f user FS
