@@ -1,13 +1,13 @@
 #include "clientcommands.h"
 
-void processTopicSelect(char** parsedInput, short argumentShort, char** topicList){
+void processTopicSelect(char** parsedInput, char** topicList){
 
     int wantedNumber;
     errno = 0;
 
     stripnewLine(parsedInput[1]);
 
-    if(argumentShort) {
+    if(strlen(parsedInput[0]) == 2) {
         printf("Want topic number\n");
         wantedNumber = strtol(parsedInput[1], NULL, 0);
 

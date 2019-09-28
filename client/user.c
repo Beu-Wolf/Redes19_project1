@@ -96,11 +96,11 @@ void processQuestionList(char** parsedInput) {
     printf("Want question list\n");
 }
 
-void processQuestionGet(char** parsedInput, short argumentShort) {
-    if(argumentShort)
-        printf("Want question number\n");
+void processQuestionGet(char** parsedInput) {
+    if(strlen(parsedInput[0]) == 2)
+        printf("Want question number");
     else
-        printf("Want question\n");
+        printf("Want question name");
 }
 
 void processQuestionSubmit(char** parsedInput) {
@@ -116,12 +116,9 @@ void processAnswerSubmit(char** parsedInput) {
 
 int main(int argc, char* argv[]) {
 
-    char hostname[BUFFER_SIZE];
-
     int inpSize;
     char* input;
     char** parsedInput;
-    short argumentShort;
 
     service newService;
     addressInfoSet newAddrInfoSet;
@@ -132,7 +129,6 @@ int main(int argc, char* argv[]) {
     int n;
     int fdTCP, fdUDP;
 
-    ssize_t sentB, sendBLeft;
 
     char buffer[INET_ADDRSTRLEN];
 
@@ -153,7 +149,7 @@ int main(int argc, char* argv[]) {
     if(input == NULL) exit(1);
     while(1) {
         readCommand(&input, &inpSize);
-        printf("read: |%s|\n", input);
+        // printf("read: |%s|\n", input);
         parsedInput = tokenize(input);
         cmd = parsedInput[0];
 
@@ -174,12 +170,8 @@ int main(int argc, char* argv[]) {
                 receiveTopicList(fdUDP, receiveAddr, receiveAddrlen, topicList);
             }
 
-        } else if(!strcmp(cmd, "ts")) {
-            argumentShort = 1;
-            processTopicSelect(parsedInput, argumentShort, topicList);
-        } else if(!strcmp(cmd, "topic_select")) {
-            argumentShort = 0;
-            processTopicSelect(parsedInput, argumentShort, topicList);
+        } else if(!strcmp(cmd, "ts") || !strcmp(cmd, "topic_select")) {
+            processTopicSelect(parsedInput, topicList);
 
         } else if(!strcmp(cmd, "tp") || !strcmp(cmd, "topic_propose")) {
             if(userID == 0) {
@@ -193,12 +185,8 @@ int main(int argc, char* argv[]) {
         } else if(!strcmp(cmd, "ql") || !strcmp(cmd, "question_list")) {
             processQuestionList(parsedInput);
 
-        } else if(!strcmp(cmd, "qg")) {
-            argumentShort = 1;
-            processQuestionGet(parsedInput, argumentShort);
-        } else if(!strcmp(cmd, "question_get")) {
-            argumentShort = 0;
-            processQuestionGet(parsedInput, argumentShort);
+        } else if(!strcmp(cmd, "qg") || !strcmp(cmd, "question_get")) {
+            processQuestionGet(parsedInput);
 
         } else if(!strcmp(cmd, "qs") || !strcmp(cmd, "question_submit")) {
             processQuestionSubmit(parsedInput);
@@ -211,7 +199,8 @@ int main(int argc, char* argv[]) {
 
         } else {
             printf("command not valid. Please try again\n");
-        } 
+        }
+    
         free(parsedInput);
     }
 

@@ -62,7 +62,7 @@ void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr,
 socklen_t receiveAddrlen, char** topicList );
 
 //Topic Select
-void processTopicSelect(char** parsedInput, short argumentShort, char** topicList);
+void processTopicSelect(char** parsedInput, char** topicList);
 
 //Topic Propose
 void processTopicPropose(char** parsedInput);
