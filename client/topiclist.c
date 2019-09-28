@@ -1,7 +1,21 @@
 #include "clientcommands.h"
 
-void processTopicList(char** parsedInput) {
-    printf("Want topic list\n");
+void processTopicList(int fdUDP, char** parsedInput,
+    addressInfoSet newAddrInfoSet,
+    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen, char** topicList) {
+
+    if(userID == 0) {
+      fprintf(stderr, NOT_REGISTERED_ERROR);
+      return;
+    }
+
+    if(arglen(parsedInput) != 1) {
+      fprintf(stderr, INVALID_TL_ARGS);
+      return;
+    }
+
+    sendTopicList(fdUDP, newAddrInfoSet);
+    receiveTopicList(fdUDP, receiveAddr, receiveAddrlen, topicList);
 }
 
 void sendTopicList(int fdUDP, addressInfoSet newAddrInfoSet) {
