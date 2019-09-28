@@ -3,7 +3,10 @@
 /*
  * Validate command and communicate with server
  */
-void processRegister(char** parsedInput) {
+void processRegister(int fdUDP, char** parsedInput,
+    addressInfoSet newAddrInfoSet,
+    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen) {
+
     printf("Want to register\n");
     int len = arglen(parsedInput);
     if(len != 2) {
@@ -15,6 +18,8 @@ void processRegister(char** parsedInput) {
         printf("This session is already registered\n");
         return;
     }
+    sendRegister(fdUDP, parsedInput, newAddrInfoSet);
+    receiveRegister(fdUDP, parsedInput, receiveAddr, receiveAddrlen);
 }
 
 void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {

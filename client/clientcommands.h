@@ -46,11 +46,14 @@ int userID;
 char* selectedTopic;
 
 //Register
-void processRegister(char** parsedInput);
-void sendRegister(int fdUDP, char** parsedInput, 
-addressInfoSet newAddrInfoSet);
+// void processRegister(char** parsedInput);
+void processRegister(int fdUDP, char** parsedInput,
+    addressInfoSet newAddrInfoSet,
+    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen);
+void sendRegister(int fdUDP, char** parsedInput,
+    addressInfoSet newAddrInfoSet);
 void receiveRegister(int fdUDP, char** parsedInput,
-struct sockaddr_in receiveAddr, socklen_t receiveAddrlen);
+    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen);
 
 //Topic List
 void processTopicList(char** parsedInput);
