@@ -7,11 +7,15 @@ void processRegister(char** parsedInput) {
 void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
     int n;
     char sendMsg[BUFFER_SIZE];
+
+    if(userID != 0) {
+        printf("This session is already registered\n");
+        return;
+    }
+
     memset(sendMsg, 0, BUFFER_SIZE);
-
     sprintf(sendMsg, "REG %s\n", parsedInput[1]);
-
-    printf("%s:%ld\n", sendMsg, strlen(sendMsg));
+    printf("sending %ld bytes: |%s|\n", strlen(sendMsg), sendMsg);
 
     n = sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr,
             newAddrInfoSet.res_UDP->ai_addrlen);
@@ -25,7 +29,7 @@ void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) 
 }
 
 void receiveRegister(int fdUDP, char** parsedInput,
-        struct sockaddr_in receiveAddr, socklen_t receiveAddrlen) {
+    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen) {
     int n;
 
     char receivedMessage[BUFFER_SIZE];
@@ -42,14 +46,11 @@ void receiveRegister(int fdUDP, char** parsedInput,
     args = tokenize(receivedMessage);
 
     stripnewLine(args[1]);
-    if(userID == 0 && !strcmp(args[1], "OK")) {
+    if(!strcmp(args[1], "OK")) {
         userID = strtol(parsedInput[1], NULL, 0);
         printf("userID registered (id: %d)\n", userID);
     } else if (!strcmp(args[1], "NOK")){
         printf("error: invalid userID\n");
-
-    } else if(userID != 0){
-        printf("Can't register more than once\n");
     }
 
 
