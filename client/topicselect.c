@@ -5,6 +5,15 @@ void processTopicSelect(char** parsedInput, char** topicList){
     int wantedNumber;
     errno = 0;
 
+    if(userID == 0) {
+      fprintf(stderr, NOT_REGISTERED_ERROR);
+      return;
+    }
+    if(arglen(parsedInput) > 2) {
+      fprintf(stderr, INVALID_TS_ARGS);
+      return;
+    }
+
     stripnewLine(parsedInput[1]);
 
     if(strlen(parsedInput[0]) == 2) {
