@@ -117,7 +117,7 @@ void processAnswerSubmit(char** parsedInput) {
 int main(int argc, char* argv[]) {
 
     int inpSize;
-    char* input, cmd;
+    char* input, *cmd;
     char** parsedInput;
 
     service newService;
