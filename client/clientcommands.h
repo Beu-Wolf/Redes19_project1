@@ -18,6 +18,7 @@
 #define BUFFER_SIZE 1024
 #define DEFAULT_PORT "58036"
 
+
 extern char *optarg;
 
 enum flags {
@@ -56,10 +57,12 @@ void receiveRegister(int fdUDP, char** parsedInput,
     struct sockaddr_in receiveAddr, socklen_t receiveAddrlen);
 
 //Topic List
-void processTopicList(char** parsedInput);
+void processTopicList(int fdUDP, char** parsedInput,
+    addressInfoSet newAddrInfoSet,
+    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen, char** topicList);
 void sendTopicList(int fdUDP, addressInfoSet newAddrInfoSet);
 void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr, 
-socklen_t receiveAddrlen, char** topicList );
+    socklen_t receiveAddrlen, char** topicList );
 
 //Topic Select
 void processTopicSelect(char** parsedInput, char** topicList);
