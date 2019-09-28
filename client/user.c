@@ -137,6 +137,7 @@ int main(int argc, char* argv[]) {
     char buffer[INET_ADDRSTRLEN];
 
     char* topicList[50] = {0};
+    char* cmd;
 
     readLineArgs(argc, argv, &newService);
     setAddrStruct(&newService, &newAddrInfoSet);
@@ -154,76 +155,70 @@ int main(int argc, char* argv[]) {
         readCommand(&input, &inpSize);
         printf("read: |%s|\n", input);
         parsedInput = tokenize(input);
+        cmd = parsedInput[0];
 
         // printArgs(parsedInput);
 
-        if(parsedInput[0] != NULL) {
-            if(!strcmp(parsedInput[0], "register") || !strcmp(parsedInput[0], "reg")) {
-                processRegister(parsedInput);
-                sendRegister(fdUDP, parsedInput, newAddrInfoSet);
-                receiveRegister(fdUDP, parsedInput, receiveAddr, receiveAddrlen);
+        if(parsedInput[0] == NULL)
+          continue;
 
-            } else if(!strcmp(parsedInput[0], "topic_list") ||
-                    !strcmp(parsedInput[0], "tl")) {
-                if(userID == 0) {
-                    printf("Can't send message without being registered\n");
-                } else {
-                    processTopicList(parsedInput);
-                    sendTopicList(fdUDP, newAddrInfoSet);
-                    receiveTopicList(fdUDP, receiveAddr, receiveAddrlen, topicList);
-
-                }
-
-            } else if(!strcmp(parsedInput[0], "topic_select")){
-                argumentShort = 0;
-                processTopicSelect(parsedInput, argumentShort, topicList);
-
-            } else if(!strcmp(parsedInput[0], "ts")) {
-                argumentShort = 1;
-                processTopicSelect(parsedInput, argumentShort, topicList);
-
-            } else if(!strcmp(parsedInput[0], "topic_propose") ||
-                    !strcmp(parsedInput[0], "tp")) {
-                if(userID == 0) {
-                    printf("Can't send message without being registered\n");
-                } else {
-                    processTopicPropose(parsedInput);
-                    sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
-                    receiveTopicPropose(fdUDP, receiveAddr, receiveAddrlen);
-                }
-
-            } else if(!strcmp(parsedInput[0], "question_list") ||
-                    !strcmp(parsedInput[0], "ql")) {
-                processQuestionList(parsedInput);
-
-            } else if(!strcmp(parsedInput[0], "question_get")){
-                argumentShort = 0;
-                processQuestionGet(parsedInput, argumentShort);
-
-            } else if(!strcmp(parsedInput[0], "qg")) {
-                argumentShort = 1;
-                processQuestionGet(parsedInput, argumentShort);
-
-            } else if(!strcmp(parsedInput[0], "question_submit") ||
-                    !strcmp(parsedInput[0], "qs")) {
-                processQuestionSubmit(parsedInput);
-
-            } else if(!strcmp(parsedInput[0], "answer_submit") ||
-                    !strcmp(parsedInput[0], "as")) {
-                processAnswerSubmit(parsedInput);
-
-            } else if(!strcmp(parsedInput[0], "exit")) {
-                free(parsedInput);
-                exit(0);
-
+        if(!strcmp(cmd, "reg") || !strcmp(cmd, "register")) {
+            processRegister(fdUDP, parsedInput, newAddrInfoSet, receiveAddr, receiveAddrlen);
+            // sendRegister(fdUDP, parsedInput, newAddrInfoSet);
+            // receiveRegister(fdUDP, parsedInput, receiveAddr, receiveAddrlen)
+        } else if(!strcmp(cmd, "tl") || !strcmp(cmd, "topic_list")) {
+            if(userID == 0) {
+                printf("Can't send message without being registered\n");
             } else {
-                printf("command not valid. Please try again\n");
+                processTopicList(parsedInput);
+                sendTopicList(fdUDP, newAddrInfoSet);
+                receiveTopicList(fdUDP, receiveAddr, receiveAddrlen, topicList)
             }
+        } else if(!strcmp(cmd, "ts")) {
+            argumentShort = 1;
+            processTopicSelect(parsedInput, argumentShort, topicList)
+        } else if(!strcmp(cmd, "topic_select")) {
+            argumentShort = 0;
+            processTopicSelect(parsedInput, argumentShort, topicList);
+
+        } else if(!strcmp(cmd, "tp") || !strcmp(cmd, "topic_propose")) {
+            if(userID == 0) {
+                printf("Can't send message without being registered\n");
+            } else {
+                processTopicPropose(parsedInput);
+                sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
+                receiveTopicPropose(fdUDP, receiveAddr, receiveAddrlen);
+            }
+
+        } else if(!strcmp(cmd, "ql") || !strcmp(cmd, "question_list")) {
+            processQuestionList(parsedInput);
+
+        } else if(!strcmp(cmd, "qg")){
+            argumentShort = 1;
+            processQuestionGet(parsedInput, argumentShort);
+
+        } else if(!strcmp(cmd, "question_get")) {
+            argumentShort = 0;
+            processQuestionGet(parsedInput, argumentShort);
+
+        } else if(!strcmp(cmd, "qs") || !strcmp(cmd, "question_submit")) {
+            processQuestionSubmit(parsedInput);
+
+        } else if(!strcmp(cmd, "as") || !strcmp(cmd, "answer_submit")) {
+            processAnswerSubmit(parsedInput);
+
+        } else if(!strcmp(cmd, "exit")) {
+          break;
+
+        } else {
+            printf("command not valid. Please try again\n");
         }
+    }
         free(parsedInput);
     }
 
     free(input);
+    return 0;
 
     /*while(0) {
       fgets(sendMsg, BUFFER_SIZE, stdin);
