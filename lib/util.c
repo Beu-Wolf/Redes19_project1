@@ -58,6 +58,13 @@ char **tokenize(char *string) {
     return args;
 }
 
+int arglen(char **args) {
+    int count = 0;
+    while (*(args++) != NULL) count++;
+
+    return count;
+}
+
 /* Accepts socket FD and a \0 terminated string.
  * The function makes sure every byte is sent.
  * Returns 1 on success, 0 on failure
