@@ -157,19 +157,13 @@ int main(int argc, char* argv[]) {
         if(parsedInput[0] == NULL)
           continue;
 
-        if(!strcmp(cmd, "reg") || !strcmp(cmd, "register")) {
+        if(!strcmp(cmd, "reg") || !strcmp(cmd, "register"))
             processRegister(fdUDP, parsedInput, newAddrInfoSet, receiveAddr, receiveAddrlen);
 
-        } else if(!strcmp(cmd, "tl") || !strcmp(cmd, "topic_list")) {
-            if(userID == 0) {
-                printf("Can't send message without being registered\n");
-            } else {
-                processTopicList(parsedInput);
-                sendTopicList(fdUDP, newAddrInfoSet);
-                receiveTopicList(fdUDP, receiveAddr, receiveAddrlen, topicList);
-            }
+        else if(!strcmp(cmd, "tl") || !strcmp(cmd, "topic_list"))
+            processTopicList(fdUDP, parsedInput, newAddrInfoSet, receiveAddr, receiveAddrlen, topicList);
 
-        } else if(!strcmp(cmd, "ts") || !strcmp(cmd, "topic_select")) {
+        else if(!strcmp(cmd, "ts") || !strcmp(cmd, "topic_select")) {
             processTopicSelect(parsedInput, topicList);
 
         } else if(!strcmp(cmd, "tp") || !strcmp(cmd, "topic_propose")) {
