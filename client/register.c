@@ -7,10 +7,9 @@ void processRegister(int fdUDP, char** parsedInput,
     addressInfoSet newAddrInfoSet,
     struct sockaddr_in receiveAddr, socklen_t receiveAddrlen) {
 
-    printf("Want to register\n");
     int len = arglen(parsedInput);
     if(len != 2) {
-      printf("Invalid command.\nUsage: register/reg <userID>\n");
+      printf(INVALID_RG_ARGS);
       return;
     }
 
