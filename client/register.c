@@ -1,17 +1,26 @@
 #include "clientcommands.h"
 
+/*
+ * Validate command and communicate with server
+ */
 void processRegister(char** parsedInput) {
     printf("Want to register\n");
+    int len = arglen(parsedInput);
+    if(len != 2) {
+      printf("Invalid command.\nUsage: register/reg <userID>\n");
+      return;
+    }
+
+    if(userID != 0) {
+        printf("This session is already registered\n");
+        return;
+    }
 }
 
 void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
     int n;
     char sendMsg[BUFFER_SIZE];
 
-    if(userID != 0) {
-        printf("This session is already registered\n");
-        return;
-    }
 
     memset(sendMsg, 0, BUFFER_SIZE);
     sprintf(sendMsg, "REG %s\n", parsedInput[1]);
@@ -21,11 +30,7 @@ void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) 
             newAddrInfoSet.res_UDP->ai_addrlen);
 
 
-    if(n == -1){
-        printf("error message: %s\n", strerror(errno));
-        exit(1);
-    }
-
+    if(n == -1) fatal(strerror(errno));
 }
 
 void receiveRegister(int fdUDP, char** parsedInput,
@@ -33,7 +38,7 @@ void receiveRegister(int fdUDP, char** parsedInput,
     int n;
 
     char receivedMessage[BUFFER_SIZE];
-    char ** args;
+    char** args;
 
     memset(receivedMessage, 0, BUFFER_SIZE);
 
@@ -52,6 +57,4 @@ void receiveRegister(int fdUDP, char** parsedInput,
     } else if (!strcmp(args[1], "NOK")){
         printf("error: invalid userID\n");
     }
-
-
 }
