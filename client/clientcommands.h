@@ -79,7 +79,8 @@ socklen_t receiveAddrlen );
 
 //Question Submit
 void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
-void sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet,
+void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInfoSet,
  int hasImage);
+void receiveQuestionSubmit(int fdUDP);
 
 #endif

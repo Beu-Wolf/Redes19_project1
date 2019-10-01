@@ -46,7 +46,7 @@ char* processTopicPropose(char** args) {
             }
 
 
-            sprintf(topicDatafile, TOPICSDIR"/%s/data", args[2]);
+            sprintf(topicDatafile, TOPICSDIR"/%s/"DATAFILE, args[2]);
 
             FILE *topicData = fopen(topicDatafile, "w");
 

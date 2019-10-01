@@ -59,7 +59,7 @@ void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr,
             }
 
             topicName = strtok(args[i+2], ":");
-            topicList[i] = topicName;
+            topicList[i] = strdup(topicName);
             topicUserID = strtok(NULL, ":");
 
 
