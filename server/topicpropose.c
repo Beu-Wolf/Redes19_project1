@@ -4,7 +4,7 @@ char* processTopicPropose(char** args) {
     char* topicProposeStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
     if (!topicProposeStatus) exit(1);
 
-    DIR* dirp = opendir("./topics");
+    DIR* dirp = opendir(TOPICSDIR);
     struct dirent* dp;
     int dircount = 0, n;
 
@@ -36,7 +36,7 @@ char* processTopicPropose(char** args) {
                 break;
             }
         } else {
-            sprintf(newTopic, "./topics/%s", args[2]);
+            sprintf(newTopic, TOPICSDIR"/%s", args[2]);
             n = mkdir(newTopic, 0700);
 
             if(n == -1) {
@@ -46,7 +46,7 @@ char* processTopicPropose(char** args) {
             }
 
 
-            sprintf(topicDatafile, "topics/%s/%sdata", args[2], args[2]);
+            sprintf(topicDatafile, TOPICSDIR"/%s/data", args[2]);
 
             FILE *topicData = fopen(topicDatafile, "w");
 
