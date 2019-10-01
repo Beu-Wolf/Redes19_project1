@@ -1,8 +1,20 @@
 #include "clientcommands.h"
 
 
-void processTopicPropose(char** parsedInput) {
-    printf("Want to propose topic\n");
+void processTopicPropose(int fdUDP, char** parsedInput,
+    addressInfoSet newAddrInfoSet,
+    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen) {
+
+    if(!isRegistered()) {
+      fprintf(stderr, NOT_REGISTERED_ERROR);
+      return;
+    }
+    if(arglen(parsedInput) != 2) {
+      fprintf(stderr, INVALID_TP_ARGS);
+      return;
+    }
+    sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
+    receiveTopicPropose(fdUDP, receiveAddr, receiveAddrlen);
 }
 
 void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
@@ -11,14 +23,14 @@ void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoS
 
     sprintf(sendMsg, "PTP %d %s\n", userID, parsedInput[1]);
 
-    printf("%s:%ld\n", sendMsg, strlen(sendMsg));
+    printf("Sending %d bytes: |%s|\n",  strlen(sendMsg), sendMsg);
 
     n = sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr,
             newAddrInfoSet.res_UDP->ai_addrlen);
 
 
     if(n == -1){
-        printf("error message: %s\n", strerror(errno));
+        fatal(strerror(errno));
         exit(1);
     }
 

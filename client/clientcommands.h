@@ -45,11 +45,11 @@ enum flags flags;
 int userID;
 
 char* selectedTopic;
-
 char* selectedQuestion;
 
+char isRegistered();
+
 //Register
-// void processRegister(char** parsedInput);
 void processRegister(int fdUDP, char** parsedInput,
     addressInfoSet newAddrInfoSet,
     struct sockaddr_in receiveAddr, socklen_t receiveAddrlen);
@@ -70,7 +70,9 @@ void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr,
 void processTopicSelect(char** parsedInput, char** topicList);
 
 //Topic Propose
-void processTopicPropose(char** parsedInput);
+void processTopicPropose(int fdUDP, char** parsedInput,
+    addressInfoSet newAddrInfoSet,
+    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen);
 void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet);
 void receiveTopicPropose(int fdUDP, struct sockaddr_in receiveAddr, 
 socklen_t receiveAddrlen );

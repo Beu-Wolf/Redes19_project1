@@ -91,6 +91,10 @@ void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
 
 }
 
+char isRegistered() {
+  return userID != 0;
+}
+
 
 void processQuestionList(char** parsedInput) {
     printf("Want question list\n");
@@ -164,13 +168,7 @@ int main(int argc, char* argv[]) {
             processTopicSelect(parsedInput, topicList);
 
         } else if(!strcmp(cmd, "tp") || !strcmp(cmd, "topic_propose")) {
-            if(userID == 0) {
-                printf("Can't send message without being registered\n");
-            } else {
-                processTopicPropose(parsedInput);
-                sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
-                receiveTopicPropose(fdUDP, receiveAddr, receiveAddrlen);
-            }
+            processTopicPropose(fdUDP, parsedInput, newAddrInfoSet, receiveAddr, receiveAddrlen);
 
         } else if(!strcmp(cmd, "ql") || !strcmp(cmd, "question_list")) {
             processQuestionList(parsedInput);
