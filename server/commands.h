@@ -28,6 +28,5 @@
 char *processRegister(char **args);
 char *processTopicPropose(char **args);
 char *processTopicList(char **args);
-char *processQuestionList(char **args);
 
 #endif
