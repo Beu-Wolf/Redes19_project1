@@ -12,6 +12,8 @@ void readCommand(char** bufPtr, int* bufSize);
 char **tokenize(char *string);
 int arglen(char **args);
 
+char isPositiveNumber(char* str);
+
 int sendString(int sockfd, char* buffer);
 int recv_line(int sockfd, char** buffer, int* size);
 
