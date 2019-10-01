@@ -9,7 +9,7 @@ void processRegister(int fdUDP, char** parsedInput,
 
     int len = arglen(parsedInput);
     if(len != 2) {
-      printf(INVALID_RG_ARGS);
+      fprintf(stderr, INVALID_RG_ARGS);
       return;
     }
 
