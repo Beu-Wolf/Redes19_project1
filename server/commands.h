@@ -21,11 +21,13 @@
 #define DEFAULT_PORT "58036"
 #define BUFFER_SIZE 1024
 #define TOPICSDIR "./topics"
+#define DATAFILE  ".data"
 
 #define MAX(A,B) ((A)>= (B) ? (A):(B))
 
 char *processRegister(char **args);
 char *processTopicPropose(char **args);
 char *processTopicList(char **args);
+char *processQuestionList(char **args);
 
 #endif
