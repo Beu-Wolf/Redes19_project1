@@ -1,7 +1,5 @@
 #include "commands.h"
 
-#define DIRECTORY "./topics"
-
 char* processTopicList(char** args) {
     char* topicListStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
     if (!topicListStatus) exit(1);
@@ -18,7 +16,7 @@ char* processTopicList(char** args) {
 
     memset(topicsInfo, 0, BUFFER_SIZE);
 
-    DIR* dirp = opendir(DIRECTORY);
+    DIR* dirp = opendir(TOPICSDIR);
     struct dirent* dp;
     int dircount = 0, n;
     int errno;
@@ -33,14 +31,14 @@ char* processTopicList(char** args) {
 
     if (dirp == NULL) {
         strcat(topicListStatus, "0\n");
-        mkdir(DIRECTORY, 0755);
+        mkdir(TOPICSDIR, 0755);
         return topicListStatus;
     }
 
     while (dp = readdir(dirp)) {
         if(strcmp(dp->d_name, ".") && strcmp(dp->d_name, "..") && dp->d_type == DT_DIR) {
             dircount++;
-            sprintf(topicDatafile, DIRECTORY"/%s/%sdata", dp->d_name, dp->d_name);
+            sprintf(topicDatafile, TOPICSDIR"/%s/%sdata", dp->d_name, dp->d_name);
 
             FILE * topicData = fopen(topicDatafile, "r");
             if (topicData == NULL) {

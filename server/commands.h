@@ -20,6 +20,7 @@
 
 #define DEFAULT_PORT "58036"
 #define BUFFER_SIZE 1024
+#define TOPICSDIR "./topics"
 
 #define MAX(A,B) ((A)>= (B) ? (A):(B))
 
