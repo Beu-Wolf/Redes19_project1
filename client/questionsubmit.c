@@ -4,6 +4,7 @@ void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
 
     int hasImage = 0;
     int len =  arglen(parsedInput);
+    int fdTCP;
     
 
     if(len < 3 || len > 4){
@@ -17,11 +18,12 @@ void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
         printf("Can't submit question without selecting a topic\n");
     } 
 
-    sendQuestionSubmit(parsedInput, newAddrInfoSet, hasImage);
+    sendQuestionSubmit(fdTCP, parsedInput, newAddrInfoSet, hasImage);
+    receiveQuestionSubmit(fdTCP);
 
 }
 
-void sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet,
+void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInfoSet,
  int hasImage){
 
     char* questionFile, *imageFile;
@@ -106,7 +108,7 @@ void sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet,
         printf("%s", buffer);
     }
 
-    int fdTCP = socket(newAddrInfoSet.res_TCP->ai_family,
+    fdTCP = socket(newAddrInfoSet.res_TCP->ai_family,
       newAddrInfoSet.res_TCP->ai_socktype, newAddrInfoSet.res_TCP->ai_protocol);
       if(fdTCP == -1) exit(1);
 
@@ -128,5 +130,15 @@ void sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet,
     fclose(questionFilePointer);
 
 
+
+}
+
+void receiveQuestionSubmit(int fdTCP) {
+    char** buffer;
+    int size = BUFFER_SIZE;
+    recvTCPline(fdTCP, buffer,&size);
+
+    printf("%s", *buffer);
+    close(fdTCP);
 
 }

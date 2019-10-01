@@ -132,7 +132,8 @@ int setupServerSocket(char *port, int socktype) {
 
 void handleTcp(int fd, char* port) {
     int pid, ret;
-    char buffer[BUFFER_SIZE];
+    char** buffer;
+    int size = BUFFER_SIZE;
 
     ret = fork();
     if (ret != 0) {
@@ -148,10 +149,12 @@ void handleTcp(int fd, char* port) {
     printf("Forked. PID = %d\n", pid);
     while (1) {
         memset(buffer, 0, BUFFER_SIZE);
-        if (read(fd, buffer, BUFFER_SIZE) == 0) {
-            exit(0);
-        }
-        printf("[TCP][%d] %s\n", pid, buffer);
+        recvTCPline(fd, buffer, &size);
+
+        
+
+
+        printf("[TCP][%d] %s\n", pid, *buffer);
     }
 }
 
