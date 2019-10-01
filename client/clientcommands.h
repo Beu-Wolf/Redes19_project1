@@ -46,6 +46,8 @@ int userID;
 
 char* selectedTopic;
 
+char* selectedQuestion;
+
 //Register
 // void processRegister(char** parsedInput);
 void processRegister(int fdUDP, char** parsedInput,
@@ -72,5 +74,10 @@ void processTopicPropose(char** parsedInput);
 void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet);
 void receiveTopicPropose(int fdUDP, struct sockaddr_in receiveAddr, 
 socklen_t receiveAddrlen );
+
+//Question Submit
+void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
+void sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet,
+ int hasImage);
 
 #endif

@@ -103,9 +103,6 @@ void processQuestionGet(char** parsedInput) {
         printf("Want question name");
 }
 
-void processQuestionSubmit(char** parsedInput) {
-    printf("Want to submit question\n");
-}
 
 void processAnswerSubmit(char** parsedInput) {
     printf("Want to submit answer\n");
@@ -182,7 +179,7 @@ int main(int argc, char* argv[]) {
             processQuestionGet(parsedInput);
 
         } else if(!strcmp(cmd, "qs") || !strcmp(cmd, "question_submit")) {
-            processQuestionSubmit(parsedInput);
+            processQuestionSubmit(parsedInput, newAddrInfoSet);
 
         } else if(!strcmp(cmd, "as") || !strcmp(cmd, "answer_submit")) {
             processAnswerSubmit(parsedInput);
