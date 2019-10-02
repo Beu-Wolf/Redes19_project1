@@ -69,9 +69,6 @@ void receiveConnections(char *port) {
 
     int newfd;
 
-    struct sockaddr_in addr;
-    socklen_t addrlen;
-
     int maxfd, counter;
     fd_set rfds;
 
@@ -93,9 +90,7 @@ void receiveConnections(char *port) {
         }
 
         if (FD_ISSET(tcpSocket, &rfds)) {
-            newfd = accept(tcpSocket,
-                    (struct sockaddr *)&addr,
-                    &addrlen);
+            newfd = accept(tcpSocket, NULL, NULL);
             if (newfd == -1) fatal(SOCK_ACPT_ERROR);
 
             handleTcp(newfd, port);

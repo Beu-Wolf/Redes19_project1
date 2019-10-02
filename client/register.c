@@ -45,10 +45,7 @@ void receiveRegister(int fdUDP, char** parsedInput,
     char** args;
 
     memset(receivedMessage, 0, BUFFER_SIZE);
-
-
-    n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr,
-            &receiveAddrlen);
+    n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, NULL, NULL);
 
     if(n == -1) fatal(UDPRECV_ERROR);
 

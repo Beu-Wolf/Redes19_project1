@@ -39,8 +39,7 @@ void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr,
     char* topicName;
     char* topicUserID;
 
-    n = recvfrom(fdUDP, sendMsg, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr,
-            &receiveAddrlen);
+    n = recvfrom(fdUDP, sendMsg, BUFFER_SIZE, 0, NULL, NULL);
     if(n == -1) fatal(UDPRECV_ERROR);
 
 
