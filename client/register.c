@@ -4,8 +4,7 @@
  * Validate command and communicate with server
  */
 void processRegister(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet,
-    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen) {
+    addressInfoSet newAddrInfoSet) {
 
     int len = arglen(parsedInput);
     if(len != 2) {
@@ -18,7 +17,7 @@ void processRegister(int fdUDP, char** parsedInput,
         return;
     }
     sendRegister(fdUDP, parsedInput, newAddrInfoSet);
-    receiveRegister(fdUDP, parsedInput, receiveAddr, receiveAddrlen);
+    receiveRegister(fdUDP, parsedInput);
 }
 
 void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
@@ -37,8 +36,7 @@ void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) 
     if(n == -1) fatal(strerror(errno));
 }
 
-void receiveRegister(int fdUDP, char** parsedInput,
-    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen) {
+void receiveRegister(int fdUDP, char** parsedInput) {
     int n;
 
     char receivedMessage[BUFFER_SIZE];

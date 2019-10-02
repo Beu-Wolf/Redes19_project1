@@ -1,8 +1,7 @@
 #include "clientcommands.h"
 
 void processTopicList(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet,
-    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen, char** topicList) {
+    addressInfoSet newAddrInfoSet, char** topicList) {
 
     if(userID == 0) {
       fprintf(stderr, NOT_REGISTERED_ERROR);
@@ -15,7 +14,7 @@ void processTopicList(int fdUDP, char** parsedInput,
     }
 
     sendTopicList(fdUDP, newAddrInfoSet);
-    receiveTopicList(fdUDP, receiveAddr, receiveAddrlen, topicList);
+    receiveTopicList(fdUDP, topicList);
 }
 
 void sendTopicList(int fdUDP, addressInfoSet newAddrInfoSet) {
@@ -25,14 +24,10 @@ void sendTopicList(int fdUDP, addressInfoSet newAddrInfoSet) {
     n = sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr,
             newAddrInfoSet.res_UDP->ai_addrlen);
 
-    if(n == -1){
-        fatal(strerror(errno));
-    }
-
+    if(n == -1) fatal(strerror(errno));
 }
 
-void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr,
-        socklen_t receiveAddrlen, char** topicList ) {
+void receiveTopicList(int fdUDP, char** topicList) {
     int n, i;
     char sendMsg[BUFFER_SIZE];
     char** args;

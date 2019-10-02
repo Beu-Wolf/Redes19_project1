@@ -44,11 +44,9 @@ void readLineArgs(int argc, char* argv[], service* newService){
                 break;
         }
     }
-
 }
 
 void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
-
     int n;
 
     memset(&(newAddrInfoSet->hints_TCP), 0, sizeof(newAddrInfoSet->hints_TCP));
@@ -114,7 +112,6 @@ void processAnswerSubmit(char** parsedInput) {
 
 
 int main(int argc, char* argv[]) {
-
     int inpSize;
     char* input, *cmd;
     char** parsedInput;
@@ -122,14 +119,12 @@ int main(int argc, char* argv[]) {
     service newService;
     addressInfoSet newAddrInfoSet;
 
-    struct sockaddr_in receiveAddr;
-    socklen_t receiveAddrlen;
-
-    int n;
-    int fdTCP, fdUDP;
+    // int n;
+    // int fdTCP, fdUDP;
+    int fdUDP;
 
 
-    char buffer[INET_ADDRSTRLEN];
+    // char buffer[INET_ADDRSTRLEN];
 
     char* topicList[50] = {0};
 
@@ -157,16 +152,16 @@ int main(int argc, char* argv[]) {
           continue;
 
         if(!strcmp(cmd, "reg") || !strcmp(cmd, "register"))
-            processRegister(fdUDP, parsedInput, newAddrInfoSet, receiveAddr, receiveAddrlen);
+            processRegister(fdUDP, parsedInput, newAddrInfoSet);
 
         else if(!strcmp(cmd, "tl") || !strcmp(cmd, "topic_list"))
-            processTopicList(fdUDP, parsedInput, newAddrInfoSet, receiveAddr, receiveAddrlen, topicList);
+            processTopicList(fdUDP, parsedInput, newAddrInfoSet, topicList);
 
         else if(!strcmp(cmd, "ts") || !strcmp(cmd, "topic_select")) {
             processTopicSelect(parsedInput, topicList);
 
         } else if(!strcmp(cmd, "tp") || !strcmp(cmd, "topic_propose")) {
-            processTopicPropose(fdUDP, parsedInput, newAddrInfoSet, receiveAddr, receiveAddrlen);
+            processTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
 
         } else if(!strcmp(cmd, "ql") || !strcmp(cmd, "question_list")) {
             processQuestionList(parsedInput);
@@ -231,5 +226,4 @@ int main(int argc, char* argv[]) {
       break;
       }
       }*/
-
 }

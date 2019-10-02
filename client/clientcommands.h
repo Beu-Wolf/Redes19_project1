@@ -51,31 +51,25 @@ char isRegistered();
 
 //Register
 void processRegister(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet,
-    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen);
+    addressInfoSet newAddrInfoSet);
 void sendRegister(int fdUDP, char** parsedInput,
     addressInfoSet newAddrInfoSet);
-void receiveRegister(int fdUDP, char** parsedInput,
-    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen);
+void receiveRegister(int fdUDP, char** parsedInput);
 
 //Topic List
 void processTopicList(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet,
-    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen, char** topicList);
+    addressInfoSet newAddrInfoSet, char** topicList);
 void sendTopicList(int fdUDP, addressInfoSet newAddrInfoSet);
-void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr, 
-    socklen_t receiveAddrlen, char** topicList );
+void receiveTopicList(int fdUDP, char** topicList );
 
 //Topic Select
 void processTopicSelect(char** parsedInput, char** topicList);
 
 //Topic Propose
 void processTopicPropose(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet,
-    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen);
+    addressInfoSet newAddrInfoSet);
 void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet);
-void receiveTopicPropose(int fdUDP, struct sockaddr_in receiveAddr, 
-socklen_t receiveAddrlen );
+void receiveTopicPropose(int fdUDP);
 
 //Question Submit
 void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);

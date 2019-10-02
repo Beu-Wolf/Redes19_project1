@@ -1,9 +1,7 @@
 #include "clientcommands.h"
 
 
-void processTopicPropose(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet,
-    struct sockaddr_in receiveAddr, socklen_t receiveAddrlen) {
+void processTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet){
 
     if(!isRegistered()) {
       fprintf(stderr, NOT_REGISTERED_ERROR);
@@ -14,7 +12,7 @@ void processTopicPropose(int fdUDP, char** parsedInput,
       return;
     }
     sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
-    receiveTopicPropose(fdUDP, receiveAddr, receiveAddrlen);
+    receiveTopicPropose(fdUDP);
 }
 
 void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
@@ -35,18 +33,15 @@ void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoS
 
 }
 
-void receiveTopicPropose(int fdUDP, struct sockaddr_in receiveAddr,
-        socklen_t receiveAddrlen ) {
+void receiveTopicPropose(int fdUDP) {
 
     int n;
 
     char receivedMessage[BUFFER_SIZE];
     char ** args;
 
-    n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr,
-            &receiveAddrlen);
-
-    if(n == -1) exit(1);
+    n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, NULL, NULL);
+    if(n == -1) fatal(UDPRECV_ERROR);
 
     args = tokenize(receivedMessage);
 
