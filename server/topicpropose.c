@@ -59,4 +59,9 @@ char* processTopicPropose(char** args) {
             return topicProposeStatus;
         }
     }
+
+    strcpy(topicProposeStatus, "ERR\n");
+    if(!dirp)
+        closedir(dirp);
+    return topicProposeStatus;
 }
