@@ -1,25 +1,20 @@
 #include "commands.h"
 
 char* processTopicList(char** args) {
-    char* topicListStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
-    if (!topicListStatus) fatal(ALLOC_ERROR);
-
-
-    char topicDatafile[BUFFER_SIZE];
-
-    char topicUserID[6];
-    char numDirs[4];
-
-    char topicNameAndUser[BUFFER_SIZE];
-
-    char topicsInfo[BUFFER_SIZE];
-
-    memset(topicsInfo, 0, BUFFER_SIZE);
+    char* topicListStatus;
+    char topicDatafile[BUFFER_SIZE] = {};
+    char topicsInfo[BUFFER_SIZE] = {};
+    char topicNameAndUser[BUFFER_SIZE] = {};
+    char topicUserID[6] = {};
+    char numDirs[4] = {};
 
     DIR* dirp = opendir(TOPICSDIR);
     struct dirent* dp;
     int dircount = 0, n;
     int errno;
+
+    topicListStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
+    if (!topicListStatus) fatal(ALLOC_ERROR);
 
     if(args[0] == NULL) {
         strcpy(topicListStatus, "ERR\n");
