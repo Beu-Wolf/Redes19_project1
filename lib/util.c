@@ -4,11 +4,14 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <string.h>
+#include <errno.h>
 
 #define INPUT_SIZE 128
+#define FILE_READ_SIZE 512
 
 void fatal(const char* buffer) {
     fprintf(stderr, "%s\n", buffer);
+    perror("Error");
     exit(1);
 }
 
@@ -98,7 +101,7 @@ int sendTCPstring(int sockfd, char* buffer) {
     int sentBytes, bytesToSend;
     bytesToSend = strlen(buffer);
     while(bytesToSend > 0) {
-        sentBytes = send(sockfd, buffer, bytesToSend, 0);
+        sentBytes = write(sockfd, buffer, bytesToSend);
         if(sentBytes == -1)
             return 0;
 
@@ -108,12 +111,41 @@ int sendTCPstring(int sockfd, char* buffer) {
     return 1;
 }
 
+/*
+ * Same as function above, but sends file in buffers of 512 bytes
+ */
+
+int sendTCPfile(int sockfd, FILE* file) {
+    char* buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
+    int bytesToSend, sentBytes;
+
+    memset(buffer, 0, FILE_READ_SIZE);
+    while(feof(file) == 0) {
+        fread(buffer, 1, FILE_READ_SIZE, file);
+        bytesToSend = strlen(buffer);
+        printf("%s\n", buffer);
+        while(bytesToSend > 0) {
+            sentBytes = write(sockfd, buffer, bytesToSend);
+            if(sentBytes == -1)
+                return 0;
+
+            bytesToSend -= sentBytes;
+            buffer+=sentBytes;
+        }
+        
+
+        memset(buffer, 0, FILE_READ_SIZE);
+    }
+
+
+}
+
 /* Acceps socket FD, a buffer and its size
  * Reads from socket until '\n' read. reallocates buffer if needed
  * Returns number of bytes read
  */
 int recvTCPline(int sockfd, char** buffer, int* size) {
-    char* ptr = *buffer;
+    char* ptr;
 
     // TODO: Is this really necessary???
     // allocate buffer if needed
@@ -125,8 +157,11 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
         *size = INPUT_SIZE;
     }
 
-    while(recv(sockfd, ptr, 1, 0) == 1) {
-        if(*(ptr++) == '\n')
+    ptr = *buffer;
+
+    printf("E agora\n");
+    while(read(sockfd, ptr, 1) == 1) {
+        if(*ptr == '3' || *ptr == '\n')
             break; // terminate string and return
 
         if(ptr - (*buffer) >= *size) { // resize buffer
@@ -135,8 +170,10 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
                 fatal(ALLOC_ERROR);
             (*size) *= 2;
         }
+        ptr++;
     }
     *ptr = '\0';
+    printf("exiting: %s\n", *buffer);
     return strlen(*buffer);
 }
 

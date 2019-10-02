@@ -120,6 +120,9 @@ int setupServerSocket(char *port, int socktype) {
     fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (fd == -1) fatal(SOCK_CREATE_ERROR);
 
+    //int optval = 1;
+    //setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
+
     n = bind(fd, res->ai_addr, res->ai_addrlen);
     if (n == -1) fatal(SOCK_BIND_ERROR);
 
@@ -132,7 +135,7 @@ int setupServerSocket(char *port, int socktype) {
 
 void handleTcp(int fd, char* port) {
     int pid, ret;
-    char** buffer;
+    char* buffer;
     int size = BUFFER_SIZE;
 
     ret = fork();
@@ -149,12 +152,13 @@ void handleTcp(int fd, char* port) {
     printf("Forked. PID = %d\n", pid);
     while (1) {
         memset(buffer, 0, BUFFER_SIZE);
-        recvTCPline(fd, buffer, &size);
+        recvTCPline(fd, &buffer, &size);
+        printf("[TCP][%d] %s\n", pid, buffer);
+        //sendTCPstring(fd, buffer);
 
         
 
 
-        printf("[TCP][%d] %s\n", pid, *buffer);
     }
 }
 

@@ -16,14 +16,15 @@ void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
 
     if(selectedTopic == NULL) {
         printf("Can't submit question without selecting a topic\n");
+        return; 
     } 
 
-    sendQuestionSubmit(fdTCP, parsedInput, newAddrInfoSet, hasImage);
-    receiveQuestionSubmit(fdTCP);
+    sendQuestionSubmit(&fdTCP, parsedInput, newAddrInfoSet, hasImage);
+    //receiveQuestionSubmit(&fdTCP);
 
 }
 
-void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInfoSet,
+void sendQuestionSubmit(int* fdTCP, char** parsedInput, addressInfoSet newAddrInfoSet,
  int hasImage){
 
     char* questionFile, *imageFile;
@@ -47,14 +48,9 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
     printf("size: %ld\n", textfileSize);
 
     fseek(questionFilePointer, 0L, SEEK_SET);
-    questionFile = (char*) malloc(sizeof(char) * textfileSize);
-    if(!questionFile) fatal(ALLOC_ERROR);
 
-    memset(questionFile, 0, sizeof(char) * textfileSize);
+    
 
-    fread(questionFile, sizeof(char), textfileSize, questionFilePointer);
-
-    printf("%s\n", questionFile);
 
     if(hasImage){
         imageFilePointer = fopen(parsedInput[3], "r");
@@ -72,70 +68,60 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
 
         imagefileSize = fseek(imageFilePointer, 0, SEEK_END);
         fseek(imageFilePointer, 0, SEEK_SET);
-        imageFile = (char*) malloc(sizeof(char) * imagefileSize);
-        if(!imageFile) fatal(ALLOC_ERROR);
-
-
-        memset(questionFile, 0, sizeof(char) * imagefileSize);
-
-        fread(imageFile, sizeof(char), imagefileSize, imageFilePointer);
     }
 
-    if(!hasImage) {
-        buffer = (char*) malloc(sizeof(char) * (textfileSize + BUFFER_SIZE));
-        if(!buffer) fatal(ALLOC_ERROR);
+    buffer = (char*) malloc(sizeof(char) * BUFFER_SIZE);
+    if(!buffer) exit(1);
 
 
-        memset(buffer, 0, sizeof(char) * (textfileSize + BUFFER_SIZE));
-        
-        sprintf(buffer, "QUS %d %s %s %ld %s %d\n", userID, selectedTopic, parsedInput[1], textfileSize,
-        questionFile, hasImage);
-        printf("%s", buffer);
+    memset(buffer, 0, sizeof(char) * BUFFER_SIZE);
+    
+    sprintf(buffer, "QUS %d %s %s %ld ", userID, selectedTopic, parsedInput[1], textfileSize);
+    printf("%s\n", buffer);
 
-    } else {
-        buffer = questionFile = (char*) malloc(sizeof(char) * (textfileSize + imagefileSize + BUFFER_SIZE));
-        if(!buffer) fatal(ALLOC_ERROR);
-
-        memset(buffer, 0, sizeof(char) * (textfileSize + imagefileSize + BUFFER_SIZE));
-
-        sprintf(buffer, "QUS %d %s %s %ld %s %d %s %ld %s\n", userID, selectedTopic, 
-        parsedInput[1], textfileSize, questionFile, hasImage, imageExtension, 
-        imagefileSize, imageFile);
-
-        printf("%s", buffer);
-    }
-
-    fdTCP = socket(newAddrInfoSet.res_TCP->ai_family,
+    *fdTCP = socket(newAddrInfoSet.res_TCP->ai_family,
       newAddrInfoSet.res_TCP->ai_socktype, newAddrInfoSet.res_TCP->ai_protocol);
-      if(fdTCP == -1) fatal(SOCK_CREATE_ERROR);
+      if(*fdTCP == -1) fatal(SOCK_CREATE_ERROR);
 
-    n = connect(fdTCP, newAddrInfoSet.res_TCP->ai_addr,
+    n = connect(*fdTCP, newAddrInfoSet.res_TCP->ai_addr,
       newAddrInfoSet.res_TCP->ai_addrlen);
     if(n == -1) fatal(SOCK_CONN_ERROR);
 
-    sendTCPstring(fdTCP, buffer);
+    sendTCPstring(*fdTCP, buffer);
+    printf("Sent TCP string\n");
+
+    memset(buffer, 0, strlen(buffer));
+
+    sendTCPfile(*fdTCP, questionFilePointer);
+
+    if(!hasImage){
+        sprintf(buffer, "%d\n", hasImage);
+        sendTCPstring(*fdTCP, buffer);
+    } else {
+        sprintf(buffer, "%d %s %ld ", hasImage, imageExtension, imagefileSize);
+        sendTCPstring(*fdTCP, buffer);
+        sendTCPfile(*fdTCP, imageFilePointer);
+        char newLine = '\n';
+        write(*fdTCP, &newLine, sizeof(newLine));
+    }
 
 
-
-
-    free(questionFile);
     free(buffer);
     if(hasImage){
-        free(imageFile);
         fclose(imageFilePointer);
     }    
     fclose(questionFilePointer);
 
-
+    close(*fdTCP);
 
 }
 
-void receiveQuestionSubmit(int fdTCP) {
-    char** buffer;
+void receiveQuestionSubmit(int* fdTCP) {
+    char* buffer;
     int size = BUFFER_SIZE;
-    recvTCPline(fdTCP, buffer,&size);
+    recvTCPline(*fdTCP, &buffer,&size);
 
-    printf("%s", *buffer);
-    close(fdTCP);
+    printf("%s", buffer);
+    close(*fdTCP);
 
 }
