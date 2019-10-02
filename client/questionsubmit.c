@@ -1,32 +1,33 @@
 #include "clientcommands.h"
 
 void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
-
-    int hasImage = 0;
     int len =  arglen(parsedInput);
-    int fdTCP;
     
 
+    if(!isRegistered()) {
+      printf(NOT_REGISTERED_ERROR);
+      return;
+    }
     if(len < 3 || len > 4){
         printf(INVALID_QS_ARGS);
         return;
     } else if (len == 4) {
-        hasImage = 1;
+        // hasImage = 1;
     }
 
     if(selectedTopic == NULL) {
         printf("Can't submit question without selecting a topic\n");
     } 
 
-    sendQuestionSubmit(fdTCP, parsedInput, newAddrInfoSet, hasImage);
-    receiveQuestionSubmit(fdTCP);
-
+    // sendQuestionSubmit(fdTCP, parsedInput, newAddrInfoSet, hasImage);
+    // receiveQuestionSubmit(fdTCP);
 }
 
 void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInfoSet,
  int hasImage){
-
-    char* questionFile, *imageFile;
+    
+    return;
+    /* char* questionFile, *imageFile;
     long textfileSize, imagefileSize = 0;
     int n;
     char* question = parsedInput[1];
@@ -121,11 +122,14 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
         fclose(imageFilePointer);
     }    
     fclose(questionFilePointer);
+    */
 }
 
 void receiveQuestionSubmit(int fdTCP) {
     char** buffer;
     int size = BUFFER_SIZE;
+
+    return;
     recvTCPline(fdTCP, buffer,&size);
 
     printf("%s", *buffer);
