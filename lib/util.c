@@ -125,7 +125,7 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
         *size = INPUT_SIZE;
     }
 
-    ptr = buffer;
+    ptr = *buffer;
     while(recv(sockfd, ptr, 1, 0) == 1) {
         if(*(ptr++) == '\n')
             break; // terminate string and return
