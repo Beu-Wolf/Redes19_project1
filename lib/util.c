@@ -6,6 +6,7 @@
 #include <string.h>
 
 #define INPUT_SIZE 128
+#define FILE_READ_SIZE 512
 
 void fatal(const char* buffer) {
     fprintf(stderr, "%s\n", buffer);
@@ -104,6 +105,28 @@ int sendTCPstring(int sockfd, char* buffer) {
 
         bytesToSend -= sentBytes;
         buffer+=sentBytes;
+    }
+    return 1;
+}
+
+int sendTCPfile(int sockfd, FILE* file) {
+    char* buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
+    int bytesToSend, sentBytes;
+
+    memset(buffer, 0, FILE_READ_SIZE);
+    while(feof(file) == 0) {
+        fread(buffer, 1, FILE_READ_SIZE, file);
+        bytesToSend = strlen(buffer);
+        printf("%s\n", buffer);
+        while(bytesToSend > 0) {
+            sentBytes = write(sockfd, buffer, bytesToSend);
+            if(sentBytes == -1)
+                return 0;
+
+            bytesToSend -= sentBytes;
+            buffer+=sentBytes;
+        }
+        memset(buffer, 0, FILE_READ_SIZE);
     }
     return 1;
 }

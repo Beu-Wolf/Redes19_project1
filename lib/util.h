@@ -1,6 +1,8 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
 
+#include <stdio.h>
+
 // Error messages
 #define ALLOC_ERROR "Allocation Error"
 #define FILEREAD_ERROR "Reading from file"
@@ -41,7 +43,7 @@ char isPositiveNumber(char* str);
 int sendTCPstring(int sockfd, char* buffer);
 int recvTCPline(int sockfd, char** buffer, int* size);
 
-int sendTCPfile(int sockfd, int filefd);
+int sendTCPfile(int sockfd, FILE* filefd);
 int recvTCPfile(int sockfd, unsigned long long fileSize, int filefd);
 
 void stripnewLine(char* str);

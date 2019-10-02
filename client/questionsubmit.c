@@ -1,8 +1,10 @@
 #include "clientcommands.h"
 
+#define FINFO_BUFF_SIZE 50 
+
 void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
     int len = arglen(parsedInput);
-    
+    int fdTCP;
 
     if(!isRegistered()) {
         printf(NOT_REGISTERED_ERROR);
@@ -30,25 +32,97 @@ void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
     }
 
 
-    sendQuestionSubmit(parsedInput, newAddrInfoSet);
+    fdTCP = sendQuestionSubmit(parsedInput, newAddrInfoSet);
     // receiveQuestionSubmit(fdTCP);
+    close(fdTCP);
 }
 
-void sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
+int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
     // prep data
-    int qFileSize;
+    long questionFileSize, imageSize;
+    int fdTCP, n;
+
+    char* buffer;
+
+    char* imageExtension;
+
+    FILE* imageFilePointer;
+
+    FILE* questionFilePointer = fopen(parsedInput[2], "r");
+    if(questionFilePointer == NULL) {
+        fatal(FILEREAD_ERROR);
+    }
+
+    fseek(questionFilePointer, 0, SEEK_END);
+    questionFileSize = ftell(questionFilePointer);
+    fseek(questionFilePointer, 0L, SEEK_SET);
+
+    if (arglen(parsedInput) == 4) {
+        imageFilePointer = fopen(parsedInput[3], "r");
+        if(imageFilePointer == NULL) {
+        fatal(FILEREAD_ERROR);
+        }
+
+        strtok(parsedInput[3], ".");
+        imageExtension = strtok(NULL, ".");
+
+        if(imageExtension == NULL) {
+            printf(INVALID_QS_IMGEXT);
+            return 0;
+        }
+
+        fseek(imageFilePointer, 0, SEEK_END);
+        imageSize = ftell(imageFilePointer);
+        fseek(imageFilePointer, 0L, SEEK_SET);
+
+
+    }
+
+    fdTCP = socket(newAddrInfoSet.res_TCP->ai_family, newAddrInfoSet.res_TCP->ai_socktype,
+    newAddrInfoSet.res_TCP->ai_protocol);
+
+    if(fdTCP == -1) fatal(SOCK_CREATE_ERROR);
+
+    n = connect(fdTCP, newAddrInfoSet.res_TCP->ai_addr, newAddrInfoSet.res_TCP->ai_addrlen);
+    if(n == -1) fatal(SOCK_CONN_ERROR);
 
 
     // send request
       // 1
+    buffer = (char*) malloc(sizeof(char)*FINFO_BUFF_SIZE);
+    memset(buffer, 0, FINFO_BUFF_SIZE);
+
+    sprintf(buffer, "QUS %d %s %s %ld ", userID, selectedTopic, 
+    parsedInput[1], questionFileSize);
+
+    sendTCPstring(fdTCP, buffer);
       // 2
+
+    sendTCPfile(fdTCP, questionFilePointer);
       // 3
+
+    if(arglen(parsedInput) == 4) {
+        memset(buffer, 0, FINFO_BUFF_SIZE);
+        sprintf(buffer, "%d %s %ld ", 1, imageExtension, imageSize);
+        sendTCPstring(fdTCP, buffer);
+
+        sendTCPfile(fdTCP, imageFilePointer);
+
+        char newLine = '\n';
+        sendTCPstring(fdTCP, &newLine);
+
+    } else {
+        char noImage[] = " 0\n";
+        sendTCPstring(fdTCP, noImage);
+        return fdTCP;
+    }
       // 4
       // 5
       // 6
-
+      
+    free(buffer);
     
-    return;
+    return 0;
     /* char* questionFile, *imageFile;
     long textfileSize, imagefileSize = 0;
     int n;
