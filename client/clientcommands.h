@@ -73,8 +73,7 @@ void receiveTopicPropose(int fdUDP);
 
 //Question Submit
 void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
-void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInfoSet,
- int hasImage);
+void sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
 void receiveQuestionSubmit(int fdUDP);
 
 #endif
