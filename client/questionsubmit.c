@@ -19,7 +19,18 @@ void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
         return;
     }
 
-    sendQuestionSubmit(parsedInput, newAddrInfoSet);
+    if(strlen(parsedInput[1]) > QUESTION_MAXLEN) {
+        printf(QSIZE_ERROR);
+        return;
+    }
+
+    if(access(parsedInput[2], R_OK) || (len == 4 && access(parsedInput[3], R_OK))) {
+        printf(FILE_NOT_AVAILABLE_ERROR);
+        return;
+    }
+
+
+    // sendQuestionSubmit(parsedInput, newAddrInfoSet);
     // receiveQuestionSubmit(fdTCP);
 }
 

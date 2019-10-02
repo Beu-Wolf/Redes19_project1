@@ -17,12 +17,17 @@
 
 #define NOT_REGISTERED_ERROR "You must be registered before performing any action\n"
 #define NO_TOPIC_SELECTED_ERROR "You must have a topic selected\n"
+#define QSIZE_ERROR "Question size exceeded\n"
+#define FILE_NOT_AVAILABLE_ERROR "Given file is not available\n"
 #define INVALID_RG_ARGS "Invalid arguments.\nUsage: register/reg <userID>\n"
 #define INVALID_TL_ARGS "Invalid arguments.\nUsage: topic_list/tl\n"
 #define INVALID_TS_ARGS "Invalid arguments.\nUsage: topic_select <topic>/ts <topic_number>\n"
 #define INVALID_TP_ARGS "Invalid arguments.\nUsage: topic_propose/tp <topic>\n"
 #define INVALID_QS_ARGS "Invalid arguments.\nUsage: question_submit/qs <question> <text_file> [<image_file.ext>]\n"
 #define INVALID_QS_IMGEXT "Invalid image extension. Please select file with a permitted file extension\n"
+
+// Protocol consts
+#define QUESTION_MAXLEN 10
 
 
 void fatal(const char* buffer);
