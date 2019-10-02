@@ -54,7 +54,7 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
 
     fread(questionFile, sizeof(char), textfileSize, questionFilePointer);
 
-    printf("%s\n", questionFile);
+    // printf("%s\n", questionFile);
 
     if(hasImage){
         imageFilePointer = fopen(parsedInput[3], "r");
@@ -75,8 +75,7 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
         imageFile = (char*) malloc(sizeof(char) * imagefileSize);
         if(!imageFile) fatal(ALLOC_ERROR);
 
-
-        memset(questionFile, 0, sizeof(char) * imagefileSize);
+        memset(imageFile, 0, sizeof(char) * imagefileSize);
 
         fread(imageFile, sizeof(char), imagefileSize, imageFilePointer);
     }
@@ -89,7 +88,7 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
         memset(buffer, 0, sizeof(char) * (textfileSize + BUFFER_SIZE));
         
         sprintf(buffer, "QUS %d %s %s %ld %s %d\n", userID, selectedTopic, parsedInput[1], textfileSize,
-        questionFile, hasImage);
+          questionFile, hasImage);
         printf("%s", buffer);
 
     } else {
@@ -107,16 +106,13 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
 
     fdTCP = socket(newAddrInfoSet.res_TCP->ai_family,
       newAddrInfoSet.res_TCP->ai_socktype, newAddrInfoSet.res_TCP->ai_protocol);
-      if(fdTCP == -1) fatal(SOCK_CREATE_ERROR);
+    if(fdTCP == -1) fatal(SOCK_CREATE_ERROR);
 
     n = connect(fdTCP, newAddrInfoSet.res_TCP->ai_addr,
       newAddrInfoSet.res_TCP->ai_addrlen);
     if(n == -1) fatal(SOCK_CONN_ERROR);
 
     sendTCPstring(fdTCP, buffer);
-
-
-
 
     free(questionFile);
     free(buffer);
@@ -125,9 +121,6 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
         fclose(imageFilePointer);
     }    
     fclose(questionFilePointer);
-
-
-
 }
 
 void receiveQuestionSubmit(int fdTCP) {
