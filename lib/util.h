@@ -24,7 +24,7 @@
 #define INVALID_QS_IMGEXT "Invalid image extension. Please select file with a permitted file extension\n"
 
 
-void fatal(char* buffer);
+void fatal(const char* buffer);
 void readCommand(char** bufPtr, int* bufSize);
 char **tokenize(char *string);
 int arglen(char **args);

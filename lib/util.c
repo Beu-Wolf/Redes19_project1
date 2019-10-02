@@ -7,7 +7,7 @@
 
 #define INPUT_SIZE 128
 
-void fatal(char* buffer) {
+void fatal(const char* buffer) {
     fprintf(stderr, "%s\n", buffer);
     exit(1);
 }
