@@ -68,6 +68,17 @@ int arglen(char **args) {
     return count;
 }
 
+/* Concatenate strings for an allocated
+ * destination string */
+char *safestrcat(char *dest, char *src) {
+    int destlen = strlen(dest);
+    int srclen = strlen(dest);
+
+    char *new = realloc(dest, destlen + srclen + 1);
+    strcat(new, src);
+    return new;
+}
+
 // return 0 if string contains non digit ascii
 char isPositiveNumber(char* str) {
   int i = 0;

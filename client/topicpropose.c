@@ -23,7 +23,7 @@ void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoS
 
     sprintf(sendMsg, "PTP %d %s\n", userID, parsedInput[1]);
 
-    printf("Sending %d bytes: |%s|\n",  strlen(sendMsg), sendMsg);
+    printf("Sending %ld bytes: |%s|\n",  strlen(sendMsg), sendMsg);
 
     n = sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr,
             newAddrInfoSet.res_UDP->ai_addrlen);

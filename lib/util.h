@@ -28,6 +28,7 @@ void fatal(char* buffer);
 void readCommand(char** bufPtr, int* bufSize);
 char **tokenize(char *string);
 int arglen(char **args);
+char *safestrcat(char *dest, char *src);
 
 char isPositiveNumber(char* str);
 
