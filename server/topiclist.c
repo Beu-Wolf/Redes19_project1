@@ -30,7 +30,7 @@ char* processTopicList(char** args) {
         return topicListStatus;
     }
 
-    while (dp = readdir(dirp)) {
+    while ((dp = readdir(dirp))) {
         if(strcmp(dp->d_name, ".") && strcmp(dp->d_name, "..") && dp->d_type == DT_DIR) {
             dircount++;
             sprintf(topicDatafile, TOPICSDIR"/%s/"DATAFILE, dp->d_name);

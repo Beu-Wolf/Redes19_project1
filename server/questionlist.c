@@ -30,7 +30,7 @@ static int numAnswers(char *p) {
     struct dirent *answerEnt;
     int answerCount = 0;
 
-    while (answerEnt = readdir(answerDir)) {
+    while ((answerEnt = readdir(answerDir))) {
         char *answer = answerEnt->d_name;
 
         if (strcmp(answer, ".")
@@ -70,7 +70,7 @@ char *processQuestionList(char **args) {
 
     char *info = strdup(" "); // space after "LQR N"
 
-    while (questionEnt = readdir(topicDir)) {
+    while ((questionEnt = readdir(topicDir))) {
         char *question = questionEnt->d_name;
 
         if (!strcmp(question, ".")
