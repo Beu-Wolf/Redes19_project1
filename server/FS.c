@@ -132,8 +132,7 @@ int setupServerSocket(char *port, int socktype) {
 
 void handleTcp(int fd, char* port) {
     int pid, ret;
-    char** buffer;
-    int size = BUFFER_SIZE;
+    char buffer[BUFFER_SIZE];
 
     ret = fork();
     if (ret != 0) {
@@ -149,12 +148,10 @@ void handleTcp(int fd, char* port) {
     printf("Forked. PID = %d\n", pid);
     while (1) {
         memset(buffer, 0, BUFFER_SIZE);
-        recvTCPline(fd, buffer, &size);
-
-        
-
-
-        printf("[TCP][%d] %s\n", pid, *buffer);
+        if (read(fd, buffer, BUFFER_SIZE) == 0) {
+            exit(0);
+        }
+        printf("[TCP][%d] %s\n", pid, buffer);
     }
 }
 
@@ -199,6 +196,14 @@ void handleUdp(int fd, char* port) {
                     messageSender, INET_ADDRSTRLEN),  port);
 
         messageToSend = processTopicList(args);
+        printf("%s", messageToSend);
+
+    } else if (!strcmp(args[0], "LQU")) {
+        printf("Question list request sent by: %s at %s\n",
+                inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr,
+                    messageSender, INET_ADDRSTRLEN),  port);
+
+        messageToSend = processQuestionList(args);
         printf("%s", messageToSend);
     }
 

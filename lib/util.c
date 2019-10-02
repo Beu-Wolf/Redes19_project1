@@ -72,7 +72,7 @@ int arglen(char **args) {
  * destination string */
 char *safestrcat(char *dest, char *src) {
     int destlen = strlen(dest);
-    int srclen = strlen(dest);
+    int srclen = strlen(src);
 
     char *new = realloc(dest, destlen + srclen + 1);
     strcat(new, src);
