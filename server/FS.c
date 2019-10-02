@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
                 }
             }
         } else if (opt == '?' || opt == ':') {
-            exit(1);
+            return 0;
         } else {
             err = 1;
         }
@@ -86,7 +86,7 @@ void receiveConnections(char *port) {
         FD_SET(tcpSocket, &rfds);
 
         counter = select(maxfd+1, &rfds, NULL, NULL, NULL);
-        if (counter <= 0) exit(1);
+        if (counter <= 0) fatal(SELECT_ERROR);
 
         if (FD_ISSET(udpSocket, &rfds)) {
             handleUdp(udpSocket, port);
@@ -96,7 +96,7 @@ void receiveConnections(char *port) {
             newfd = accept(tcpSocket,
                     (struct sockaddr *)&addr,
                     &addrlen);
-            if (newfd == -1) exit(1);
+            if (newfd == -1) fatal(SOCK_ACPT_ERROR);
 
             handleTcp(newfd, port);
         }
@@ -115,13 +115,13 @@ int setupServerSocket(char *port, int socktype) {
     hints.ai_flags = AI_PASSIVE | AI_NUMERICSERV;
 
     n = getaddrinfo(NULL, port, &hints, &res);
-    if (n != 0) exit(1);
+    if (n != 0) fatal(GETADDRINFO_ERROR);
 
     fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-    if (fd == -1) exit(1);
+    if (fd == -1) fatal(SOCK_CREATE_ERROR);
 
     n = bind(fd, res->ai_addr, res->ai_addrlen);
-    if (n == -1) exit(1);
+    if (n == -1) fatal(SOCK_BIND_ERROR);
 
     if (socktype == SOCK_STREAM) {
         listen(fd, 5);
@@ -138,7 +138,7 @@ void handleTcp(int fd, char* port) {
     ret = fork();
     if (ret != 0) {
         if (ret == -1) {
-            exit(-1);
+            fatal(FORK_ERROR);
         } else { // parent process
             close(fd);
             return;
@@ -205,8 +205,7 @@ void handleUdp(int fd, char* port) {
     n = sendto(fd, messageToSend, strlen(messageToSend), 0,
             (struct sockaddr *)&addr, addrlen);
     if(n == -1) {
-        printf("error message: %s\n", strerror(errno));
-        exit(1);
+        fatal(strerror(errno));
     }
 
     free(messageToSend);

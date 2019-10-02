@@ -2,7 +2,7 @@
 
 char* processTopicList(char** args) {
     char* topicListStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
-    if (!topicListStatus) exit(1);
+    if (!topicListStatus) fatal(ALLOC_ERROR);
 
 
     char topicDatafile[BUFFER_SIZE];
@@ -42,12 +42,11 @@ char* processTopicList(char** args) {
 
             FILE * topicData = fopen(topicDatafile, "r");
             if (topicData == NULL) {
-                printf("%d\n", errno);
-                exit(1);
+                fatal(FILEOPEN_ERROR);
             }
 
             n = fread(topicUserID,  1, 5, topicData);
-            if(n == 0) exit(1);
+            if(n == 0) fatal(FILEREAD_ERROR);
 
             sprintf(topicNameAndUser, " %s:%s", dp->d_name, topicUserID);
             strcat(topicsInfo, topicNameAndUser);

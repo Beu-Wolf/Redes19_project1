@@ -2,7 +2,7 @@
 
 char* processTopicPropose(char** args) {
     char* topicProposeStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
-    if (!topicProposeStatus) exit(1);
+    if (!topicProposeStatus) fatal(ALLOC_ERROR);
 
     DIR* dirp = opendir(TOPICSDIR);
     struct dirent* dp;

@@ -32,8 +32,7 @@ void readCommand(char** bufPtr, int* bufSize) {
 
     // check if end of input
     if(c == EOF && i == 0) {
-        printf("End of Input. Exiting\n");
-        exit(1);
+        fatal("End of Input. Exiting");
     }
 
     // terminate string
@@ -45,7 +44,7 @@ char **tokenize(char *string) {
     int i = 0;
 
     char **args = (char **)malloc(numArgs * sizeof(char *));
-    if (!args) fatal("Allocation error");
+    if (!args) fatal(ALLOC_ERROR);
 
     args[i] = strtok(string, " ");
 
@@ -54,7 +53,7 @@ char **tokenize(char *string) {
         if (i == numArgs) {
             numArgs *= 2;
             args = realloc(args, numArgs * sizeof(char *));
-            if (!args) fatal("Allocation error");
+            if (!args) fatal(ALLOC_ERROR);
         }
         args[i] = strtok(NULL, " ");
     }
@@ -110,7 +109,7 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
     if(*buffer == NULL || *size == 0) {
         (*buffer) = (char*)malloc(INPUT_SIZE * sizeof(char));
         if(!(*buffer)) {
-            fatal("Allocation error");
+            fatal(ALLOC_ERROR);
         }
         *size = INPUT_SIZE;
     }
@@ -122,7 +121,7 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
         if(ptr - (*buffer) >= *size) { // resize buffer
             *buffer = (char*)realloc(*buffer, 2 * *size);
             if(!(*buffer))
-                fatal("Allocation error");
+                fatal(ALLOC_ERROR);
             (*size) *= 2;
         }
     }

@@ -24,7 +24,7 @@ void printArgs(char** buffer) {
 void readLineArgs(int argc, char* argv[], service* newService){
     int n, opt;
     n = gethostname(newService->serverIP, BUFFER_SIZE);
-    if(n == -1) exit(1);
+    if(n == -1) fatal(GETHOSTNAME_ERROR);
 
     strcpy(newService->port, DEFAULT_PORT);
     flags = GET_BY_NAME;
@@ -65,8 +65,7 @@ void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
     n = getaddrinfo(newService->serverIP, newService->port,
             &(newAddrInfoSet->hints_TCP), &(newAddrInfoSet->res_TCP));
     if(n != 0) {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(n));
-        exit(1);
+        fatal(gai_strerror(n));
     }
 
     memset(&(newAddrInfoSet->hints_UDP), 0, sizeof(newAddrInfoSet->hints_UDP));
@@ -85,8 +84,7 @@ void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
     n = getaddrinfo(newService->serverIP, newService->port,
             &(newAddrInfoSet->hints_UDP), &(newAddrInfoSet->res_UDP));
     if(n != 0) {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(n));
-        exit(1);
+        fatal(gai_strerror(n));
     }
 
 }
@@ -142,11 +140,11 @@ int main(int argc, char* argv[]) {
     fdUDP = socket(newAddrInfoSet.res_UDP->ai_family,
             newAddrInfoSet.res_UDP->ai_socktype, newAddrInfoSet.res_UDP->ai_protocol);
 
-    if(fdUDP == -1) exit(1);
+    if(fdUDP == -1) fatal(SOCK_CREATE_ERROR);
 
     inpSize = INPUT_SIZE;
     input = (char*)malloc(inpSize * sizeof(char));
-    if(input == NULL) exit(1);
+    if(input == NULL) fatal(ALLOC_ERROR);
     while(1) {
         readCommand(&input, &inpSize);
         // printf("read: |%s|\n", input);

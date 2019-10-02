@@ -38,8 +38,7 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
 
     FILE* questionFilePointer = fopen(parsedInput[2], "r");
     if(questionFilePointer == NULL) {
-        printf("Error reading file: %d\n", errno);
-        exit(1);
+        fatal(FILEREAD_ERROR);
     }
 
     fseek(questionFilePointer, 0, SEEK_END);
@@ -49,8 +48,7 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
 
     fseek(questionFilePointer, 0L, SEEK_SET);
     questionFile = (char*) malloc(sizeof(char) * textfileSize);
-
-    if(!questionFile) exit(1);
+    if(!questionFile) fatal(ALLOC_ERROR);
 
     memset(questionFile, 0, sizeof(char) * textfileSize);
 
@@ -61,8 +59,7 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
     if(hasImage){
         imageFilePointer = fopen(parsedInput[3], "r");
         if(imageFilePointer == NULL) {
-            printf("Error reading file: %d\n", errno);
-            exit(1);
+            fatal(FILEOPEN_ERROR);
         }
 
         strtok(parsedInput[3], ".");
@@ -76,7 +73,7 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
         imagefileSize = fseek(imageFilePointer, 0, SEEK_END);
         fseek(imageFilePointer, 0, SEEK_SET);
         imageFile = (char*) malloc(sizeof(char) * imagefileSize);
-        if(!imageFile) exit(1);
+        if(!imageFile) fatal(ALLOC_ERROR);
 
 
         memset(questionFile, 0, sizeof(char) * imagefileSize);
@@ -86,7 +83,7 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
 
     if(!hasImage) {
         buffer = (char*) malloc(sizeof(char) * (textfileSize + BUFFER_SIZE));
-        if(!buffer) exit(1);
+        if(!buffer) fatal(ALLOC_ERROR);
 
 
         memset(buffer, 0, sizeof(char) * (textfileSize + BUFFER_SIZE));
@@ -97,7 +94,7 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
 
     } else {
         buffer = questionFile = (char*) malloc(sizeof(char) * (textfileSize + imagefileSize + BUFFER_SIZE));
-        if(!buffer) exit(1); 
+        if(!buffer) fatal(ALLOC_ERROR);
 
         memset(buffer, 0, sizeof(char) * (textfileSize + imagefileSize + BUFFER_SIZE));
 
@@ -110,11 +107,11 @@ void sendQuestionSubmit(int fdTCP, char** parsedInput, addressInfoSet newAddrInf
 
     fdTCP = socket(newAddrInfoSet.res_TCP->ai_family,
       newAddrInfoSet.res_TCP->ai_socktype, newAddrInfoSet.res_TCP->ai_protocol);
-      if(fdTCP == -1) exit(1);
+      if(fdTCP == -1) fatal(SOCK_CREATE_ERROR);
 
     n = connect(fdTCP, newAddrInfoSet.res_TCP->ai_addr,
       newAddrInfoSet.res_TCP->ai_addrlen);
-    if(n == -1) exit(1);
+    if(n == -1) fatal(SOCK_CONN_ERROR);
 
     sendTCPstring(fdTCP, buffer);
 

@@ -26,8 +26,7 @@ void sendTopicList(int fdUDP, addressInfoSet newAddrInfoSet) {
             newAddrInfoSet.res_UDP->ai_addrlen);
 
     if(n == -1){
-        printf("error message: %s\n", strerror(errno));
-        exit(1);
+        fatal(strerror(errno));
     }
 
 }
@@ -42,7 +41,7 @@ void receiveTopicList(int fdUDP, struct sockaddr_in receiveAddr,
 
     n = recvfrom(fdUDP, sendMsg, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr,
             &receiveAddrlen);
-    if(n == -1) exit(1);
+    if(n == -1) fatal(UDPRECV_ERROR);
 
 
     args = tokenize(sendMsg);

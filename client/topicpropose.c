@@ -31,7 +31,6 @@ void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoS
 
     if(n == -1){
         fatal(strerror(errno));
-        exit(1);
     }
 
 }

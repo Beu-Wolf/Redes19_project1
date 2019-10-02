@@ -50,7 +50,7 @@ void receiveRegister(int fdUDP, char** parsedInput,
     n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, (struct sockaddr *) &receiveAddr,
             &receiveAddrlen);
 
-    if(n == -1) exit(1);
+    if(n == -1) fatal(UDPRECV_ERROR);
 
     args = tokenize(receivedMessage);
 

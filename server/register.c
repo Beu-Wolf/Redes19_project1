@@ -2,7 +2,7 @@
 
 char* processRegister(char** args) {
     char* registerStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
-    if (!registerStatus) fatal("Allocation error");
+    if (!registerStatus) fatal(ALLOC_ERROR);
 
     errno = 0;
 
