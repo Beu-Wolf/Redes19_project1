@@ -30,11 +30,23 @@ void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
     }
 
 
-    // sendQuestionSubmit(parsedInput, newAddrInfoSet);
+    sendQuestionSubmit(parsedInput, newAddrInfoSet);
     // receiveQuestionSubmit(fdTCP);
 }
 
 void sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
+    // prep data
+    int qFileSize;
+
+
+    // send request
+      // 1
+      // 2
+      // 3
+      // 4
+      // 5
+      // 6
+
     
     return;
     /* char* questionFile, *imageFile;
