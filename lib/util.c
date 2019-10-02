@@ -113,7 +113,7 @@ int sendTCPstring(int sockfd, char* buffer) {
  * Returns number of bytes read
  */
 int recvTCPline(int sockfd, char** buffer, int* size) {
-    char* ptr = *buffer;
+    char* ptr;
 
     // TODO: Is this really necessary???
     // allocate buffer if needed
@@ -125,6 +125,7 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
         *size = INPUT_SIZE;
     }
 
+    ptr = buffer;
     while(recv(sockfd, ptr, 1, 0) == 1) {
         if(*(ptr++) == '\n')
             break; // terminate string and return
