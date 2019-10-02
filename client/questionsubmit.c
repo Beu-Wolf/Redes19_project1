@@ -81,7 +81,7 @@ void sendQuestionSubmit(int* fdTCP, char** parsedInput, addressInfoSet newAddrIn
 
     *fdTCP = socket(newAddrInfoSet.res_TCP->ai_family,
       newAddrInfoSet.res_TCP->ai_socktype, newAddrInfoSet.res_TCP->ai_protocol);
-      if(*fdTCP == -1) fatal(SOCK_CREATE_ERROR);
+    if(*fdTCP == -1) fatal(SOCK_CREATE_ERROR);
 
     n = connect(*fdTCP, newAddrInfoSet.res_TCP->ai_addr,
       newAddrInfoSet.res_TCP->ai_addrlen);

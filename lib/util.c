@@ -10,8 +10,9 @@
 #define FILE_READ_SIZE 512
 
 void fatal(const char* buffer) {
-    fprintf(stderr, "%s\n", buffer);
-    perror("Error");
+    fprintf(stderr, "Error: %s ", buffer);
+    perror("");
+    fprintf(stderr, "\n");
     exit(1);
 }
 
@@ -132,12 +133,8 @@ int sendTCPfile(int sockfd, FILE* file) {
             bytesToSend -= sentBytes;
             buffer+=sentBytes;
         }
-        
-
         memset(buffer, 0, FILE_READ_SIZE);
     }
-
-
 }
 
 /* Acceps socket FD, a buffer and its size
