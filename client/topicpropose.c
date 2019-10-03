@@ -44,11 +44,15 @@ void receiveTopicPropose(int fdUDP) {
     if(n == -1) fatal(UDPRECV_ERROR);
 
     args = tokenize(receivedMessage);
-
     stripnewLine(args[0]);
+
     if(!strcmp(args[0], "ERR")) {
         printf("Error: Bad command\n");
+        return;
     }
+
+    // TODO: Save check response
+    if(args[1] == NULL) return;
 
     stripnewLine(args[1]);
     if(!strcmp(args[1], "OK")) {
