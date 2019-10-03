@@ -1,8 +1,7 @@
 #include "commands.h"
 
 char* processTopicPropose(char** args) {
-    char* topicProposeStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
-    if (!topicProposeStatus) fatal(ALLOC_ERROR);
+    char* topicProposeStatus;
 
     DIR* dirp = opendir(TOPICSDIR);
     struct dirent* dp;
@@ -10,6 +9,9 @@ char* processTopicPropose(char** args) {
 
     char newTopic[11];
     char topicDatafile[16];
+    
+    topicProposeStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
+    if (!topicProposeStatus) fatal(ALLOC_ERROR);
 
     if(args[1] == NULL || args[2] == NULL) {
         strcpy(topicProposeStatus, "ERR\n");
@@ -18,7 +20,7 @@ char* processTopicPropose(char** args) {
     }
 
     stripnewLine(args[2]);
-    printf("%s", args[2]);
+    printf("%s\n", args[2]);
 
     while(dirp) {
         if((dp = readdir(dirp)) != NULL) {
@@ -60,7 +62,6 @@ char* processTopicPropose(char** args) {
         }
     }
 
-    strcpy(topicProposeStatus, "ERR\n");
     if(!dirp)
         closedir(dirp);
     return topicProposeStatus;
