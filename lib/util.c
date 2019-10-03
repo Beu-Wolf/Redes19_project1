@@ -87,7 +87,6 @@ char isPositiveNumber(char* str) {
     if('9' < str[i] || str[i] < '0') return 0;
     i++;
   }
-
   return 1;
 }
 
@@ -110,24 +109,19 @@ int sendTCPstring(int sockfd, char* buffer) {
 }
 
 int sendTCPfile(int sockfd, FILE* file) {
-    char* buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
-    int bytesToSend, sentBytes;
+    char* buffer;
 
-    memset(buffer, 0, FILE_READ_SIZE);
+    buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
+    if(!buffer) fatal(ALLOC_ERROR);
+
     while(feof(file) == 0) {
-        fread(buffer, 1, FILE_READ_SIZE, file);
-        bytesToSend = strlen(buffer);
-        printf("%s\n", buffer);
-        while(bytesToSend > 0) {
-            sentBytes = write(sockfd, buffer, bytesToSend);
-            if(sentBytes == -1)
-                return 0;
-
-            bytesToSend -= sentBytes;
-            buffer+=sentBytes;
-        }
         memset(buffer, 0, FILE_READ_SIZE);
+        fread(buffer, sizeof(char), FILE_READ_SIZE - 1, file);
+        printf("%s", buffer);
+        sendTCPstring(sockfd, buffer);
     }
+
+    free(buffer);
     return 1;
 }
 
