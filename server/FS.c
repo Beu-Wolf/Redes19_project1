@@ -113,19 +113,14 @@ void receiveConnections(char *port) {
         counter = select(maxfd+1, &rfds, NULL, NULL, NULL);
         if (counter < 0 && errno != EINTR) fatal(SELECT_ERROR);
 
-        if (FD_ISSET(udpSocket, &rfds)) {
+        if (FD_ISSET(udpSocket, &rfds))
             handleUdp(udpSocket, port);
-        }
 
-        if (FD_ISSET(tcpSocket, &rfds)) {
-
+        if (FD_ISSET(tcpSocket, &rfds))
             handleTcp(tcpSocket, port);
-
-        }
     }
 
     if(sigaction(SIGCHLD, &oldAction, NULL) == -1) fatal("error changing signal handling");
-
 }
 
 int setupServerSocket(char *port, int socktype) {
@@ -156,17 +151,21 @@ int setupServerSocket(char *port, int socktype) {
 
 void handleTcp(int fd, char* port) {
     int pid, ret;
-    char buffer[BUFFER_SIZE];
+    char* buffer;
     int newfd;
 
+
     // block 
-    if(sigprocmask(SIG_BLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
+    // if(sigprocmask(SIG_BLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
     
     ret = fork();
     if (ret == -1)
         fatal(FORK_ERROR);
 
     if (ret == 0) { // child process
+        buffer = (char*)malloc(BUFFER_SIZE * sizeof(char));
+        if(!buffer) fatal(ALLOC_ERROR);
+
         pid = getpid();
         printf("Forked. PID = %d\n", pid);
 
@@ -176,13 +175,14 @@ void handleTcp(int fd, char* port) {
         while (1) {
             memset(buffer, 0, BUFFER_SIZE);
             if (read(newfd, buffer, BUFFER_SIZE) == 0) {
+                free(buffer);
                 exit(0);
             }
             printf("[TCP][%d] %s\n", pid, buffer);
         }
     }
 
-    if(sigprocmask(SIG_UNBLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
+    // if(sigprocmask(SIG_UNBLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
 }
 
 void handleUdp(int fd, char* port) {
