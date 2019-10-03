@@ -32,7 +32,7 @@ char* processTopicPropose(char** args) {
                 dircount++;
             }
 
-            if(dircount == 50) {
+            if(dircount == 99) {
                 strcpy(topicProposeStatus, "PTR FUL\n");
                 closedir(dirp);
                 break;
