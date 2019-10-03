@@ -22,7 +22,6 @@
 #define BUFFER_SIZE 1024
 #define TOPICSDIR "./topics"
 #define DATAFILE  ".data"
-#define ANSWERDIR "answers"
 
 #define MAX(A,B) ((A)>= (B) ? (A):(B))
 
