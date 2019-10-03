@@ -10,6 +10,7 @@
 
 void fatal(const char* buffer) {
     fprintf(stderr, "%s\n", buffer);
+    perror("Error");
     exit(1);
 }
 
@@ -117,7 +118,7 @@ int sendTCPfile(int sockfd, FILE* file) {
     while(feof(file) == 0) {
         memset(buffer, 0, FILE_READ_SIZE);
         fread(buffer, sizeof(char), FILE_READ_SIZE - 1, file);
-        printf("%s", buffer);
+        printf("%s\n", buffer);
         sendTCPstring(sockfd, buffer);
     }
 

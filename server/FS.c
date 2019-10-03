@@ -12,6 +12,9 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <dirent.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 
 #include "../lib/util.h"
 #include "commands.h"
@@ -21,6 +24,24 @@
 
 #define MAX(A,B) ((A)>= (B) ? (A):(B))
 
+struct sigaction newAction, oldAction;
+sigset_t ss;
+
+void handleSIGCHILD(int s) {
+    pid_t pid;
+    int status;
+    write(0, "waiting\n", 9);
+    while((pid = waitpid(-1, &status, WNOHANG   ))) {
+        if(pid == -1) {
+            if(errno == ECHILD) break;
+            fatal(WAIT_ERROR);
+        }
+        
+    }
+    write(0, "Stopped waiting\n", 16);
+}
+
+
 void receiveConnections(char *port);
 int setupServerSocket(char *port, int socktype);
 void handleTcp(int fd, char* port);
@@ -28,6 +49,13 @@ void handleUdp(int fd, char*port);
 
 int main(int argc, char *argv[]) {
     char *port = DEFAULT_PORT;
+
+    bzero(&newAction, sizeof(struct sigaction));
+    newAction.sa_handler = handleSIGCHILD;
+    if(sigemptyset(&newAction.sa_mask) == -1) fatal("sigemptyset error");
+    newAction.sa_flags = SA_NOCLDSTOP;
+
+    if(sigaction(SIGCHLD, &newAction, &oldAction) == -1) fatal("error changing signal handler");
 
     if (argc > 1) {
         short err = 0;
@@ -65,9 +93,6 @@ int main(int argc, char *argv[]) {
 
 void receiveConnections(char *port) {
     int udpSocket, tcpSocket;
-
-    int newfd;
-
     int maxfd, counter;
     fd_set rfds;
 
@@ -76,25 +101,31 @@ void receiveConnections(char *port) {
 
     maxfd = MAX(udpSocket, tcpSocket);
 
+    if(sigemptyset(&ss) == -1) fatal("Synchronizing child");
+    if(sigaddset(&ss, SIGCHLD) == -1) fatal("Synchronizing child");
+
+
     while (1) {
         FD_ZERO(&rfds);
         FD_SET(udpSocket, &rfds);
         FD_SET(tcpSocket, &rfds);
 
         counter = select(maxfd+1, &rfds, NULL, NULL, NULL);
-        if (counter <= 0) fatal(SELECT_ERROR);
+        if (counter < 0 && errno != EINTR) fatal(SELECT_ERROR);
 
         if (FD_ISSET(udpSocket, &rfds)) {
             handleUdp(udpSocket, port);
         }
 
         if (FD_ISSET(tcpSocket, &rfds)) {
-            newfd = accept(tcpSocket, NULL, NULL);
-            if (newfd == -1) fatal(SOCK_ACPT_ERROR);
 
-            handleTcp(newfd, port);
+            handleTcp(tcpSocket, port);
+
         }
     }
+
+    if(sigaction(SIGCHLD, &oldAction, NULL) == -1) fatal("error changing signal handling");
+
 }
 
 int setupServerSocket(char *port, int socktype) {
@@ -126,27 +157,32 @@ int setupServerSocket(char *port, int socktype) {
 void handleTcp(int fd, char* port) {
     int pid, ret;
     char buffer[BUFFER_SIZE];
+    int newfd;
 
+    // block 
+    if(sigprocmask(SIG_BLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
+    
     ret = fork();
-    if(ret == -1)
+    if (ret == -1)
         fatal(FORK_ERROR);
 
-    if (ret != 0) {
-        // parent process
-        close(fd);
-        return;
+    if (ret == 0) { // child process
+        pid = getpid();
+        printf("Forked. PID = %d\n", pid);
+
+        newfd = accept(fd, NULL, NULL);
+        if (newfd == -1) fatal(SOCK_ACPT_ERROR);
+
+        while (1) {
+            memset(buffer, 0, BUFFER_SIZE);
+            if (read(newfd, buffer, BUFFER_SIZE) == 0) {
+                exit(0);
+            }
+            printf("[TCP][%d] %s\n", pid, buffer);
+        }
     }
 
-    // child process
-    pid = getpid();
-    printf("Forked. PID = %d\n", pid);
-    while (1) {
-        memset(buffer, 0, BUFFER_SIZE);
-        if (read(fd, buffer, BUFFER_SIZE) == 0) // finished reading
-            exit(0);
-
-        printf("[TCP][%d] %s\n", pid, buffer);
-    }
+    if(sigprocmask(SIG_UNBLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
 }
 
 void handleUdp(int fd, char* port) {

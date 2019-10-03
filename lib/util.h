@@ -16,6 +16,7 @@
 #define GETADDRINFO_ERROR "Getting address info"
 #define FORK_ERROR "in fork"
 #define SELECT_ERROR "in select"
+#define WAIT_ERROR "in wait child"
 
 #define NOT_REGISTERED_ERROR "You must be registered before performing any action\n"
 #define NO_TOPIC_SELECTED_ERROR "You must have a topic selected\n"
