@@ -15,33 +15,22 @@ static char *questionUser(char *p) {
 }
 
 static int numAnswers(char *p) {
-    char *path = strdup(p);
-    path = safestrcat(path, "/"ANSWERDIR);
-
-    DIR *answerDir = opendir(path);
-    if (answerDir == NULL) {
-        if (errno == ENOENT) { // answers/ doesn't exist yet
-            return 0;
-        } else {
-            fatal("Error opening directory");
-        }
-    }
-
+    DIR *dir = opendir(p);
     struct dirent *answerEnt;
     int answerCount = 0;
 
-    while ((answerEnt = readdir(answerDir))) {
+    while ((answerEnt = readdir(dir))) {
         char *answer = answerEnt->d_name;
 
         if (strcmp(answer, ".")
                 && strcmp(answer, "..")
-                && strcmp(answer, DATAFILE)) {
+                && strcmp(answer, DATAFILE)
+                && answerEnt->d_type == DT_DIR) {
             answerCount++;
         }
     }
 
-    free(path);
-    closedir(answerDir);
+    closedir(dir);
 
     return answerCount;
 }
