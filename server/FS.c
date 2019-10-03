@@ -128,22 +128,23 @@ void handleTcp(int fd, char* port) {
     char buffer[BUFFER_SIZE];
 
     ret = fork();
+    if(ret == -1)
+        fatal(FORK_ERROR);
+
     if (ret != 0) {
-        if (ret == -1) {
-            fatal(FORK_ERROR);
-        } else { // parent process
-            close(fd);
-            return;
-        }
+        // parent process
+        close(fd);
+        return;
     }
 
+    // child process
     pid = getpid();
     printf("Forked. PID = %d\n", pid);
     while (1) {
         memset(buffer, 0, BUFFER_SIZE);
-        if (read(fd, buffer, BUFFER_SIZE) == 0) {
+        if (read(fd, buffer, BUFFER_SIZE) == 0) // finished reading
             exit(0);
-        }
+
         printf("[TCP][%d] %s\n", pid, buffer);
     }
 }
@@ -166,40 +167,30 @@ void handleUdp(int fd, char* port) {
     memset(buffer, 0, BUFFER_SIZE);
     recvfrom(fd, buffer, BUFFER_SIZE, 0,
             (struct sockaddr *)&addr, &addrlen);
-    printf("[UDP] %s", buffer);
+    printf("[UDP]=(%s:%s)=============================================================\n", 
+            inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr, messageSender, INET_ADDRSTRLEN),  port);
+    printf("%s\n", buffer);
 
     args = tokenize(buffer);
 
     if (!strcmp(args[0], "REG")) {
-        printf("Register request sent by: %s at %s\n", inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr,
-                    messageSender, INET_ADDRSTRLEN),  port);
         messageToSend = processRegister(args);
 
         printf("status: %s", messageToSend);
 
     } else if (!strcmp(args[0], "PTP")) {
-        printf("Topic propose request sent by: %s at %s\n",
-                inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr,
-                    messageSender, INET_ADDRSTRLEN),  port);
         messageToSend = processTopicPropose(args);
 
     } else if (!strcmp(args[0], "LTP\n")) {
-        printf("Topic list request sent by: %s at %s\n",
-                inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr,
-                    messageSender, INET_ADDRSTRLEN),  port);
 
         messageToSend = processTopicList(args);
-        printf("%s", messageToSend);
 
     } else if (!strcmp(args[0], "LQU")) {
-        printf("Question list request sent by: %s at %s\n",
-                inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr,
-                    messageSender, INET_ADDRSTRLEN),  port);
 
         messageToSend = processQuestionList(args);
-        printf("%s", messageToSend);
     }
 
+    printf("[Sending response]\n|%s|\n", messageToSend);
     n = sendto(fd, messageToSend, strlen(messageToSend), 0,
             (struct sockaddr *)&addr, addrlen);
     if(n == -1) {
@@ -207,6 +198,6 @@ void handleUdp(int fd, char* port) {
     }
 
     free(messageToSend);
-
+    printf("[UDP]===================================================================================\n");
 }
 
