@@ -112,7 +112,9 @@ void receiveConnections(char *port) {
         FD_SET(tcpSocket, &rfds);
 
         counter = select(maxfd+1, &rfds, NULL, NULL, NULL);
-        if (counter < 0 && errno != EINTR) fatal(SELECT_ERROR);
+        if (counter == -1 && errno == EINTR) {
+            continue;
+        }
 
         if (FD_ISSET(udpSocket, &rfds))
             handleUdp(udpSocket, port);
