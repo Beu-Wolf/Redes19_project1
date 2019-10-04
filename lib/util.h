@@ -46,7 +46,7 @@ int recvTCPline(int sockfd, char** buffer, int* size);
 int recvTCPword(int sockfd, char** buffer, int* size);
 
 int sendTCPfile(int sockfd, FILE* filefd);
-int recvTCPfile(int sockfd, unsigned long long fileSize, int filefd);
+int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd);
 
 void stripnewLine(char* str);
 

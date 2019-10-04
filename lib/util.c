@@ -193,6 +193,41 @@ int recvTCPword(int sockfd, char** buffer, int* size) {
     return len;
 }
 
+int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
+    char* buffer, *ptr;
+    int n, bytesToRead;
+    int currSize = fileSize; //To keep track of when to stop reading
+
+    bytesToRead = fileSize;
+
+    buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
+    if(!buffer) fatal(ALLOC_ERROR);
+
+    
+
+    ptr = buffer;
+    while(currSize > 0) {
+
+        if(currSize > FILE_READ_SIZE) {
+            bytesToRead = FILE_READ_SIZE;
+            buffer = ptr;
+        } else {
+            bytesToRead = currSize;
+        }
+
+        n = recv(sockfd, buffer, bytesToRead, 0);
+        fputs(buffer, filefd);
+        printf("Writing:%s\n", buffer);
+        
+        currSize -= n;
+        buffer += n;
+    }
+    buffer = ptr;
+
+    free(buffer);
+    return 1;
+}
+
 void stripnewLine(char* str) {
     int i = 0;
 
