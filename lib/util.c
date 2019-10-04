@@ -203,6 +203,7 @@ int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
     buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
     if(!buffer) fatal(ALLOC_ERROR);
 
+    memset(buffer, 0, FILE_READ_SIZE);
     
 
     ptr = buffer;
@@ -216,6 +217,11 @@ int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
         }
 
         n = recv(sockfd, buffer, bytesToRead, 0);
+        if(n == -1) {
+            return -1;
+        }
+
+
         fputs(buffer, filefd);
         printf("Writing:%s\n", buffer);
         
