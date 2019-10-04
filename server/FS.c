@@ -21,6 +21,7 @@
 
 #define DEFAULT_PORT "58036"
 #define BUFFER_SIZE 1024
+#define REQUEST_MSG_LEN 3
 
 #define MAX(A,B) ((A)>= (B) ? (A):(B))
 
@@ -151,36 +152,47 @@ int setupServerSocket(char *port, int socktype) {
 
 void handleTcp(int fd, char* port) {
     int pid, ret;
-    char* buffer;
     int newfd;
 
+    int size = REQUEST_MSG_LEN;
 
-    // block 
     // if(sigprocmask(SIG_BLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
+    printf("Accepting...\n");
+    newfd = accept(fd, NULL, NULL);
+    if (newfd == -1) fatal(SOCK_ACPT_ERROR);
+    printf("Accepted!\n");
     
     ret = fork();
     if (ret == -1)
         fatal(FORK_ERROR);
 
     if (ret == 0) { // child process
-        buffer = (char*)malloc(BUFFER_SIZE * sizeof(char));
-        if(!buffer) fatal(ALLOC_ERROR);
+        char* req;
+        close(fd);
 
         pid = getpid();
         printf("Forked. PID = %d\n", pid);
 
-        newfd = accept(fd, NULL, NULL);
-        if (newfd == -1) fatal(SOCK_ACPT_ERROR);
+        req = (char*)malloc((REQUEST_MSG_LEN+1) * sizeof(char));
+        if(!req) fatal(ALLOC_ERROR);
+        memset(req, 0, REQUEST_MSG_LEN+1);
 
-        while (1) {
-            memset(buffer, 0, BUFFER_SIZE);
-            if (read(newfd, buffer, BUFFER_SIZE) == 0) {
-                free(buffer);
-                exit(0);
-            }
-            printf("[TCP][%d] %s\n", pid, buffer);
+        recvTCPword(newfd, &req, &size);                                          //consume space
+
+        printf("REQUEST: |%s|\n", req);
+
+        if(!strcmp("QUS", req)) {
+            processQuestionSubmit(newfd);
+        } else {
+            printf("Not supported as of now\n");
         }
+        
+        close(newfd);
+        free(req);
+        exit(0);
     }
+
+    close(newfd);
 
     // if(sigprocmask(SIG_UNBLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
 }

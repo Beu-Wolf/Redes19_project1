@@ -30,4 +30,7 @@ char *processTopicPropose(char **args);
 char *processTopicList(char **args);
 char *processQuestionList(char **args);
 
+//TCP
+void processQuestionSubmit(int fdTCP);
+
 #endif
