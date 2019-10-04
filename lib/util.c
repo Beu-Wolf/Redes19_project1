@@ -150,13 +150,47 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
 
         if(ptr - (*buffer) >= *size) { // resize buffer
             *buffer = (char*)realloc(*buffer, 2 * *size);
-            if(!(*buffer))
-                fatal(ALLOC_ERROR);
+            if(!(*buffer)) fatal(ALLOC_ERROR);
+            ptr = *buffer + *size;
             (*size) *= 2;
         }
     }
     *ptr = '\0';
     return strlen(*buffer);
+}
+
+
+int recvTCPword(int sockfd, char** buffer, int* size) {
+    char* ptr;
+    int len;
+
+    // TODO: Is this really necessary???
+    // allocate buffer if needed
+    if(*buffer == NULL || *size == 0) {
+        (*buffer) = (char*)malloc(INPUT_SIZE * sizeof(char));
+        if(!(*buffer)) {
+            fatal(ALLOC_ERROR);
+        }
+        *size = INPUT_SIZE;
+    }
+
+    len = 0;
+    ptr = *buffer;
+    while(recv(sockfd, ptr, 1, 0) == 1) {
+        len++;
+        if(*ptr == ' ' || *ptr == '\n')
+            break; // terminate string and return
+
+        ptr++;
+        if((ptr - (*buffer)) == *size) { // resize buffer
+            *buffer = (char*)realloc(*buffer, 2 * *size);
+            if(!(*buffer)) fatal(ALLOC_ERROR);
+            ptr = *buffer + *size;
+            (*size) *= 2;
+        }
+    }
+    *ptr = '\0';
+    return len;
 }
 
 void stripnewLine(char* str) {
