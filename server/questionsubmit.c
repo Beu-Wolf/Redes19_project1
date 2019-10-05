@@ -2,12 +2,10 @@
 
 
 void processQuestionSubmit(int fdTCP) {
-    char* userId, *topic, *question, *cleaner, *fileSizeStr;
+    char* userId, *topic, *question, *fileSizeStr;
     int size, numQuestions,  n;
     long fileSize;
     char response[9];
-
-    cleaner = (char*) malloc(sizeof(char)*BUFFER_SIZE);
 
     size = 6; // size of userID plus one
     userId = (char*) malloc(sizeof(char) * size);
@@ -32,9 +30,6 @@ void processQuestionSubmit(int fdTCP) {
 
     DIR* topicDirp = opendir(path);
     if(!topicDirp) {
-        recvTCPline(fdTCP, &cleaner, NULL);          //consume what is in the socket
-        memset(cleaner, 0, strlen(cleaner));
-        free(cleaner);        
         strcpy(response, "ERR\n");                  //send error message
         printf("Fodeu\n");
         sendTCPstring(fdTCP, response);
@@ -62,9 +57,6 @@ void processQuestionSubmit(int fdTCP) {
         }
 
         if(!strcmp(currQuestion, question)) {
-            recvTCPline(fdTCP, &cleaner, NULL);          //consume what is in the socket
-            memset(cleaner, 0, strlen(cleaner)); 
-            free(cleaner);       
             strcpy(response, "QUR DUP\n"); 
             printf("Duplicado\n");                 //send duplicate message
             //sendTCPstring(fdTCP, response);
@@ -75,9 +67,6 @@ void processQuestionSubmit(int fdTCP) {
         numQuestions++;
 
         if(numQuestions == 99) {
-            recvTCPline(fdTCP, &cleaner, NULL);          //consume what is in the socket
-            memset(cleaner, 0, strlen(cleaner));
-            free(cleaner);        
             strcpy(response, "QUR FUL\n");     
             printf("FULL\n");             //send full message
             //sendTCPstring(fdTCP, response);
@@ -96,9 +85,6 @@ void processQuestionSubmit(int fdTCP) {
     n = mkdir(path, 0700);
 
     if(n == -1) {
-            recvTCPline(fdTCP, &cleaner, NULL);          //consume what is in the socket
-            memset(cleaner, 0, strlen(cleaner)); 
-            free(cleaner);       
             strcpy(response, "QUR NOK\n");                  //send not ok message
             sendTCPstring(fdTCP, response);
             return;
@@ -140,9 +126,6 @@ void processQuestionSubmit(int fdTCP) {
     FILE* questionFilePtr = fopen(questionFile, "w");
 
     if(!questionFilePtr) {
-        recvTCPline(fdTCP, &cleaner, NULL);          //consume what is in the socket
-        memset(cleaner, 0, strlen(cleaner)); 
-        free(cleaner);       
         strcpy(response, "QUR NOK\n");                  //send not ok message
         sendTCPstring(fdTCP, response);
         return;
@@ -160,7 +143,6 @@ void processQuestionSubmit(int fdTCP) {
     // questionSubmitStatus = (char*) malloc(sizeof(char)*9);      
     // if(!questionSubmitStatus) fatal(ALLOC_ERROR);
     // memset(questionSubmitStatus, 0, 9);
-    free(cleaner);
     free(fileSizeStr);
     free(questionFolder);
     free(questionFile);
