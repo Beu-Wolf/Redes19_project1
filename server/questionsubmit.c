@@ -59,7 +59,7 @@ void processQuestionSubmit(int fdTCP) {
         if(!strcmp(currQuestion, question)) {
             strcpy(response, "QUR DUP\n"); 
             printf("Duplicado\n");                 //send duplicate message
-            //sendTCPstring(fdTCP, response);
+            sendTCPstring(fdTCP, response);
             closedir(topicDirp);
             return;
         }
@@ -69,7 +69,7 @@ void processQuestionSubmit(int fdTCP) {
         if(numQuestions == 99) {
             strcpy(response, "QUR FUL\n");     
             printf("FULL\n");             //send full message
-            //sendTCPstring(fdTCP, response);
+            sendTCPstring(fdTCP, response);
             closedir(topicDirp);
             return;
         }
