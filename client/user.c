@@ -92,10 +92,6 @@ char isRegistered() {
 }
 
 
-void processQuestionList(char** parsedInput) {
-    printf("Want question list\n");
-}
-
 void processQuestionGet(char** parsedInput) {
     if(strlen(parsedInput[0]) == 2)
         printf("Want question number");
@@ -126,7 +122,8 @@ int main(int argc, char* argv[]) {
 
     // char buffer[INET_ADDRSTRLEN];
 
-    char* topicList[50] = {0};
+    char *topicList[100] = {0};
+    char *questionList[100] = {0};
 
     readLineArgs(argc, argv, &newService);
     setAddrStruct(&newService, &newAddrInfoSet);
@@ -164,7 +161,8 @@ int main(int argc, char* argv[]) {
             processTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
 
         } else if(!strcmp(cmd, "ql") || !strcmp(cmd, "question_list")) {
-            processQuestionList(parsedInput);
+            processQuestionList(fdUDP, parsedInput,
+                    newAddrInfoSet, questionList);
 
         } else if(!strcmp(cmd, "qg") || !strcmp(cmd, "question_get")) {
             processQuestionGet(parsedInput);

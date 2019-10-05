@@ -71,6 +71,12 @@ void processTopicPropose(int fdUDP, char** parsedInput,
 void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet);
 void receiveTopicPropose(int fdUDP);
 
+//Question List
+void processQuestionList(int fdUDP, char** args,
+		addressInfoSet newAddrInfoSet, char **questionList);
+void receiveQuestionList(int fdUDP, char **questionList);
+void sendQuestionList(int fdUDP, addressInfoSet newAddrInfoSet);
+
 //Question Submit
 void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
 int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
