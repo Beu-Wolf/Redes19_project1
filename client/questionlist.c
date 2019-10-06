@@ -48,6 +48,7 @@ void receiveQuestionList(int fdUDP, char **questionList) {
     // TODO: do we really want to exit the client on error?
     if (n == -1) fatal(UDPRECV_ERROR);
 
+    stripnewLine(buffer);
     args = tokenize(buffer);
 
     if (arglen(args) < 2) {

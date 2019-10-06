@@ -37,6 +37,7 @@ static int numAnswers(char *p) {
 
 char *processQuestionList(char **args) {
     char *questionListStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
+    char newLine = '\n';
     if (!questionListStatus) exit(1);
 
     if (arglen(args) != 2) {
@@ -87,8 +88,11 @@ char *processQuestionList(char **args) {
 
     sprintf(questionListStatus, "LQR %d", questionCount);
 
-    if (questionCount != 0)
+    if (questionCount != 0){
         questionListStatus = safestrcat(questionListStatus, info);
+        questionListStatus = safestrcat(questionListStatus, &newLine);
+    } else    
+        questionListStatus = safestrcat(questionListStatus, &newLine);
 
     free(info);
     closedir(topicDir);
