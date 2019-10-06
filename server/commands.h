@@ -32,5 +32,9 @@ char *processQuestionList(char **args);
 
 //TCP
 void processQuestionSubmit(int fdTCP);
+char* getUserId(int fdTCP, int size);
+char* getTopic(int fdTCP, int size);
+char* getQuestion(int fdTCP, int size);
+int getFileSize(int fdTCP, int size);
 
 #endif

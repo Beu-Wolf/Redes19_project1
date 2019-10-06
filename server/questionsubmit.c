@@ -1,21 +1,21 @@
 #include "commands.h"
 
 
-void processQuestionSubmit(int fdTCP) {
-    char* userId, *topic, *question, *fileSizeStr;
-    int size, numQuestions,  n;
-    long fileSize;
-    char response[9];
 
-    size = 6; // size of userID plus one
+char* getUserId(int fdTCP, int size) {
+
+    char* userId; 
     userId = (char*) malloc(sizeof(char) * size);
     if(!userId) fatal(ALLOC_ERROR);
 
     recvTCPword(fdTCP, &userId, &size);
     printf("UserID: |%s|\n", userId);
+    return userId;
+}
 
-    // Read topic
-    size = 11; // size of userID plus one
+char* getTopic(int fdTCP, int size) {
+    char* topic;
+    
     topic = (char*) malloc(sizeof(char) * size);
     if(!topic) fatal(ALLOC_ERROR);
     memset(topic, 0, 11);
@@ -23,12 +23,65 @@ void processQuestionSubmit(int fdTCP) {
     recvTCPword(fdTCP, &topic, &size);
     printf("Topic: |%s|\n", topic);
 
+    return topic;
+}
+
+char* getQuestion(int fdTCP, int size) {
+    char* question;
+    
+    question = (char*) malloc(sizeof(char) * size);
+    if(!question) fatal(ALLOC_ERROR);
+    memset(question, 0, 11); 
+
+    recvTCPword(fdTCP, &question, &size);
+    printf("Question: |%s|\n", question);
+
+    return question;
+}
+
+int getFileSize(int fdTCP, int size) {
+    char* fileSizeStr;
+    int fileSize;
+    
+    fileSizeStr = (char*) malloc(sizeof(char) * size);
+    if(!fileSizeStr) fatal(ALLOC_ERROR);
+    memset(fileSizeStr, 0, 11);
+
+    recvTCPword(fdTCP, &fileSizeStr, &size);
+    printf("File Size: |%s|\n", fileSizeStr);
+
+    if(!isPositiveNumber(fileSizeStr)){
+        free(fileSizeStr);
+        return -1;
+    }
+
+    fileSize = strtol(fileSizeStr, NULL, 0);
+
+    free(fileSizeStr);
+    return fileSize;
+}
+
+void processQuestionSubmit(int fdTCP) {
+    char* userId, *topic, *question;
+    int size, numQuestions,  n;
+    long fileSize;
+    char response[9];
+
+
+    size = 6;                   // size of userID plus one
+    userId = getUserId(fdTCP, size);
+
+
+    // Read topic
+    size = 11; // size of userID plus one
+    topic = getTopic(fdTCP, size);
+
+
     char path[BUFFER_SIZE];
     strcpy(path, TOPICSDIR"/");
     strcat(path, topic);                    //Topics folder
 
-
-    DIR* topicDirp = opendir(path);
+    DIR* topicDirp = opendir(path);         //Open topics folder
     if(!topicDirp) {
         strcpy(response, "ERR\n");                  //send error message
         printf("Fodeu\n");
@@ -37,15 +90,12 @@ void processQuestionSubmit(int fdTCP) {
     }
 
     size = 11;                                      //size of question +1
-    question = (char*) malloc(sizeof(char) * size);
-    if(!question) fatal(ALLOC_ERROR);
-    memset(question, 0, 11); 
-
-    recvTCPword(fdTCP, &question, &size);
-    printf("Question: |%s|\n", question);
+    question = getQuestion(fdTCP, size);
 
     struct dirent *questionEnt;
 
+
+    //Question verifications (Duplicates, Full, etc)
     numQuestions = 0;
     while((questionEnt = readdir(topicDirp))) {
         char *currQuestion = questionEnt->d_name;
@@ -106,14 +156,14 @@ void processQuestionSubmit(int fdTCP) {
 
     //Receive filesize
     size = 11; // size of fileSize plus one
-    fileSizeStr = (char*) malloc(sizeof(char) * size);
-    if(!fileSizeStr) fatal(ALLOC_ERROR);
-    memset(fileSizeStr, 0, 11);
+    fileSize = getFileSize(fdTCP, size);
 
-    recvTCPword(fdTCP, &fileSizeStr, &size);
-    printf("File Size: |%s|\n", fileSizeStr);
+    if(fileSize == -1) {
+        strcpy(response, "QUR NOK\n");                  //send not ok message
+        sendTCPstring(fdTCP, response);
+        return;
+    }
 
-    fileSize = strtol(fileSizeStr, NULL, 0);
 
     //create question txt
 
@@ -138,12 +188,6 @@ void processQuestionSubmit(int fdTCP) {
 
     
     
-
-    //9 = max size of protocol mesage for question submit
-    // questionSubmitStatus = (char*) malloc(sizeof(char)*9);      
-    // if(!questionSubmitStatus) fatal(ALLOC_ERROR);
-    // memset(questionSubmitStatus, 0, 9);
-    free(fileSizeStr);
     free(questionFolder);
     free(questionFile);
     free(userId);
