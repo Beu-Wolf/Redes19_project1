@@ -7,7 +7,7 @@ char* getUserId(int fdTCP, int size) {
     char* userId; 
     
 
-    recvTCPword(fdTCP, &userId, &size);
+    recvTCPword(fdTCP, &userId, &size); 
     printf("UserID: |%s|\n", userId);
     return userId;
 }
@@ -16,7 +16,10 @@ char* getTopic(int fdTCP, int size) {
     char* topic;
     
 
-    recvTCPword(fdTCP, &topic, &size);
+    if(recvTCPword(fdTCP, &topic, &size) > 10) {
+        free(topic);
+        return NULL;
+    }
     printf("Topic: |%s|\n", topic);
 
     return topic;
@@ -25,7 +28,10 @@ char* getTopic(int fdTCP, int size) {
 char* getQuestion(int fdTCP, int size) {
     char* question;
 
-    recvTCPword(fdTCP, &question, &size);
+    if(recvTCPword(fdTCP, &question, &size) > 10) {
+        free(question);
+        return NULL;
+    }
     printf("Question: |%s|\n", question);
 
     return question;
@@ -35,7 +41,11 @@ int getFileSize(int fdTCP, int size) {
     char* fileSizeStr;
     int fileSize;
 
-    recvTCPword(fdTCP, &fileSizeStr, &size);
+    if(recvTCPword(fdTCP, &fileSizeStr, &size) > 10) {
+        free(fileSizeStr);
+        return -1;
+    }
+
     printf("File Size: |%s|\n", fileSizeStr);
 
     if(!isPositiveNumber(fileSizeStr)){
@@ -85,7 +95,10 @@ int getImageFileSize(int fdTCP, int size) {
     char* imageFileStr;
     int imageFileSize;
 
-    recvTCPword(fdTCP, &imageFileStr, &size);
+    if(recvTCPword(fdTCP, &imageFileStr, &size) > 10) {
+        free(imageFileStr);
+        return -1;
+    }
     printf("File Size: |%s|\n", imageFileStr);
 
     if(!isPositiveNumber(imageFileStr)){
