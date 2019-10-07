@@ -135,8 +135,7 @@ void processQuestionSubmit(int fdTCP) {
     DIR* topicDirp = opendir(path);         //Open topics folder
     if(!topicDirp) {
         strcpy(response, "ERR\n");                  //send error message
-        printf("Fodeu\n");
-        sendTCPstring(fdTCP, response);
+        sendTCPstring(fdTCP, response, strlen(response));
         return;
     }
 
@@ -160,7 +159,7 @@ void processQuestionSubmit(int fdTCP) {
         if(!strcmp(currQuestion, question)) {
             strcpy(response, "QUR DUP\n"); 
             printf("Duplicado\n");                 //send duplicate message
-            sendTCPstring(fdTCP, response);
+            sendTCPstring(fdTCP, response, strlen(response));
             closedir(topicDirp);
             return;
         }
@@ -170,7 +169,7 @@ void processQuestionSubmit(int fdTCP) {
         if(numQuestions == 99) {
             strcpy(response, "QUR FUL\n");     
             printf("FULL\n");             //send full message
-            sendTCPstring(fdTCP, response);
+            sendTCPstring(fdTCP, response, strlen(response));
             closedir(topicDirp);
             return;
         }
@@ -187,7 +186,7 @@ void processQuestionSubmit(int fdTCP) {
 
     if(n == -1) {
             strcpy(response, "QUR NOK\n");                  //send not ok message
-            sendTCPstring(fdTCP, response);
+            sendTCPstring(fdTCP, response, strlen(response));
             return;
     }
 
@@ -211,7 +210,7 @@ void processQuestionSubmit(int fdTCP) {
 
     if(fileSize == -1) {
         strcpy(response, "QUR NOK\n");                  //send not ok message
-        sendTCPstring(fdTCP, response);
+        sendTCPstring(fdTCP, response, strlen(response));
         return;
     }
 
@@ -228,7 +227,7 @@ void processQuestionSubmit(int fdTCP) {
 
     if(!questionFilePtr) {
         strcpy(response, "QUR NOK\n");                  //send not ok message
-        sendTCPstring(fdTCP, response);
+        sendTCPstring(fdTCP, response, strlen(response));
         return;
     }
 
@@ -241,7 +240,7 @@ void processQuestionSubmit(int fdTCP) {
 
     if(hasImage == -1) {
         strcpy(response, "QUR NOK\n");                  //send not ok message
-        sendTCPstring(fdTCP, response);
+        sendTCPstring(fdTCP, response, strlen(response));
         return;
     } else if(hasImage == 1) {
         //read image extension
@@ -249,7 +248,7 @@ void processQuestionSubmit(int fdTCP) {
         char* imgExt = getImageExtension(fdTCP, size);
         if(!imgExt) {
             strcpy(response, "QUR NOK\n");                  //send not ok message
-            sendTCPstring(fdTCP, response);
+            sendTCPstring(fdTCP, response, strlen(response));
             return;
         }
 
@@ -259,7 +258,7 @@ void processQuestionSubmit(int fdTCP) {
 
         if(fileSize == -1) {
             strcpy(response, "QUR NOK\n");                  //send not ok message
-            sendTCPstring(fdTCP, response);
+            sendTCPstring(fdTCP, response, strlen(response));
             return;
         }
 
@@ -276,7 +275,7 @@ void processQuestionSubmit(int fdTCP) {
 
         if(!imageFilePtr) {
             strcpy(response, "QUR NOK\n");                  //send not ok message
-            sendTCPstring(fdTCP, response);
+            sendTCPstring(fdTCP, response, strlen(response));
             return;
         }
 
@@ -292,7 +291,7 @@ void processQuestionSubmit(int fdTCP) {
 
 
     strcpy(response, "QUR OK\n");                  //send not ok message
-    sendTCPstring(fdTCP, response);
+    sendTCPstring(fdTCP, response, strlen(response));
     fclose(questionFilePtr);
 
     
