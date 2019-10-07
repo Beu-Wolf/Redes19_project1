@@ -7,6 +7,8 @@
 #define ALLOC_ERROR "Allocation Error"
 #define FILEREAD_ERROR "Reading from file"
 #define FILEOPEN_ERROR "Opening File"
+#define DIROPEN_ERROR "Opening Dir"
+#define DIRCLOSE_ERROR "Closing Dir"
 #define SOCK_CREATE_ERROR "Creating Socket"
 #define SOCK_BIND_ERROR "Binding Socket"
 #define SOCK_CONN_ERROR "Connecting Socket"
@@ -32,6 +34,7 @@
 
 // Protocol consts
 #define QUESTION_MAXLEN 10
+#define MAXTOPICS 99
 
 
 void fatal(const char* buffer);
