@@ -50,13 +50,31 @@ void receiveQuestionList(int fdUDP, char **questionList) {
 
     if (arglen(args) < 2) {
         // TODO: handle wrong number of arguments
+        printf("Something went wrong. Please try again\n");
+        questionList = NULL; // terminate question list
+        free(args);
+        return;
+
     }
 
     if (isPositiveNumber(args[1])) {
         questionNum = strtol(args[1], NULL, 10);
     } else {
         // TODO: handle invalid number of questions
+        printf("Invalid Number of questions\n");
+        questionList = NULL; // terminate question list
+        free(args);
+        return;
     }
+
+    if(!strcmp(args[1], "0")) {
+        printf("No questions to show in selected topic\n");
+        questionList = NULL; // terminate question list
+
+        free(args);
+        return;
+    }
+
 
     char **questions = args + 2;
     char question[16];
@@ -74,6 +92,11 @@ void receiveQuestionList(int fdUDP, char **questionList) {
                     i, question, numAnswers, userID);
         } else {
             // TODO: handle invalid question:user:ans sequence
+            printf("Error while parsing questions. Please try again\n");
+            questionList = NULL; // terminate question list
+
+            free(args);
+            return;
         }
     }
 
