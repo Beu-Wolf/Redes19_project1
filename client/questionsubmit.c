@@ -129,11 +129,24 @@ int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
 
 void receiveQuestionSubmit(int fdTCP) {
     char* buffer;
+    char** args;
     int size = BUFFER_SIZE;
 
     recvTCPline(fdTCP, &buffer,&size);
 
-    printf("%s", buffer);
+    args = tokenize(buffer);
+    stripnewLine(args[1]);
+    if(!strcmp(args[1], "OK"))
+        printf("Question successfully submited\n");
+    else if(!strcmp(args[1], "NOK"))
+        printf("Something went wrong please try again\n");
+    else if(!strcmp(args[1], "DUP"))
+        printf("Question already exists in selected topic\n");
+    else if (!strcmp(args[1], "FUL"))
+        printf("Selected topic already has max number of questions\n");
+    else if(!strcmp(args[1], "ERR"))
+        printf(SERVER_ERR);
+
     close(fdTCP);
     return;
 
