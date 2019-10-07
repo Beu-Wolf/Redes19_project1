@@ -14,8 +14,7 @@ char* processTopicPropose(char** args) {
     if (!topicProposeStatus) fatal(ALLOC_ERROR);
 
     // Check number of arguments
-    // TODO: use arglen
-    if(args[1] == NULL || args[2] == NULL) {
+    if(arglen(args) != 3) {
         strcpy(topicProposeStatus, "ERR\n");
         return topicProposeStatus;
     }
