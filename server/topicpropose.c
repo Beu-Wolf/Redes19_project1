@@ -1,68 +1,60 @@
 #include "commands.h"
 
 char* processTopicPropose(char** args) {
-    char* topicProposeStatus;
-
-    DIR* dirp = opendir(TOPICSDIR);
-    struct dirent* dp;
-    int dircount = 0, n;
-
     char newTopic[11];
     char topicDatafile[16];
+
+    char* topicProposeStatus;
+    DIR* dirp;
+    struct dirent* dp;
+    int dircount = 0;
+
     
     topicProposeStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
     if (!topicProposeStatus) fatal(ALLOC_ERROR);
 
+    // Check number of arguments
+    // TODO: use arglen
     if(args[1] == NULL || args[2] == NULL) {
         strcpy(topicProposeStatus, "ERR\n");
-        closedir(dirp);
         return topicProposeStatus;
     }
 
     stripnewLine(args[2]);
-    printf("%s\n", args[2]);
 
-    while(dirp) {
-        if((dp = readdir(dirp)) != NULL) {
-            if(!strcmp(dp->d_name, args[2])){
-                closedir(dirp);
-                strcpy(topicProposeStatus, "PTR DUP\n");
-                break;
-            } else {
-                dircount++;
-            }
+    dirp = opendir(TOPICSDIR);
+    if(!dirp) fatal(DIROPEN_ERROR);
 
-            if(dircount == 99) {
-                strcpy(topicProposeStatus, "PTR FUL\n");
-                closedir(dirp);
-                break;
-            }
-        } else {
-            sprintf(newTopic, TOPICSDIR"/%s", args[2]);
-            n = mkdir(newTopic, 0700);
-
-            if(n == -1) {
-                strcpy(topicProposeStatus, "PTR NOK\n");
-                closedir(dirp);
-                break;
-            }
-
-
-            sprintf(topicDatafile, TOPICSDIR"/%s/"DATAFILE, args[2]);
-
-            FILE *topicData = fopen(topicDatafile, "w");
-
-            fputs(args[1], topicData);
-
-            fclose(topicData);
-
-            strcpy(topicProposeStatus, "PTR OK\n");
-            closedir(dirp);
+    // check dir for duplicate names; count topics
+    while((dp = readdir(dirp)) != NULL) {
+        if(dp->d_name[0] == '.') continue;   // ignore . .. and hidden files
+        dircount++;
+        if(!strcmp(dp->d_name, args[2])) {
+            if(closedir(dirp) == -1) fatal(DIRCLOSE_ERROR);
+            strcpy(topicProposeStatus, "PTR DUP\n");
             return topicProposeStatus;
         }
     }
 
-    if(!dirp)
-        closedir(dirp);
+    // check number of existing topics
+    if(dircount >= MAXTOPICS) {
+        if(closedir(dirp) == -1) fatal(DIRCLOSE_ERROR);
+        strcpy(topicProposeStatus, "PTR FUL\n");
+        return topicProposeStatus;
+    }
+
+    // create new topic
+    sprintf(newTopic, TOPICSDIR"/%s", args[2]);
+    if(mkdir(newTopic, 0700) == -1) {
+        if(closedir(dirp) == -1) fatal(DIRCLOSE_ERROR);
+        strcpy(topicProposeStatus, "PTR NOK\n");
+    }
+
+    sprintf(topicDatafile, TOPICSDIR"/%s/"DATAFILE, args[2]);
+    FILE *topicData = fopen(topicDatafile, "w");
+    fputs(args[1], topicData); // write userID on file
+    fclose(topicData);
+    strcpy(topicProposeStatus, "PTR OK\n");
+    if(closedir(dirp) == -1) fatal(DIRCLOSE_ERROR);
     return topicProposeStatus;
 }
