@@ -7,6 +7,12 @@ char* processRegister(char** args) {
     errno = 0;
 
     if(args[1] == NULL) {
+        
+    }
+
+    stripnewLine(args[1]);
+
+    if(!isPositiveNumber(args[1])) {
         strcpy(registerStatus, "ERR\n");
         return registerStatus;
     }

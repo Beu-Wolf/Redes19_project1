@@ -41,6 +41,12 @@ void receiveRegister(int fdUDP, char** parsedInput) {
 
     args = tokenize(receivedMessage);
 
+    if(!strcmp(args[0], "ERR\n")) {
+        printf("error: Something happened. Please try again\n");
+        free(args);
+        return;
+    }
+
     stripnewLine(args[1]);
     if(!strcmp(args[1], "OK")) {
         userID = strtol(parsedInput[1], NULL, 0);
