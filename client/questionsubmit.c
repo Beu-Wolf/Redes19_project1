@@ -42,7 +42,7 @@ void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
     if(fdTCP == -1)
         return;
 
-    // receiveQuestionSubmit(fdTCP);
+    receiveQuestionSubmit(fdTCP);
     close(fdTCP);
 }
 
@@ -74,7 +74,7 @@ int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
         strtok(parsedInput[3], ".");
         imgExt = strtok(NULL, ".");
         printf("img extension: %s\n", imgExt);
-        if(imgExt == NULL) {
+        if(imgExt == NULL || strlen(imgExt) != 3) {
             printf(INVALID_QS_IMGEXT);
             return -1;
         }
@@ -128,13 +128,13 @@ int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
 }
 
 void receiveQuestionSubmit(int fdTCP) {
-    char** buffer;
+    char* buffer;
     int size = BUFFER_SIZE;
 
-    return;
-    recvTCPline(fdTCP, buffer,&size);
+    recvTCPline(fdTCP, &buffer,&size);
 
-    printf("%s", *buffer);
+    printf("%s", buffer);
     close(fdTCP);
+    return;
 
 }

@@ -5,8 +5,7 @@
 char* getUserId(int fdTCP, int size) {
 
     char* userId; 
-    userId = (char*) malloc(sizeof(char) * size);
-    if(!userId) fatal(ALLOC_ERROR);
+    
 
     recvTCPword(fdTCP, &userId, &size);
     printf("UserID: |%s|\n", userId);
@@ -16,9 +15,6 @@ char* getUserId(int fdTCP, int size) {
 char* getTopic(int fdTCP, int size) {
     char* topic;
     
-    topic = (char*) malloc(sizeof(char) * size);
-    if(!topic) fatal(ALLOC_ERROR);
-    memset(topic, 0, 11);
 
     recvTCPword(fdTCP, &topic, &size);
     printf("Topic: |%s|\n", topic);
@@ -28,10 +24,6 @@ char* getTopic(int fdTCP, int size) {
 
 char* getQuestion(int fdTCP, int size) {
     char* question;
-    
-    question = (char*) malloc(sizeof(char) * size);
-    if(!question) fatal(ALLOC_ERROR);
-    memset(question, 0, 11); 
 
     recvTCPword(fdTCP, &question, &size);
     printf("Question: |%s|\n", question);
@@ -42,10 +34,6 @@ char* getQuestion(int fdTCP, int size) {
 int getFileSize(int fdTCP, int size) {
     char* fileSizeStr;
     int fileSize;
-    
-    fileSizeStr = (char*) malloc(sizeof(char) * size);
-    if(!fileSizeStr) fatal(ALLOC_ERROR);
-    memset(fileSizeStr, 0, 11);
 
     recvTCPword(fdTCP, &fileSizeStr, &size);
     printf("File Size: |%s|\n", fileSizeStr);
@@ -61,9 +49,59 @@ int getFileSize(int fdTCP, int size) {
     return fileSize;
 }
 
+int getImageFlag(int fdTCP, int size) {
+    char* hasImageStr;
+    int hasImage;
+
+
+    recvTCPword(fdTCP, &hasImageStr, &size);
+    printf("Has Image flag |%s|\n", hasImageStr);
+
+    if(!isPositiveNumber(hasImageStr)) {
+        free(hasImageStr);
+        return -1;
+    }
+
+    hasImage = strtol(hasImageStr, NULL, 0);
+
+    free(hasImageStr);
+    return hasImage;
+}
+
+char* getImageExtension(int fdTCP, int size) {
+    char* imgExt;
+
+    if(recvTCPword(fdTCP, &imgExt, &size) != 4) {
+        printf("Invalid Extension\n");
+        free(imgExt);
+        return NULL;
+    }
+
+    printf("Image Ext: |%s|\n", imgExt);
+    return imgExt;
+}
+
+int getImageFileSize(int fdTCP, int size) {
+    char* imageFileStr;
+    int imageFileSize;
+
+    recvTCPword(fdTCP, &imageFileStr, &size);
+    printf("File Size: |%s|\n", imageFileStr);
+
+    if(!isPositiveNumber(imageFileStr)){
+        free(imageFileStr);
+        return -1;
+    }
+
+    imageFileSize = strtol(imageFileStr, NULL, 0);
+
+    free(imageFileStr);
+    return imageFileSize;
+}
+
 void processQuestionSubmit(int fdTCP) {
     char* userId, *topic, *question;
-    int size, numQuestions,  n;
+    int size, numQuestions,  n, hasImage;
     long fileSize;
     char response[9];
 
@@ -184,6 +222,64 @@ void processQuestionSubmit(int fdTCP) {
     //receive File and write
     recvTCPfile(fdTCP, fileSize, questionFilePtr);
 
+    //check or existance of image
+    size = 2;                                           //flag size + 1;
+    hasImage = getImageFlag(fdTCP, size);
+
+    if(hasImage == -1) {
+        strcpy(response, "QUR NOK\n");                  //send not ok message
+        sendTCPstring(fdTCP, response);
+        return;
+    } else if(hasImage == 1) {
+        //read image extension
+        size = 4;                                       //size of imageExtension + 1 
+        char* imgExt = getImageExtension(fdTCP, size);
+        if(!imgExt) {
+            strcpy(response, "QUR NOK\n");                  //send not ok message
+            sendTCPstring(fdTCP, response);
+            return;
+        }
+
+
+        size = 11; // size of fileSize plus one
+        fileSize = getImageFileSize(fdTCP, size);
+
+        if(fileSize == -1) {
+            strcpy(response, "QUR NOK\n");                  //send not ok message
+            sendTCPstring(fdTCP, response);
+            return;
+        }
+
+
+        //create Image file
+        char* imageFile = (char*) malloc(sizeof(char)*BUFFER_SIZE);
+        strcpy(imageFile, path);
+        imageFile = safestrcat(imageFile, "/");
+        imageFile = safestrcat(imageFile, question);
+        imageFile = safestrcat(imageFile, ".");
+        imageFile = safestrcat(imageFile, imgExt);
+
+        FILE* imageFilePtr = fopen(imageFile, "w");
+
+        if(!imageFilePtr) {
+            strcpy(response, "QUR NOK\n");                  //send not ok message
+            sendTCPstring(fdTCP, response);
+            return;
+        }
+
+        recvTCPfile(fdTCP, fileSize, imageFilePtr);
+        free(imageFile);
+        fclose(imageFilePtr);
+
+    }
+
+
+
+
+
+
+    strcpy(response, "QUR OK\n");                  //send not ok message
+    sendTCPstring(fdTCP, response);
     fclose(questionFilePtr);
 
     
@@ -191,4 +287,5 @@ void processQuestionSubmit(int fdTCP) {
     free(questionFolder);
     free(questionFile);
     free(userId);
+    return;
 }

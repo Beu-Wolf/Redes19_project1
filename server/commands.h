@@ -36,5 +36,8 @@ char* getUserId(int fdTCP, int size);
 char* getTopic(int fdTCP, int size);
 char* getQuestion(int fdTCP, int size);
 int getFileSize(int fdTCP, int size);
+int getImageFlag(int fdTCP, int size);
+char* getImageExtension(int fdTCP, int size);
+int getImageFileSize(int fdTCP, int size);
 
 #endif
