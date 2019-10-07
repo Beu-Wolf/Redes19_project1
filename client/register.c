@@ -6,8 +6,7 @@
 void processRegister(int fdUDP, char** parsedInput,
     addressInfoSet newAddrInfoSet) {
 
-    int len = arglen(parsedInput);
-    if(len != 2) {
+    if(arglen(parsedInput) != 2) {
       fprintf(stderr, INVALID_RG_ARGS);
       return;
     }
@@ -37,7 +36,8 @@ void receiveRegister(int fdUDP, char** parsedInput) {
     char** args;
 
     memset(receivedMessage, 0, BUFFER_SIZE);
-    if(recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, NULL, NULL) == -1) fatal(UDPRECV_ERROR);
+    if(recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, NULL, NULL) == -1)
+        fatal(UDPRECV_ERROR);
 
     args = tokenize(receivedMessage);
 
@@ -48,4 +48,6 @@ void receiveRegister(int fdUDP, char** parsedInput) {
     } else if (!strcmp(args[1], "NOK")){
         printf("error: invalid userID\n");
     }
+
+    free(args);
 }

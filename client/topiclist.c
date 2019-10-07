@@ -34,9 +34,9 @@ void receiveTopicList(int fdUDP, char** topicList) {
     char* topicName;
     char* topicUserID;
     long topicNumber;
+
     if(recvfrom(fdUDP, sendMsg, BUFFER_SIZE, 0, NULL, NULL) == -1)
         fatal(UDPRECV_ERROR);
-
 
     args = tokenize(sendMsg);
     topicNumber = strtol(args[1], NULL, 10);
@@ -58,4 +58,5 @@ void receiveTopicList(int fdUDP, char** topicList) {
 
         printf("%d - %s (proposed by %s)\n", i, topicName, topicUserID);
     }
+    free(args);
 }
