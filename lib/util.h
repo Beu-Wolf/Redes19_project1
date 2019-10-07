@@ -19,6 +19,7 @@
 #define FORK_ERROR "in fork"
 #define SELECT_ERROR "in select"
 #define WAIT_ERROR "in wait child"
+#define SERVER_ERR "Error in server, please try again"
 
 #define NOT_REGISTERED_ERROR "You must be registered before performing any action\n"
 #define NO_TOPIC_SELECTED_ERROR "You must have a topic selected\n"
