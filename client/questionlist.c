@@ -23,17 +23,14 @@ void processQuestionList(int fdUDP, char **args,
 }
 
 void sendQuestionList(int fdUDP, addressInfoSet newAddrInfoSet) {
-    int n;
     char *sendMsg = strdup("LQU ");
 
     sendMsg = safestrcat(sendMsg, selectedTopic);
     sendMsg = safestrcat(sendMsg, "\n");
 
-    n = sendto(fdUDP, sendMsg, strlen(sendMsg), 0,
+    if(sendto(fdUDP, sendMsg, strlen(sendMsg), 0,
             newAddrInfoSet.res_UDP->ai_addr,
-            newAddrInfoSet.res_UDP->ai_addrlen);
-
-    if (n == -1) fatal(strerror(errno));
+            newAddrInfoSet.res_UDP->ai_addrlen) == -1) fatal(strerror(errno));
 
     free(sendMsg);
 }
