@@ -1,19 +1,20 @@
 #include "clientcommands.h"
 
 void processTopicSelect(char** parsedInput, char** topicList){
-
     int wantedNumber = -1;
     char abbrev;
 
-    if(userID == 0) {
+    if(!isRegistered()) {
       fprintf(stderr, NOT_REGISTERED_ERROR);
       return;
     }
+
     if(arglen(parsedInput) != 2) {
       fprintf(stderr, INVALID_TS_ARGS);
       return;
     }
 
+    // get topic number
     abbrev = strlen(parsedInput[0]) == 2;
     if(abbrev) {
         errno = 0;
@@ -24,6 +25,7 @@ void processTopicSelect(char** parsedInput, char** topicList){
         }
     }
 
+    // find topic
     stripnewLine(parsedInput[1]);
     for(int i = 0; topicList[i] != 0; i++) {
       if((abbrev && i == wantedNumber) || (!abbrev && !strcmp(parsedInput[1], topicList[i]))) {
