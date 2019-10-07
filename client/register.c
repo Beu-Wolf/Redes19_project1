@@ -21,7 +21,6 @@ void processRegister(int fdUDP, char** parsedInput,
 }
 
 void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
-    int n;
     char sendMsg[BUFFER_SIZE];
 
 
@@ -29,23 +28,16 @@ void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) 
     sprintf(sendMsg, "REG %s\n", parsedInput[1]);
     printf("sending %ld bytes: |%s|\n", strlen(sendMsg), sendMsg);
 
-    n = sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr,
-            newAddrInfoSet.res_UDP->ai_addrlen);
-
-
-    if(n == -1) fatal(strerror(errno));
+    if(sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr,
+            newAddrInfoSet.res_UDP->ai_addrlen) == -1) fatal(strerror(errno));
 }
 
 void receiveRegister(int fdUDP, char** parsedInput) {
-    int n;
-
     char receivedMessage[BUFFER_SIZE];
     char** args;
 
     memset(receivedMessage, 0, BUFFER_SIZE);
-    n = recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, NULL, NULL);
-
-    if(n == -1) fatal(UDPRECV_ERROR);
+    if(recvfrom(fdUDP, receivedMessage, BUFFER_SIZE, 0, NULL, NULL) == -1) fatal(UDPRECV_ERROR);
 
     args = tokenize(receivedMessage);
 
