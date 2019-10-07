@@ -135,13 +135,15 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
 
     // TODO: Is this really necessary???
     // allocate buffer if needed
-    if(*buffer == NULL || *size == 0) {
-        (*buffer) = (char*)malloc(INPUT_SIZE * sizeof(char));
-        if(!(*buffer)) {
-            fatal(ALLOC_ERROR);
-        }
+    if(*size == 0) {
         *size = INPUT_SIZE;
     }
+    (*buffer) = (char*)malloc(*size * sizeof(char));
+    if(!(*buffer)) {
+        fatal(ALLOC_ERROR);
+    }
+        
+    
 
     ptr = *buffer;
     while(recv(sockfd, ptr, 1, 0) == 1) {
@@ -166,13 +168,15 @@ int recvTCPword(int sockfd, char** buffer, int* size) {
 
     // TODO: Is this really necessary???
     // allocate buffer if needed
-    if(*buffer == NULL || *size == 0) {
-        (*buffer) = (char*)malloc(INPUT_SIZE * sizeof(char));
-        if(!(*buffer)) {
-            fatal(ALLOC_ERROR);
-        }
+    if(*size == 0) {
         *size = INPUT_SIZE;
     }
+    (*buffer) = (char*)malloc(INPUT_SIZE * sizeof(char));
+    if(!(*buffer)) {
+        fatal(ALLOC_ERROR);
+    }
+        
+    
 
     len = 0;
     ptr = *buffer;
