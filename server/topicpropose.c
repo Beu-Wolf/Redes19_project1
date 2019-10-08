@@ -19,8 +19,13 @@ char* processTopicPropose(char** args) {
         return topicProposeStatus;
     }
 
+
     stripnewLine(args[2]);
     printArgs(args);
+
+    if (strlen(args[2]) > 10) {
+        strcpy(topicProposeStatus, "ERR\n");
+    }
 
     dirp = opendir(TOPICSDIR);
     if(!dirp) fatal(DIROPEN_ERROR);

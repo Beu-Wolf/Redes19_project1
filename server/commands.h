@@ -23,7 +23,6 @@
 #define TOPICSDIR "./topics"
 #define DATAFILE  ".data"
 
-#define MAX(A,B) ((A)>= (B) ? (A):(B))
 
 char *processRegister(char **args);
 char *processTopicPropose(char **args);

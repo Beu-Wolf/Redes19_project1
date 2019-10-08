@@ -102,7 +102,7 @@ int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
 
     sprintf(buffer, "QUS %d %s %s %ld ", userID, selectedTopic, 
         parsedInput[1], questionFileSz);
-    sendTCPstring(fdTCP, buffer);
+    sendTCPstring(fdTCP, buffer, strlen(buffer));
 
       // 2: send file data
     sendTCPfile(fdTCP, questionFD);
@@ -111,16 +111,16 @@ int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
     if(hasImg) {
         memset(buffer, 0, FINFO_BUFF_SIZE);
         sprintf(buffer, "%d %s %ld ", 1, imgExt, imgSz);
-        sendTCPstring(fdTCP, buffer);
+        sendTCPstring(fdTCP, buffer, strlen(buffer));
 
         sendTCPfile(fdTCP, imgFd);
     } else {
         char noImage[] = " 0";
-        sendTCPstring(fdTCP, noImage);
+        sendTCPstring(fdTCP, noImage, strlen(noImage));
     }
 
     char newLine = '\n';
-    sendTCPstring(fdTCP, &newLine);
+    sendTCPstring(fdTCP, &newLine, strlen(&newLine));
     return fdTCP;
     free(buffer);
     
@@ -145,7 +145,7 @@ void receiveQuestionSubmit(int fdTCP) {
     else if (!strcmp(args[1], "FUL"))
         printf("Selected topic already has max number of questions\n");
     else if(!strcmp(args[1], "ERR"))
-        printf(SERVER_ERR);
+        printf(SERVER_ERROR);
 
     close(fdTCP);
     return;

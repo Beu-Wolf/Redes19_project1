@@ -9,6 +9,10 @@
 #define INPUT_SIZE 128
 #define FILE_READ_SIZE 512
 
+#define MAX(A,B) ((A)>= (B) ? (A):(B))
+#define MIN(A,B) ((A)<= (B) ? (A):(B))
+
+
 void fatal(const char* buffer) {
     fprintf(stderr, "%s\n", buffer);
     perror("Error");
@@ -105,14 +109,18 @@ char isPositiveNumber(char* str) {
  * The function makes sure every byte is sent.
  * Returns 1 on success, 0 on failure
  */
-int sendTCPstring(int sockfd, char* buffer) {
+int sendTCPstring(int sockfd, char* buffer, size_t n) {
     int sentBytes, bytesToSend;
-    bytesToSend = strlen(buffer);
-    while(bytesToSend > 0) {
-        sentBytes = send(sockfd, buffer, bytesToSend, 0);
-        if(sentBytes == -1)
-            return 0;
+    
+    bytesToSend = n;
 
+    while(bytesToSend > 0) {
+        sentBytes = send(sockfd, buffer, bytesToSend, MSG_NOSIGNAL);                                                //Ignore SIGPIPE when sending large files, because 
+                                                                                                                    // we need to read server response when something goes wrong
+                                                                                                                    //TODO: Is there a better way        
+        if(sentBytes == -1){                                                                        
+            return 0;
+        }
         bytesToSend -= sentBytes;
         buffer+=sentBytes;
     }
@@ -121,16 +129,20 @@ int sendTCPstring(int sockfd, char* buffer) {
 
 int sendTCPfile(int sockfd, FILE* file) {
     char* buffer;
+    clearerr(file);
+    size_t n;
 
     buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
     if(!buffer) fatal(ALLOC_ERROR);
 
     while(feof(file) == 0) {
         memset(buffer, 0, FILE_READ_SIZE);
-        fread(buffer, sizeof(char), FILE_READ_SIZE - 1, file);
-        printf("%s\n", buffer);
-        sendTCPstring(sockfd, buffer);
+        n = fread(buffer, sizeof(char), FILE_READ_SIZE - 1, file);
+        printf("[SENDING]%s\n====================================================================\n", buffer);
+        sendTCPstring(sockfd, buffer, n);
+        
     }
+
 
     free(buffer);
     return 1;
@@ -208,41 +220,24 @@ int recvTCPword(int sockfd, char** buffer, int* size) {
 }
 
 int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
-    char* buffer, *ptr;
-    int n, bytesToRead;
-    int currSize = fileSize; //To keep track of when to stop reading
+    char* buffer;
+    int n;
 
-    bytesToRead = fileSize;
 
     buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
     if(!buffer) fatal(ALLOC_ERROR);
 
-    memset(buffer, 0, FILE_READ_SIZE);
-    
+    while(fileSize > 0) {
+        memset(buffer, 0, FILE_READ_SIZE);
+        if( (n = recv(sockfd, buffer, MIN(FILE_READ_SIZE - 1, fileSize), 0)) == -1)
+            fatal(RECV_TCP_ERROR);
 
-    ptr = buffer;
-    while(currSize > 0) {
+        if(fputs(buffer, filefd) == EOF)
+            fatal(FPUTS_ERROR);
 
-        if(currSize > FILE_READ_SIZE) {
-            bytesToRead = FILE_READ_SIZE;
-            buffer = ptr;
-        } else {
-            bytesToRead = currSize;
-        }
-
-        n = recv(sockfd, buffer, bytesToRead, 0);
-        if(n == -1) {
-            return -1;
-        }
-
-
-        fputs(buffer, filefd);
-        printf("Writing:%s\n", buffer);
-        
-        currSize -= n;
-        buffer += n;
+        fileSize -= n;
     }
-    buffer = ptr;
+    //buffer = ptr;
 
     free(buffer);
     return 1;

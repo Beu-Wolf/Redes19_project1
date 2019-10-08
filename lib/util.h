@@ -19,7 +19,9 @@
 #define FORK_ERROR "in fork"
 #define SELECT_ERROR "in select"
 #define WAIT_ERROR "in wait child"
-#define SERVER_ERR "Error in server, please try again"
+#define SERVER_ERROR "Error in server, please try again"
+#define RECV_TCP_ERROR "Error reading from TCP socket"
+#define FPUTS_ERROR "Error Writing in file"
 
 #define NOT_REGISTERED_ERROR "You must be registered before performing any action\n"
 #define NO_TOPIC_SELECTED_ERROR "You must have a topic selected\n"
@@ -49,7 +51,7 @@ char *safestrcat(char *dest, char *src);
 
 char isPositiveNumber(char* str);
 
-int sendTCPstring(int sockfd, char* buffer);
+int sendTCPstring(int sockfd, char* buffer, size_t n);
 int recvTCPline(int sockfd, char** buffer, int* size);
 int recvTCPword(int sockfd, char** buffer, int* size);
 
