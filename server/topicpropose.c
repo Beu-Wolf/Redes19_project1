@@ -20,19 +20,20 @@ char* processTopicPropose(char** args) {
     }
 
     stripnewLine(args[2]);
+    printArgs(args);
 
     dirp = opendir(TOPICSDIR);
     if(!dirp) fatal(DIROPEN_ERROR);
 
     // check dir for duplicate names; count topics
     while((dp = readdir(dirp)) != NULL) {
-        if(dp->d_name[0] == '.') continue;   // ignore . .. and hidden files
-        dircount++;
+        if(dp->d_name[0] == '.') continue;   // ignore ".", ".." and hidden files
         if(!strcmp(dp->d_name, args[2])) {
             if(closedir(dirp) == -1) fatal(DIRCLOSE_ERROR);
             strcpy(topicProposeStatus, "PTR DUP\n");
             return topicProposeStatus;
         }
+        dircount++;
     }
 
     // check number of existing topics
