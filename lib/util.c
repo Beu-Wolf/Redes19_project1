@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <string.h>
+#include <ctype.h>
 
 #define INPUT_SIZE 128
 #define FILE_READ_SIZE 512
@@ -12,6 +13,15 @@ void fatal(const char* buffer) {
     fprintf(stderr, "%s\n", buffer);
     perror("Error");
     exit(1);
+}
+
+// TODO: Remove (debug function)
+void printArgs(char** buffer) {
+    int i = 0;
+    while(buffer[i] != NULL) {
+        printf("[%d] -> %s\n", i, buffer[i]);
+        i++;
+    }
 }
 
 // safe read from stdin
@@ -243,4 +253,19 @@ void stripnewLine(char* str) {
 
     while(str[i] != '\n' && str[i] != '\0') i++;
     str[i] = '\0';
+}
+
+int isValidTopic(char* topicName) {
+    return validate(topicName, TOPIC_MAXLEN);
+}
+
+int validate(char* name, int maxlen) {
+    int i = 0;
+    while(name[i] != '\0' && i < maxlen) {
+        if(!isalnum((int)name[i])) {
+            return 0;
+        }
+        i++;
+    }
+    return i < maxlen || (i == maxlen && name[i] == '\0');
 }

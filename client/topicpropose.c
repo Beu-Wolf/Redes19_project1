@@ -2,13 +2,17 @@
 
 
 void processTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet){
-
     if(!isRegistered()) {
       fprintf(stderr, NOT_REGISTERED_ERROR);
       return;
     }
     if(arglen(parsedInput) != 2) {
       fprintf(stderr, INVALID_TP_ARGS);
+      return;
+    }
+
+    if(!isValidTopic(parsedInput[1])) {
+      fprintf(stderr, TOPIC_ERROR);
       return;
     }
     sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
