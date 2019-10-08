@@ -22,7 +22,6 @@ void processRegister(int fdUDP, char** parsedInput,
 void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
     char sendMsg[BUFFER_SIZE];
 
-
     memset(sendMsg, 0, BUFFER_SIZE);
     sprintf(sendMsg, "REG %s\n", parsedInput[1]);
     printf("sending %ld bytes: |%s|\n", strlen(sendMsg), sendMsg);
