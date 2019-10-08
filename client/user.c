@@ -12,15 +12,6 @@
 #include "clientcommands.h"
 
 
-// TODO: Remove (debug function)
-void printArgs(char** buffer) {
-    int i = 0;
-    while(buffer[i] != NULL) {
-        printf("[%d] -> %s\n", i, buffer[i]);
-        i++;
-    }
-}
-
 void readLineArgs(int argc, char* argv[], service* newService){
     int n, opt;
     n = gethostname(newService->serverIP, BUFFER_SIZE);
