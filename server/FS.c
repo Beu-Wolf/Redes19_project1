@@ -168,9 +168,6 @@ void handleTcp(int fd, char* port) {
     printf("[TCP]=(%s:%s)=============================================================\n", 
             inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr, messageSender, INET_ADDRSTRLEN),  port);
     
-
-
-    
     if (newfd == -1) fatal(SOCK_ACPT_ERROR);
     printf("Accepted!\n");
     
@@ -227,26 +224,20 @@ void handleUdp(int fd, char* port) {
     memset(buffer, 0, BUFFER_SIZE);
     recvfrom(fd, buffer, BUFFER_SIZE, 0,
             (struct sockaddr *)&addr, &addrlen);
+
     printf("[UDP]=(%s:%s)=============================================================\n", 
             inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr, messageSender, INET_ADDRSTRLEN),  port);
-    printf("%s\n", buffer);
+    printf("|%s|\n", buffer);
 
     args = tokenize(buffer);
 
     if (!strcmp(args[0], "REG")) {
         messageToSend = processRegister(args);
-
-        printf("status: %s", messageToSend);
-
     } else if (!strcmp(args[0], "PTP")) {
         messageToSend = processTopicPropose(args);
-
     } else if (!strcmp(args[0], "LTP\n")) {
-
         messageToSend = processTopicList(args);
-
     } else if (!strcmp(args[0], "LQU")) {
-
         messageToSend = processQuestionList(args);
     }
 
