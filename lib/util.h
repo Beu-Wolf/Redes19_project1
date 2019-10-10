@@ -27,6 +27,7 @@
 #define NO_TOPIC_SELECTED_ERROR "You must have a topic selected\n"
 #define QSIZE_ERROR "Question size exceeded\n"
 #define FILE_NOT_AVAILABLE_ERROR "Given file is not available\n"
+#define NO_QUESTION_LIST "No question list store. Please run question_list/ql\n"
 #define TOPIC_ERROR "Topic names must be alphanumeric and have no more than 10 characters\n"
 #define INVALID_RG_ARGS "Invalid arguments.\nUsage: register/reg <userID>\n"
 #define INVALID_TL_ARGS "Invalid arguments.\nUsage: topic_list/tl\n"
@@ -35,6 +36,7 @@
 #define INVALID_QL_ARGS "Invalid arguments.\nUsage: question_list/ql\n"
 #define INVALID_QS_ARGS "Invalid arguments.\nUsage: question_submit/qs <question> <text_file> [<image_file.ext>]\n"
 #define INVALID_QS_IMGEXT "Invalid image extension. Please select file with a permitted file extension\n"
+#define INVALID_QG_ARGS "Invalid arguments.\nUsage: question_get <question>/qg <question_number>\n"
 
 // Protocol consts
 #define TOPIC_MAXLEN 10

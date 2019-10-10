@@ -83,14 +83,6 @@ char isRegistered() {
 }
 
 
-void processQuestionGet(char** parsedInput) {
-    if(strlen(parsedInput[0]) == 2)
-        printf("Want question number");
-    else
-        printf("Want question name");
-}
-
-
 void processAnswerSubmit(char** parsedInput) {
     printf("Want to submit answer\n");
 }
@@ -156,7 +148,7 @@ int main(int argc, char* argv[]) {
                     newAddrInfoSet, questionList);
 
         } else if(!strcmp(cmd, "qg") || !strcmp(cmd, "question_get")) {
-            processQuestionGet(parsedInput);
+            processQuestionGet(parsedInput, questionList, newAddrInfoSet);
 
         } else if(!strcmp(cmd, "qs") || !strcmp(cmd, "question_submit")) {
             processQuestionSubmit(parsedInput, newAddrInfoSet);

@@ -56,6 +56,7 @@ void receiveQuestionList(int fdUDP, char **questionList) {
         return;
 
     }
+    
 
     if (isPositiveNumber(args[1])) {
         questionNum = strtol(args[1], NULL, 10);
@@ -75,6 +76,7 @@ void receiveQuestionList(int fdUDP, char **questionList) {
         return;
     }
 
+    char** questionListBegin = questionList;
 
     char **questions = args + 2;
     char question[16];
@@ -100,7 +102,9 @@ void receiveQuestionList(int fdUDP, char **questionList) {
         }
     }
 
-    questionList = NULL; // terminate question list
+    
+    questionList = questionListBegin;
+
 
     free(args);
 }

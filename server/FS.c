@@ -192,6 +192,13 @@ void handleTcp(int fd, char* port) {
 
         if(!strcmp("QUS", req)) {
             processQuestionSubmit(newfd);
+        
+        } else if(!strcmp("QGU", req)) {
+            int nsize = 25;
+            char* buffer = (char*) malloc(sizeof(char)*nsize);
+            recvTCPline(newfd, &buffer, &nsize);
+            printf("Recebido: %s", buffer);
+        
         } else {
             printf("Not supported as of now\n");
         }

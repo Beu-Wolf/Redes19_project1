@@ -121,8 +121,8 @@ int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
 
     char newLine = '\n';
     sendTCPstring(fdTCP, &newLine, strlen(&newLine));
-    return fdTCP;
     free(buffer);
+    return fdTCP;
     
     return 0;
 }
