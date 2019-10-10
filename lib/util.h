@@ -9,6 +9,7 @@
 #define FILEOPEN_ERROR "Opening File"
 #define DIROPEN_ERROR "Opening Dir"
 #define DIRCLOSE_ERROR "Closing Dir"
+#define DIRCREATE_ERROR "Creating Dir"
 #define SOCK_CREATE_ERROR "Creating Socket"
 #define SOCK_BIND_ERROR "Binding Socket"
 #define SOCK_CONN_ERROR "Connecting Socket"
