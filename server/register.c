@@ -6,12 +6,18 @@ char* processRegister(char** args) {
     registerStatus = (char*)malloc(BUFFER_SIZE * sizeof(char));
     if (!registerStatus) fatal(ALLOC_ERROR);
 
-    if(arglen(args) < 2 || !isPositiveNumber(args[1])) {
+    if(arglen(args) != 2) {
         strcpy(registerStatus, "ERR\n");
         return registerStatus;
     }
 
     stripnewLine(args[1]);
+
+    if(!isPositiveNumber(args[1])) {
+        strcpy(registerStatus, "ERR\n");
+        return registerStatus;
+    }
+
 
     errno = 0;
     int number = strtol(args[1], NULL, 0);
