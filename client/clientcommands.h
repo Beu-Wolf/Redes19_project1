@@ -15,7 +15,7 @@
 
 #define INPUT_SIZE 1024
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 2048
 #define DEFAULT_PORT "58036"
 
 
