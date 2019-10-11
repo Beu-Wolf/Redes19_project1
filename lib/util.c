@@ -188,17 +188,18 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
  * Return the length of the received word.
  * The total allocated size, which might not correspond to the length
  * of the word, is stored in the allocsize value-result argument.
+ * The buffer should be freed by the caller.
  */
 int recvTCPword(int sockfd, char** bufferaddr, int* allocsize) {
     char *ptr;
     char *buffer;
+    int alloc = INPUT_SIZE;
     int len;
 
-    // TODO: Is this really necessary???
-    // allocate buffer if needed
-    if(*allocsize == 0) {
-        *allocsize = INPUT_SIZE;
+    if(allocsize != NULL && *allocsize != 0) {
+        alloc = *allocsize;
     }
+
     buffer = (char*)malloc(INPUT_SIZE * sizeof(char));
     if(!buffer) {
         fatal(ALLOC_ERROR);
@@ -212,16 +213,17 @@ int recvTCPword(int sockfd, char** bufferaddr, int* allocsize) {
             break;
 
         ptr++;
-        if((ptr - buffer) == *allocsize) { // resize buffer
-            buffer = (char*)realloc(buffer, 2 * *allocsize);
+        if((ptr - buffer) == alloc) { // resize buffer
+            buffer = (char*)realloc(buffer, 2 * alloc);
             if(!(*buffer)) fatal(ALLOC_ERROR);
-            ptr = buffer + *allocsize;
-            (*allocsize) *= 2;
+            ptr = buffer + alloc;
+            alloc *= 2;
         }
     }
 
     *ptr = '\0';
     *bufferaddr = buffer;
+    if (allocsize != NULL) *allocsize = alloc;
     return len;
 }
 
