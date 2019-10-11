@@ -132,6 +132,8 @@ int sendTCPfile(int sockfd, FILE* file) {
     clearerr(file);
     size_t n;
 
+
+
     buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
     if(!buffer) fatal(ALLOC_ERROR);
 

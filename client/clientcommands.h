@@ -82,4 +82,8 @@ void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
 int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
 void receiveQuestionSubmit(int fdUDP);
 
+//Question Get
+void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet newAddrInfoSet);
+int sendQuestionGet(addressInfoSet newAddrInfoSet);
+
 #endif
