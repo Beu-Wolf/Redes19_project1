@@ -198,9 +198,8 @@ void processQuestionSubmit(int fdTCP) {
 
                         
 
-    FILE *questionDatafile = fopen(questionFolder, "w");
+    FILE *questionDatafile = fopen(questionFolder, "a");
     fputs(userId, questionDatafile);
-    fclose(questionDatafile);
 
 
 
@@ -238,8 +237,11 @@ void processQuestionSubmit(int fdTCP) {
     size = 2;                                           //flag size + 1;
     hasImage = getImageFlag(fdTCP, size);
 
+    fprintf(questionDatafile, "\n%d ", hasImage);
+
     if(hasImage == -1) {
         strcpy(response, "QUR NOK\n");                  //send not ok message
+        fclose(questionDatafile);
         sendTCPstring(fdTCP, response, strlen(response));
         return;
     } else if(hasImage == 1) {
@@ -249,8 +251,14 @@ void processQuestionSubmit(int fdTCP) {
         if(!imgExt) {
             strcpy(response, "QUR NOK\n");                  //send not ok message
             sendTCPstring(fdTCP, response, strlen(response));
+            fclose(questionDatafile);
             return;
         }
+
+        fputs(imgExt, questionDatafile);
+
+        
+        fclose(questionDatafile);
 
 
         size = 11; // size of fileSize plus one
@@ -283,10 +291,13 @@ void processQuestionSubmit(int fdTCP) {
         free(imageFile);
         fclose(imageFilePtr);
 
+    } else {
+        fclose(questionDatafile);
     }
 
 
-
+    
+    
 
 
 
