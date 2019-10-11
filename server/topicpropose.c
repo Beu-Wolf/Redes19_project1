@@ -6,6 +6,7 @@ char* processTopicPropose(char** args) {
     DIR* dirPtr;
     FILE* filePtr;
     int numDirs;
+    int bufsz;
 
     
     topicProposeStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
@@ -56,9 +57,10 @@ char* processTopicPropose(char** args) {
     }
 
     // create new topic
-    // size of topics dir + max topic name + space for \0
-    // strlen(TOPICSDIR)  + TOPIC_MAXLEN   + 1
-    if(!(pathName = (char*)malloc(sizeof(char) * (strlen(TOPICSDIR) + TOPIC_MAXLEN + 1))))
+    // size of topics dir + max topic name + space for \0 and /
+    // strlen(TOPICSDIR)  + TOPIC_MAXLEN   + 2
+    bufsz = strlen(TOPICSDIR) + TOPIC_MAXLEN + 2;
+    if(!(pathName = (char*)malloc(sizeof(char) * bufsz)))
         fatal(ALLOC_ERROR);
     memset(pathName, 0, strlen(TOPICSDIR) + TOPIC_MAXLEN + 1);
     sprintf(pathName, TOPICSDIR"/%s", args[2]);
