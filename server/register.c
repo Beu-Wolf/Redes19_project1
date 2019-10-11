@@ -1,22 +1,19 @@
 #include "commands.h"
 
 char* processRegister(char** args) {
-    char* registerStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
+    char* registerStatus;
+
+    registerStatus = (char*)malloc(BUFFER_SIZE * sizeof(char));
     if (!registerStatus) fatal(ALLOC_ERROR);
 
-    errno = 0;
-
-    if(args[1] == NULL) {
-        
-    }
-
-    stripnewLine(args[1]);
-
-    if(!isPositiveNumber(args[1])) {
+    if(arglen(args) < 2 || !isPositiveNumber(args[1])) {
         strcpy(registerStatus, "ERR\n");
         return registerStatus;
     }
 
+    stripnewLine(args[1]);
+
+    errno = 0;
     int number = strtol(args[1], NULL, 0);
     if(errno == EINVAL) {
         strcpy(registerStatus, "ERR\n");
