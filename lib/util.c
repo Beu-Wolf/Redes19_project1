@@ -111,7 +111,6 @@ char isPositiveNumber(char* str) {
  */
 int sendTCPstring(int sockfd, char* buffer, size_t n) {
     int sentBytes, bytesToSend;
-    
     bytesToSend = n;
 
     while(bytesToSend > 0) {
@@ -132,6 +131,8 @@ int sendTCPfile(int sockfd, FILE* file) {
     clearerr(file);
     size_t n;
 
+    long sizesent = 0;
+
 
 
     buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
@@ -142,6 +143,8 @@ int sendTCPfile(int sockfd, FILE* file) {
         n = fread(buffer, sizeof(char), FILE_READ_SIZE - 1, file);
         printf("[SENDING]%s\n====================================================================\n", buffer);
         sendTCPstring(sockfd, buffer, n);
+        sizesent += n;
+        printf("SentTotal: %ld\n", sizesent);
         
     }
 
@@ -225,6 +228,7 @@ int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
     char* buffer;
     int n;
 
+    long sizesent = 0;
 
     buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
     if(!buffer) fatal(ALLOC_ERROR);
@@ -234,10 +238,12 @@ int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
         if( (n = recv(sockfd, buffer, MIN(FILE_READ_SIZE - 1, fileSize), 0)) == -1)
             fatal(RECV_TCP_ERROR);
 
-        if(fputs(buffer, filefd) == EOF)
+        if(fwrite(buffer, 1 ,n, filefd) == EOF)
             fatal(FPUTS_ERROR);
 
         fileSize -= n;
+        sizesent += n;
+        printf("SentTotal: %ld\n", sizesent);
     }
     //buffer = ptr;
 
