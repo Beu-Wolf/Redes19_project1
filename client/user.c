@@ -91,13 +91,6 @@ void processQuestionGet(char** parsedInput) {
 }
 
 
-void processAnswerSubmit(char** parsedInput) {
-    printf("Want to submit answer\n");
-}
-
-
-
-
 int main(int argc, char* argv[]) {
     int inpSize;
     char* input, *cmd;
@@ -162,7 +155,7 @@ int main(int argc, char* argv[]) {
             processQuestionSubmit(parsedInput, newAddrInfoSet);
 
         } else if(!strcmp(cmd, "as") || !strcmp(cmd, "answer_submit")) {
-            processAnswerSubmit(parsedInput);
+            processAnswerSubmit(parsedInput, newAddrInfoSet);
 
         } else if(!strcmp(cmd, "exit")) {
           break;

@@ -34,6 +34,7 @@
 #define INVALID_TP_ARGS "Invalid arguments.\nUsage: topic_propose/tp <topic>\n"
 #define INVALID_QL_ARGS "Invalid arguments.\nUsage: question_list/ql\n"
 #define INVALID_QS_ARGS "Invalid arguments.\nUsage: question_submit/qs <question> <text_file> [<image_file.ext>]\n"
+#define INVALID_AS_ARGS "Invalid arguments.\nUsage: answer_submit/as <text_file> [image_file.ext]\n"
 #define INVALID_QS_IMGEXT "Invalid image extension. Please select file with a permitted file extension\n"
 
 // Protocol consts
@@ -62,5 +63,6 @@ void stripnewLine(char* str);
 
 int validate(char* topicName, int len);
 int isValidTopic(char* topicName);
+long fileSize(FILE *file);
 
 #endif

@@ -264,3 +264,14 @@ int validate(char* name, int maxlen) {
     }
     return i < maxlen || (i == maxlen && name[i] == '\0');
 }
+
+long fileSize(FILE *file) {
+    long saved, size;
+
+    saved = ftell(file);
+    fseek(file, 0, SEEK_END);
+    size = ftell(file);
+    fseek(file, saved, SEEK_SET);
+
+    return size;
+}
