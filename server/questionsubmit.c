@@ -234,7 +234,7 @@ void processQuestionSubmit(int fdTCP) {
     size = 2;                                           //flag size + 1;
     hasImage = getImageFlag(fdTCP, size);
 
-    fprintf(questionDatafile, "\n%d ", hasImage);
+    fprintf(questionDatafile, "\n%d", hasImage);
 
     if(hasImage == -1) {
         strcpy(response, "QUR NOK\n");                  //send not ok message
@@ -252,6 +252,7 @@ void processQuestionSubmit(int fdTCP) {
             return;
         }
 
+        fprintf(questionDatafile, " ");
         fputs(imgExt, questionDatafile);
 
         
