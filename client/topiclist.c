@@ -40,6 +40,10 @@ void receiveTopicList(int fdUDP, char** topicList) {
         fatal(UDPRECV_ERROR);
 
     args = tokenize(sendMsg);
+    // TODO: verify if not err
+    if(args[1] == NULL) {
+        return;
+    }
     topicNumber = strtol(args[1], NULL, 10);
 
     if(topicNumber == 0) {
