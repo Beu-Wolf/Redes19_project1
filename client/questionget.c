@@ -52,8 +52,10 @@ void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet 
 
     }
 
-    if(questionList[i] == 0)
+    if(questionList[i] == 0){
         printf("Please select a valid question\n");
+        return;
+    }
 
     fdTCP = sendQuestionGet(newAddrInfoSet);
 
