@@ -165,8 +165,6 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
         fatal(ALLOC_ERROR);
     }
         
-    
-
     ptr = *buffer;
     while(recv(sockfd, ptr, 1, 0) == 1) {
         if(*(ptr++) == '\n')
@@ -183,39 +181,47 @@ int recvTCPline(int sockfd, char** buffer, int* size) {
     return strlen(*buffer);
 }
 
-
-int recvTCPword(int sockfd, char** buffer, int* size) {
-    char* ptr;
+/* Get a word from a tcp socket.
+ * Allocate a buffer and store its address in the bufferaddr argument.
+ * The initial allocation size is given by the value pointed to by the
+ * allocsize argument.
+ * Return the length of the received word.
+ * The total allocated size, which might not correspond to the length
+ * of the word, is stored in the allocsize value-result argument.
+ */
+int recvTCPword(int sockfd, char** bufferaddr, int* allocsize) {
+    char *ptr;
+    char *buffer;
     int len;
 
     // TODO: Is this really necessary???
     // allocate buffer if needed
-    if(*size == 0) {
-        *size = INPUT_SIZE;
+    if(*allocsize == 0) {
+        *allocsize = INPUT_SIZE;
     }
-    (*buffer) = (char*)malloc(INPUT_SIZE * sizeof(char));
-    if(!(*buffer)) {
+    buffer = (char*)malloc(INPUT_SIZE * sizeof(char));
+    if(!buffer) {
         fatal(ALLOC_ERROR);
     }
-        
-    
 
     len = 0;
-    ptr = *buffer;
+    ptr = buffer;
     while(recv(sockfd, ptr, 1, 0) == 1) {
         len++;
         if(*ptr == ' ' || *ptr == '\n')
-            break; // terminate string and return
+            break;
 
         ptr++;
-        if((ptr - (*buffer)) == *size) { // resize buffer
-            *buffer = (char*)realloc(*buffer, 2 * *size);
+        if((ptr - buffer) == *allocsize) { // resize buffer
+            buffer = (char*)realloc(buffer, 2 * *allocsize);
             if(!(*buffer)) fatal(ALLOC_ERROR);
-            ptr = *buffer + *size;
-            (*size) *= 2;
+            ptr = buffer + *allocsize;
+            (*allocsize) *= 2;
         }
     }
+
     *ptr = '\0';
+    *bufferaddr = buffer;
     return len;
 }
 
