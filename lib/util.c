@@ -97,12 +97,12 @@ char *safestrcat(char *dest, char *src) {
 
 // return 0 if string contains non digit ascii
 char isPositiveNumber(char* str) {
-  int i = 0;
-  while(str[i] != '\0') {
-    if('9' < str[i] || str[i] < '0') return 0;
-    i++;
-  }
-  return 1;
+    int i = 0;
+    while(str[i] != '\0') {
+        if('9' < str[i] || str[i] < '0') return 0;
+        i++;
+    }
+    return 1;
 }
 
 /* Accepts socket FD and a \0 terminated string.
