@@ -11,7 +11,7 @@ void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet 
     }
 
     //check #args
-    if(arglen(parsedInput)) {
+    if(arglen(parsedInput) != 2) {
         fprintf(stderr, INVALID_QG_ARGS);
         return;
     }
@@ -92,5 +92,4 @@ int sendQuestionGet(addressInfoSet newAddrInfoSet) {
     free(buffer);
 
     return fdTCP;
-
 }
