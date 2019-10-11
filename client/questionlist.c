@@ -36,14 +36,13 @@ void sendQuestionList(int fdUDP, addressInfoSet newAddrInfoSet) {
 }
 
 void receiveQuestionList(int fdUDP, char **questionList) {
-    int questionNum, n;
+    int questionNum;
     char **args;
 
     char buffer[BUFFER_SIZE]; // TODO: depends on max number of questions
 
-    n = recvfrom(fdUDP, buffer, BUFFER_SIZE, 0, NULL, NULL);
-    // TODO: do we really want to exit the client on error?
-    if (n == -1) fatal(UDPRECV_ERROR);
+    if(recvfrom(fdUDP, buffer, BUFFER_SIZE, 0, NULL, NULL) == -1)
+        fatal(UDPRECV_ERROR);
 
     stripnewLine(buffer);
     args = tokenize(buffer);
