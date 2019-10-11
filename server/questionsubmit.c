@@ -3,9 +3,7 @@
 
 
 char* getUserId(int fdTCP, int size) {
-
     char* userId; 
-    
 
     recvTCPword(fdTCP, &userId, &size); 
     printf("UserID: |%s|\n", userId);
@@ -14,7 +12,6 @@ char* getUserId(int fdTCP, int size) {
 
 char* getTopic(int fdTCP, int size) {
     char* topic;
-    
 
     if(recvTCPword(fdTCP, &topic, &size) > 10) {
         free(topic);
