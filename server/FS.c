@@ -162,14 +162,12 @@ void handleTcp(int fd, char* port) {
     char messageSender[INET_ADDRSTRLEN];
 
     // if(sigprocmask(SIG_BLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
-    printf("Accepting...\n");
     newfd = accept(fd, (struct sockaddr*) &addr, &addrlen);
 
     printf("[TCP]=(%s:%s)=============================================================\n", 
             inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr, messageSender, INET_ADDRSTRLEN),  port);
     
     if (newfd == -1) fatal(SOCK_ACPT_ERROR);
-    printf("Accepted!\n");
     
     ret = fork();
     if (ret == -1)
