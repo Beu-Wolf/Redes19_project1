@@ -6,15 +6,16 @@
 void processRegister(int fdUDP, char** parsedInput,
     addressInfoSet newAddrInfoSet) {
 
+    if(isRegistered()) {
+        printf("This session is already registered\n");
+        return;
+    }
+
     if(arglen(parsedInput) != 2) {
       fprintf(stderr, INVALID_RG_ARGS);
       return;
     }
 
-    if(userID != 0) {
-        printf("This session is already registered\n");
-        return;
-    }
     sendRegister(fdUDP, parsedInput, newAddrInfoSet);
     receiveRegister(fdUDP, parsedInput);
 }

@@ -1,9 +1,8 @@
 #include "clientcommands.h"
 
 void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet newAddrInfoSet) {
-    int fdTCP;
+    int wantedNumber, i, fdTCP;
     char abbrev;
-    int wantedNumber = -1;
 
     //check if is registered
     if(!isRegistered()) {
@@ -31,6 +30,7 @@ void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet 
     }
 
     // get question number if qg
+    wantedNumber = -1;
     abbrev = strlen(parsedInput[0]) == 2;
     if(abbrev) {
         errno = 0;
@@ -42,7 +42,6 @@ void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet 
     }
 
     // get question
-    int i;
     stripnewLine(parsedInput[1]);
     for(i = 0; questionList[i] != 0; i++) {
         if((abbrev && i == wantedNumber) || (!abbrev && !strcmp(parsedInput[1], questionList[i]))) {
