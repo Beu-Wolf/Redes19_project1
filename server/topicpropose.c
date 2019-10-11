@@ -1,12 +1,11 @@
 #include "commands.h"
 
 char* processTopicPropose(char** args) {
-    char* pathName, *topicProposeStatus;
-    struct dirent* dirInfo;
-    DIR* dirPtr;
     FILE* filePtr;
-    int numDirs;
-    int bufsz;
+    DIR* dirPtr;
+    struct dirent* dirInfo;
+    char* pathName, *topicProposeStatus;
+    int numDirs, bufsz;
 
     
     topicProposeStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
