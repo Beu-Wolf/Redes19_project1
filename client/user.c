@@ -96,12 +96,7 @@ int main(int argc, char* argv[]) {
     service newService;
     addressInfoSet newAddrInfoSet;
 
-    // int n;
-    // int fdTCP, fdUDP;
     int fdUDP;
-
-
-    // char buffer[INET_ADDRSTRLEN];
 
     char *topicList[100] = {0};
     char *questionList[100] = {0};
@@ -126,7 +121,7 @@ int main(int argc, char* argv[]) {
 
         // printArgs(parsedInput);
 
-        if(parsedInput[0] == NULL)
+        if(!cmd)
           continue;
 
         if(!strcmp(cmd, "reg") || !strcmp(cmd, "register"))
@@ -142,8 +137,7 @@ int main(int argc, char* argv[]) {
             processTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
 
         } else if(!strcmp(cmd, "ql") || !strcmp(cmd, "question_list")) {
-            processQuestionList(fdUDP, parsedInput,
-                    newAddrInfoSet, questionList);
+            processQuestionList(fdUDP, parsedInput, newAddrInfoSet, questionList);
 
         } else if(!strcmp(cmd, "qg") || !strcmp(cmd, "question_get")) {
             processQuestionGet(parsedInput, questionList, newAddrInfoSet);
@@ -166,43 +160,4 @@ int main(int argc, char* argv[]) {
 
     free(input);
     return 0;
-
-    /*while(0) {
-      fgets(sendMsg, BUFFER_SIZE, stdin);
-      if(atoi(sendMsg) == 1) {
-
-
-      n = sendto(fdUDP, "TestUDP\n", 8, 0, newAddrInfoSet.res_UDP->ai_addr,
-      newAddrInfoSet.res_UDP->ai_addrlen);
-
-      close(fdUDP);
-
-
-      } else if(atoi(sendMsg) == 2){
-      fdTCP = socket(newAddrInfoSet.res_TCP->ai_family,
-      newAddrInfoSet.res_TCP->ai_socktype, newAddrInfoSet.res_TCP->ai_protocol);
-      if(fdTCP == -1) exit(1);
-
-      n = connect(fdTCP, newAddrInfoSet.res_TCP->ai_addr,
-      newAddrInfoSet.res_TCP->ai_addrlen);
-      if(n == -1) exit(1);
-
-      strcpy(sendMsg, "Hello\n");
-      sendBLeft = 7;
-      while(sendBLeft > 0){
-      sentB = write(fdTCP, sendMsg, sendBLeft);
-      if(sentB <= 0) exit(1);
-
-      sendBLeft -= sentB;
-
-      close(fdTCP);
-      }
-
-
-
-      } else {
-      printf("Error\n");
-      break;
-      }
-      }*/
 }
