@@ -14,7 +14,7 @@ char* processTopicList(char** args) {
     topicListStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
     if (!topicListStatus) fatal(ALLOC_ERROR);
 
-    if(arglen(args) < 11) {
+    if(arglen(args) < 1) {
         strcpy(topicListStatus, "ERR\n");
         return topicListStatus;
     }
