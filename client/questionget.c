@@ -1,7 +1,6 @@
 #include "clientcommands.h"
 
 void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet newAddrInfoSet) {
-    int len = arglen(parsedInput);
     int fdTCP;
     char abbrev;
     int wantedNumber = -1;
@@ -13,7 +12,7 @@ void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet 
     }
 
     //check #args
-    if(len != 2) {
+    if(arglen(parsedInput)) {
         fprintf(stderr, INVALID_QG_ARGS);
         return;
     }
