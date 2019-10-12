@@ -82,8 +82,11 @@ int sendAnswerSubmit(int fd, char *text, char *image) {
         sprintf(buffer, " 1 %s %ld ", ext, size);
         sendTCPstring(fd, buffer, strlen(buffer));
         sendTCPfile(fd, imageFile);
+    } else {
+        sendTCPstring(fd, "0", 1);
     }
 
+    sendTCPstring(fd, "\n", 1);
     if (image) fclose(imageFile);
     fclose(textFile);
 
@@ -91,5 +94,6 @@ int sendAnswerSubmit(int fd, char *text, char *image) {
 }
 
 int recvAnswerSubmit(int fd) {
+    /* TODO: handle server response. */
     return fd;
 }
