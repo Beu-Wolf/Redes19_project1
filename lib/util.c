@@ -157,33 +157,35 @@ int sendTCPfile(int sockfd, FILE* file) {
  * Reads from socket until '\n' read. reallocates buffer if needed
  * Returns number of bytes read
  */
-int recvTCPline(int sockfd, char** buffer, int* size) {
+int recvTCPline(int sockfd, char** bufferaddr, int* allocsize) {
     char* ptr;
+    char *buffer;
+    int alloc = INPUT_SIZE;
 
-    // TODO: Is this really necessary???
-    // allocate buffer if needed
-    if(*size == 0) {
-        *size = INPUT_SIZE;
+    if(allocsize != NULL && *allocsize != 0) {
+        alloc = *allocsize;
     }
-    (*buffer) = (char*)malloc(*size * sizeof(char));
-    if(!(*buffer)) {
+    buffer = (char*)malloc(alloc * sizeof(char));
+    if(!buffer) {
         fatal(ALLOC_ERROR);
     }
         
-    ptr = *buffer;
+    ptr = buffer;
     while(recv(sockfd, ptr, 1, 0) == 1) {
         if(*(ptr++) == '\n')
             break; // terminate string and return
 
-        if(ptr - (*buffer) >= *size) { // resize buffer
-            *buffer = (char*)realloc(*buffer, 2 * *size);
-            if(!(*buffer)) fatal(ALLOC_ERROR);
-            ptr = *buffer + *size;
-            (*size) *= 2;
+        if(ptr - buffer >= alloc) { // resize buffer
+            buffer = (char*)realloc(buffer, 2 * alloc);
+            if(!buffer) fatal(ALLOC_ERROR);
+            ptr = buffer + alloc;
+            alloc *= 2;
         }
     }
     *ptr = '\0';
-    return strlen(*buffer);
+    *bufferaddr = buffer;
+    if (allocsize != NULL) *allocsize = alloc;
+    return strlen(buffer);
 }
 
 /* Get a word from a tcp socket.
