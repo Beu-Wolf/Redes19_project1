@@ -1,59 +1,66 @@
 #include "commands.h"
 
 char* processTopicList(char** args) {
-    char* topicListStatus;
-    char topicDatafile[BUFFER_SIZE] = {};
-    char topicsInfo[BUFFER_SIZE] = {};
-    char topicNameAndUser[BUFFER_SIZE] = {};
+    char* topicListStatus, *topicDatafile, *topicsInfo, *topicNameAndUser;
     char topicUserID[6] = {};
     char numDirs[4] = {};
 
-    DIR* dirp = opendir(TOPICSDIR);
-    struct dirent* dp;
-    int dircount = 0, n;
+    DIR* dirp;
+    FILE* topicData;
+    struct dirent* dirInfo;
+    int dircount;
     int errno;
 
     topicListStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
     if (!topicListStatus) fatal(ALLOC_ERROR);
 
-    if(args[0] == NULL) {
+    if(arglen(args) < 1) {
         strcpy(topicListStatus, "ERR\n");
-        closedir(dirp);
         return topicListStatus;
     }
 
     strncpy(topicListStatus, "LTR ", BUFFER_SIZE);
 
-    if (dirp == NULL) {
+    dirp = opendir(TOPICSDIR);
+    if (!dirp) {
         strcat(topicListStatus, "0\n");
         mkdir(TOPICSDIR, 0755);
         return topicListStatus;
     }
 
-    while ((dp = readdir(dirp))) {
-        if(strcmp(dp->d_name, ".") && strcmp(dp->d_name, "..") && dp->d_type == DT_DIR) {
-            dircount++;
-            sprintf(topicDatafile, TOPICSDIR"/%s/"DATAFILE, dp->d_name);
+    topicDatafile = (char*)malloc(BUFFER_SIZE * sizeof(char));
+    topicsInfo = (char*)malloc(BUFFER_SIZE * sizeof(char));
+    topicNameAndUser = (char*)malloc(BUFFER_SIZE * sizeof(char));
+    if(!topicDatafile || !topicsInfo || !topicNameAndUser) fatal(ALLOC_ERROR);
 
-            FILE * topicData = fopen(topicDatafile, "r");
-            if (topicData == NULL) {
-                fatal(FILEOPEN_ERROR);
-            }
+    memset(topicDatafile, 0, BUFFER_SIZE);
+    memset(topicsInfo, 0, BUFFER_SIZE);
+    memset(topicNameAndUser, 0, BUFFER_SIZE);
 
-            n = fread(topicUserID,  1, 5, topicData);
-            if(n == 0) fatal(FILEREAD_ERROR);
+    dircount = 0;
+    while ((dirInfo = readdir(dirp))) {
+        if(dirInfo->d_name[0] == '.' || dirInfo->d_type != DT_DIR) continue;
+        sprintf(topicDatafile, TOPICSDIR"/%s/"DATAFILE, dirInfo->d_name);
 
-            sprintf(topicNameAndUser, " %s:%s", dp->d_name, topicUserID);
-            strcat(topicsInfo, topicNameAndUser);
-        }
+        topicData = fopen(topicDatafile, "r");
+        if (!topicData) fatal(FILEOPEN_ERROR);
+        if(!fread(topicUserID,  1, 5, topicData)) fatal(FILEREAD_ERROR);
+
+        sprintf(topicNameAndUser, " %s:%s", dirInfo->d_name, topicUserID);
+        topicsInfo = safestrcat(topicsInfo, topicNameAndUser);
+
+        dircount++;
     }
 
     sprintf(numDirs, "%d", dircount);
-    strcat(topicListStatus, numDirs);
-    strcat(topicListStatus, topicsInfo);
-    strcat(topicListStatus, "\n");
+    topicListStatus = safestrcat(topicListStatus, numDirs);
+    topicListStatus = safestrcat(topicListStatus, topicsInfo);
+    topicListStatus = safestrcat(topicListStatus, "\n");
 
     closedir(dirp);
-    return topicListStatus;
+    free(topicDatafile);
+    free(topicsInfo);
+    free(topicNameAndUser);
 
+    return topicListStatus;
 }

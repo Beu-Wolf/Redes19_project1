@@ -15,7 +15,7 @@
 
 #define INPUT_SIZE 1024
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 2048
 #define DEFAULT_PORT "58036"
 
 
@@ -86,5 +86,9 @@ void receiveQuestionSubmit(int fdUDP);
 void processAnswerSubmit(char **args, addressInfoSet newAddrInfoSet);
 int sendAnswerSubmit(int fd, char *text, char *image);
 int recvAnswerSubmit(int fd);
+
+//Question Get
+void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet newAddrInfoSet);
+int sendQuestionGet(addressInfoSet newAddrInfoSet);
 
 #endif

@@ -1,13 +1,11 @@
 #include "commands.h"
 
 char* processTopicPropose(char** args) {
-    char newTopic[11];
-    char topicDatafile[16];
-
-    char* topicProposeStatus;
-    DIR* dirp;
-    struct dirent* dp;
-    int dircount = 0;
+    FILE* filePtr;
+    DIR* dirPtr;
+    struct dirent* dirInfo;
+    char* pathName, *topicProposeStatus;
+    int numDirs, bufsz;
 
     
     topicProposeStatus = (char *)malloc(BUFFER_SIZE * sizeof(char));
@@ -15,51 +13,71 @@ char* processTopicPropose(char** args) {
 
     // Check number of arguments
     if(arglen(args) != 3) {
+        printf("Invalid Protocol!");
         strcpy(topicProposeStatus, "ERR\n");
         return topicProposeStatus;
     }
 
-
     stripnewLine(args[2]);
-    printArgs(args);
 
-    if (strlen(args[2]) > 10) {
+    if (!isValidTopic(args[2])) {
+        printf("Invalid topic format!\n");
         strcpy(topicProposeStatus, "ERR\n");
+        return topicProposeStatus;
     }
 
-    dirp = opendir(TOPICSDIR);
-    if(!dirp) fatal(DIROPEN_ERROR);
+    // TODO: Verify this pls... Very maroscated I believe
+    dirPtr = opendir(TOPICSDIR);
+    if(!dirPtr && errno == ENOENT) { // if not existent dir, create new one
+        if(mkdir(TOPICSDIR, 0755))
+            fatal(DIRCREATE_ERROR);
+        dirPtr = opendir(TOPICSDIR); // ...and open it
+    }
+    if(!dirPtr) fatal(DIROPEN_ERROR); // check latest opendir
+
 
     // check dir for duplicate names; count topics
-    while((dp = readdir(dirp)) != NULL) {
-        if(dp->d_name[0] == '.') continue;   // ignore ".", ".." and hidden files
-        if(!strcmp(dp->d_name, args[2])) {
-            if(closedir(dirp) == -1) fatal(DIRCLOSE_ERROR);
+    numDirs = 0;
+    while((dirInfo = readdir(dirPtr)) != NULL) {
+        if(dirInfo->d_name[0] == '.') continue;   // ignore ".", ".." and hidden files
+        if(!strcmp(dirInfo->d_name, args[2])) {
+            if(closedir(dirPtr) == -1) fatal(DIRCLOSE_ERROR);
             strcpy(topicProposeStatus, "PTR DUP\n");
             return topicProposeStatus;
         }
-        dircount++;
+        numDirs++;
     }
 
     // check number of existing topics
-    if(dircount >= MAXTOPICS) {
-        if(closedir(dirp) == -1) fatal(DIRCLOSE_ERROR);
+    if(numDirs >= MAXTOPICS) {
+        if(closedir(dirPtr) == -1) fatal(DIRCLOSE_ERROR);
         strcpy(topicProposeStatus, "PTR FUL\n");
         return topicProposeStatus;
     }
 
     // create new topic
-    sprintf(newTopic, TOPICSDIR"/%s", args[2]);
-    if(mkdir(newTopic, 0700) == -1) {
-        if(closedir(dirp) == -1) fatal(DIRCLOSE_ERROR);
+    // size of topics dir + max topic name + space for \0 and /
+    // strlen(TOPICSDIR)  + TOPIC_MAXLEN   + 2
+    bufsz = strlen(TOPICSDIR) + TOPIC_MAXLEN + 2;
+    if(!(pathName = (char*)malloc(sizeof(char) * bufsz)))
+        fatal(ALLOC_ERROR);
+    memset(pathName, 0, strlen(TOPICSDIR) + TOPIC_MAXLEN + 1);
+    sprintf(pathName, TOPICSDIR"/%s", args[2]);
+    if(mkdir(pathName, 0700) == -1) {
+        if(closedir(dirPtr) == -1) fatal(DIRCLOSE_ERROR);
         strcpy(topicProposeStatus, "PTR NOK\n");
+        free(pathName);
+        return topicProposeStatus;
     }
 
-    sprintf(topicDatafile, TOPICSDIR"/%s/"DATAFILE, args[2]);
-    FILE *topicData = fopen(topicDatafile, "w");
-    fputs(args[1], topicData); // write userID on file
-    fclose(topicData);
+    // append data filename to path
+    pathName = safestrcat(pathName, "/"DATAFILE);
+    filePtr = fopen(pathName, "w");
+    fputs(args[1], filePtr); // write userID on file
+    if(fclose(filePtr)) fatal(DIRCLOSE_ERROR);
     strcpy(topicProposeStatus, "PTR OK\n");
-    if(closedir(dirp) == -1) fatal(DIRCLOSE_ERROR);
+    if(closedir(dirPtr) == -1) fatal(DIRCLOSE_ERROR);
+
+    free(pathName);
     return topicProposeStatus;
 }

@@ -39,4 +39,7 @@ int getImageFlag(int fdTCP, int size);
 char* getImageExtension(int fdTCP, int size);
 int getImageFileSize(int fdTCP, int size);
 
+void processQuestionGet(int fdTCP);
+
+
 #endif

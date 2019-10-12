@@ -27,16 +27,23 @@ void sendTopicList(int fdUDP, addressInfoSet newAddrInfoSet) {
 
 void receiveTopicList(int fdUDP, char** topicList) {
     int i;
-    char sendMsg[BUFFER_SIZE];
+    char* sendMsg;
     char** args;
     char* topicName;
     char* topicUserID;
     long topicNumber;
 
+    if(!(sendMsg = (char*)malloc(sizeof(char) * BUFFER_SIZE))) fatal(ALLOC_ERROR);
+    sendMsg = memset(sendMsg, 0, BUFFER_SIZE);
+
     if(recvfrom(fdUDP, sendMsg, BUFFER_SIZE, 0, NULL, NULL) == -1)
         fatal(UDPRECV_ERROR);
 
     args = tokenize(sendMsg);
+    // TODO: verify if not err
+    if(args[1] == NULL) {
+        return;
+    }
     topicNumber = strtol(args[1], NULL, 10);
 
     if(topicNumber == 0) {
