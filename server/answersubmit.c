@@ -131,7 +131,6 @@ static int storeAnswer(int fd, char *path) {
     char *answer = strdup(path);
     char *data = strdup(path);
     char *image = strdup(path);
-    char *aimg;
     char tmp[20];
     long fileSize;
     bool error = false;
@@ -156,12 +155,21 @@ static int storeAnswer(int fd, char *path) {
         goto clean;
     }
 
-    recvTCPword(fd, &aimg, NULL);
-    if (!strcmp(aimg, "1")) {
-        FILE *imageFile = fopen(image, "w");
+    n = recv(fd, tmp, 1, 0);
+    if (n == 1 && *tmp == '1') {
+        FILE *imageFile;
         char *isize;
         char *iext;
         long imageSize;
+
+        /* Absorb space between aimg and iext */
+        n = recv(fd, tmp, 1, 0);
+        if (n == 0 || *tmp != ' ') {
+            error = true;
+            goto clean;
+        }
+
+        imageFile = fopen(image, "w");
 
         recvTCPword(fd, &iext, NULL);
         fprintf(dataFile, " %s", iext);
@@ -174,7 +182,7 @@ static int storeAnswer(int fd, char *path) {
         fclose(imageFile);
         free(isize);
         free(iext);
-    } else if (strcmp(aimg, "0")) { /* not "0" either */
+    } else if (n != 1 || *tmp != '0') {
         error = true;
         goto clean;
     }
