@@ -37,7 +37,7 @@ void handleSIGCHILD(int s) {
             if(errno == ECHILD) break;
             fatal(WAIT_ERROR);
         }
-        
+
     }
     write(0, "Stopped waiting\n", 16);
 }
@@ -164,11 +164,11 @@ void handleTcp(int fd, char* port) {
     // if(sigprocmask(SIG_BLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
     newfd = accept(fd, (struct sockaddr*) &addr, &addrlen);
 
-    printf("[TCP]=(%s:%s)=============================================================\n", 
+    printf("[TCP]=(%s:%s)=============================================================\n",
             inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr, messageSender, INET_ADDRSTRLEN),  port);
-    
+
     if (newfd == -1) fatal(SOCK_ACPT_ERROR);
-    
+
     ret = fork();
     if (ret == -1)
         fatal(FORK_ERROR);
@@ -190,14 +190,14 @@ void handleTcp(int fd, char* port) {
 
         if(!strcmp("QUS", req)) {
             processQuestionSubmit(newfd);
-        
         } else if(!strcmp("QGU", req)) {
             processQuestionGet(newfd);
-            
+        } else if (!strcmp("ANS", req)) {
+            processAnswerSubmit(newfd);
         } else {
             printf("Not supported as of now\n");
         }
-        
+
         close(newfd);
         free(req);
         exit(0);
@@ -227,7 +227,7 @@ void handleUdp(int fd, char* port) {
     recvfrom(fd, buffer, BUFFER_SIZE, 0,
             (struct sockaddr *)&addr, &addrlen);
 
-    printf("[UDP]=(%s:%s)=============================================================\n", 
+    printf("[UDP]=(%s:%s)=============================================================\n",
             inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr, messageSender, INET_ADDRSTRLEN),  port);
     printf("|%s|\n", buffer);
 

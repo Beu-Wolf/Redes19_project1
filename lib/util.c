@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <string.h>
+#include <errno.h>
 #include <ctype.h>
 
 #define INPUT_SIZE 128
@@ -105,6 +106,20 @@ char isPositiveNumber(char* str) {
     return 1;
 }
 
+/* Convert string to non negative number
+ * Returns -1 on error
+ */
+long toNonNegative(char *str) {
+    errno = 0;
+    long n = strtol(str, NULL, 10);
+
+    if (errno != 0 || !isPositiveNumber(str)) {
+        return -1;
+    }
+
+    return n;
+}
+
 /* Accepts socket FD and a \0 terminated string.
  * The function makes sure every byte is sent.
  * Returns 1 on success, 0 on failure
@@ -114,10 +129,10 @@ int sendTCPstring(int sockfd, char* buffer, size_t n) {
     bytesToSend = n;
 
     while(bytesToSend > 0) {
-        sentBytes = send(sockfd, buffer, bytesToSend, MSG_NOSIGNAL);                                                //Ignore SIGPIPE when sending large files, because 
+        sentBytes = send(sockfd, buffer, bytesToSend, MSG_NOSIGNAL);                                                //Ignore SIGPIPE when sending large files, because
                                                                                                                     // we need to read server response when something goes wrong
-                                                                                                                    //TODO: Is there a better way        
-        if(sentBytes == -1){                                                                        
+                                                                                                                    //TODO: Is there a better way
+        if(sentBytes == -1){
             return 0;
         }
         bytesToSend -= sentBytes;
@@ -135,7 +150,7 @@ int sendTCPfile(int sockfd, FILE* file) {
 
 
 
-    buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
+    buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE);
     if(!buffer) fatal(ALLOC_ERROR);
 
     while(feof(file) == 0) {
@@ -145,7 +160,7 @@ int sendTCPfile(int sockfd, FILE* file) {
         sendTCPstring(sockfd, buffer, n);
         sizesent += n;
         printf("SentTotal: %ld\n", sizesent);
-        
+
     }
 
 
@@ -169,7 +184,7 @@ int recvTCPline(int sockfd, char** bufferaddr, int* allocsize) {
     if(!buffer) {
         fatal(ALLOC_ERROR);
     }
-        
+
     ptr = buffer;
     while(recv(sockfd, ptr, 1, 0) == 1) {
         if(*(ptr++) == '\n')
@@ -240,7 +255,7 @@ int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
 
     long sizesent = 0;
 
-    buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE); 
+    buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE);
     if(!buffer) fatal(ALLOC_ERROR);
 
     while(fileSize > 0) {

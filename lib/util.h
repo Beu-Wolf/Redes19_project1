@@ -44,6 +44,9 @@
 #define TOPIC_MAXLEN 10
 #define QUESTION_MAXLEN 10
 #define MAXTOPICS 99
+/* TODO: "two digit numbers", does it contain "00"?
+ * If so, then the max number of answers is 100*/
+#define MAXANSWERS 99
 
 
 void printArgs(char** buffer);
@@ -53,7 +56,8 @@ char **tokenize(char *string);
 int arglen(char **args);
 char *safestrcat(char *dest, char *src);
 
-char isPositiveNumber(char* str);
+char isPositiveNumber(char *str);
+long toNonNegative(char *str);
 
 int sendTCPstring(int sockfd, char* buffer, size_t n);
 int recvTCPline(int sockfd, char** buffer, int* size);
