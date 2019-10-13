@@ -58,7 +58,7 @@ char *processQuestionList(char **args) {
     int questionCount = 0;
     struct dirent *questionEnt;
 
-    char *info = strdup(" "); // space after "LQR N"
+    char *info = strdup(""); // space after "LQR N"
 
     while ((questionEnt = readdir(topicDir))) {
         char *question = questionEnt->d_name;
@@ -79,7 +79,7 @@ char *processQuestionList(char **args) {
         int answers = numAnswers(questionPath);
         char tmp[BUFFER_SIZE];
 
-        sprintf(tmp, "%s:%s:%d ", question, user, answers);
+        sprintf(tmp, " %s:%s:%d", question, user, answers);
         info = safestrcat(info, tmp);
 
         free(user);

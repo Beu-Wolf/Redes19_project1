@@ -190,7 +190,7 @@ void handleTcp(int fd, char* port) {
 
         if(!strcmp("QUS", req)) {
             processQuestionSubmit(newfd);
-        } else if(!strcmp("QGU", req)) {
+        } else if(!strcmp("GQU", req)) {
             processQuestionGet(newfd);
         } else if (!strcmp("ANS", req)) {
             processAnswerSubmit(newfd);

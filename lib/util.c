@@ -263,7 +263,7 @@ int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
         if( (n = recv(sockfd, buffer, MIN(FILE_READ_SIZE - 1, fileSize), 0)) == -1)
             fatal(RECV_TCP_ERROR);
 
-        if(fwrite(buffer, 1 ,n, filefd) == EOF)
+        if(fwrite(buffer, 1 ,n, filefd) == 0)
             fatal(FPUTS_ERROR);
 
         fileSize -= n;

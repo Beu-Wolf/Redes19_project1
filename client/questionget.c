@@ -87,7 +87,7 @@ int sendQuestionGet(addressInfoSet newAddrInfoSet) {
     if(!buffer) fatal(ALLOC_ERROR);
     memset(buffer, 0, 30);
 
-    sprintf(buffer, "QGU %s %s\n", selectedTopic, selectedQuestion);
+    sprintf(buffer, "GQU %s %s\n", selectedTopic, selectedQuestion);
     printf("sending: %s", buffer);
 
     sendTCPstring(fdTCP, buffer, strlen(buffer));
