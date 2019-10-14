@@ -10,12 +10,24 @@ void processAnswerSubmit(char **args, addressInfoSet newAddrInfoSet) {
         return;
     }
 
-    /* TODO: handle question selection verification */
-
     if (!(numArgs == 2 || numArgs == 3)) {
         fprintf(stderr, INVALID_AS_ARGS);
         return;
     }
+
+    if(access(args[1], R_OK)) {
+        fprintf(stderr, FILE_NOT_AVAILABLE_ERROR);
+        return;
+    }
+
+    if(numArgs == 3 && access(args[2], R_OK)) {
+        fprintf(stderr, IMAGE_NOT_AVAILABLE_ERROR);
+        return;
+    }
+
+
+
+
     stripnewLine(args[numArgs-1]);
 
     fd = socket(newAddrInfoSet.res_TCP->ai_family,

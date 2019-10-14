@@ -1,8 +1,6 @@
 #include "clientcommands.h"
 
-void processQuestionList(int fdUDP, char **args,
-        addressInfoSet newAddrInfoSet, char **questionList) {
-
+void processQuestionList(int fdUDP, char **args, addressInfoSet newAddrInfoSet, char **questionList) {
     if (!isRegistered()) {
         fprintf(stderr, NOT_REGISTERED_ERROR);
         return;

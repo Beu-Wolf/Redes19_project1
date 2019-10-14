@@ -23,11 +23,11 @@ void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet 
     }
 
 
-    //check if theres a valid topic list client-side
-    if(!questionList) {
-        fprintf(stderr, NO_QUESTION_LIST);
+    // check if theres a valid question list client-side
+    if(questionList[0] == NULL) {
+        fprintf(stderr, NO_QUESTION_LOADED_ERROR);
         return;
-    }
+   }
 
     // get question number if qg
     wantedNumber = -1;
@@ -59,10 +59,10 @@ void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet 
 
     fdTCP = sendQuestionGet(newAddrInfoSet);
 
-    /*
     if(fdTCP == -1)
         return;
     
+    /*
     receiveQuestionGet(fdTCP);
     close(fdTCP);
     */

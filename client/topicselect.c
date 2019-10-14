@@ -14,6 +14,11 @@ void processTopicSelect(char** parsedInput, char** topicList){
       return;
     }
 
+    if(topicList[0] == NULL) {
+        printf("No topics to show. Use topic_list (tl) to get a list of available topics.\n");
+        return;
+    }
+
     // get topic number
     abbrev = strlen(parsedInput[0]) == 2;
     if(abbrev) {

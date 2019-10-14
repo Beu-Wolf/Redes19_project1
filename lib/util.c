@@ -287,6 +287,10 @@ int isValidTopic(char* topicName) {
     return validate(topicName, TOPIC_MAXLEN);
 }
 
+int isValidQuestion(char* questionName) {
+    return validate(questionName, QUESTION_MAXLEN);
+}
+
 int validate(char* name, int maxlen) {
     int i = 0;
     while(name[i] != '\0' && i < maxlen) {

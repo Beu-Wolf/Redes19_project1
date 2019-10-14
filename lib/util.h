@@ -27,10 +27,13 @@
 
 #define NOT_REGISTERED_ERROR "You must be registered before performing any action\n"
 #define NO_TOPIC_SELECTED_ERROR "You must have a topic selected\n"
+#define NO_QUESTION_LOADED_ERROR "See available questions with command question_get (qg)\n"
 #define QSIZE_ERROR "Question size exceeded\n"
-#define FILE_NOT_AVAILABLE_ERROR "Given file is not available\n"
+#define FILE_NOT_AVAILABLE_ERROR "Cannot access file: No such file\n"
+#define IMAGE_NOT_AVAILABLE_ERROR "Cannot access image: No such file\n"
 #define NO_QUESTION_LIST "No question list store. Please run question_list/ql\n"
 #define TOPIC_ERROR "Topic names must be alphanumeric and have no more than 10 characters\n"
+#define QUESTION_ERROR "Question names must be alphanumeric and have no more than 10 characters\n"
 #define INVALID_RG_ARGS "Invalid arguments.\nUsage: register/reg <userID>\n"
 #define INVALID_TL_ARGS "Invalid arguments.\nUsage: topic_list/tl\n"
 #define INVALID_TS_ARGS "Invalid arguments.\nUsage: topic_select <topic>/ts <topic_number>\n"
@@ -45,8 +48,6 @@
 #define TOPIC_MAXLEN 10
 #define QUESTION_MAXLEN 10
 #define MAXTOPICS 99
-/* TODO: "two digit numbers", does it contain "00"?
- * If so, then the max number of answers is 100*/
 #define MAXANSWERS 99
 
 
@@ -71,6 +72,7 @@ void stripnewLine(char* str);
 
 int validate(char* topicName, int len);
 int isValidTopic(char* topicName);
+int isValidQuestion(char* questionName);
 long fileSize(FILE *file);
 
 #endif

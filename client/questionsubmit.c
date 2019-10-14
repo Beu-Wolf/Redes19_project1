@@ -25,17 +25,21 @@ void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
     }
 
     // check question length
-    if(strlen(parsedInput[1]) > QUESTION_MAXLEN) {
-        printf(QSIZE_ERROR);
+    if(!isValidQuestion(parsedInput[1])) {
+        fprintf(stderr, QUESTION_ERROR);
         return;
     }
 
     // check if readable files
-    if(access(parsedInput[2], R_OK) || (len == 4 && access(parsedInput[3], R_OK))) {
-        printf(FILE_NOT_AVAILABLE_ERROR);
+    if(access(parsedInput[2], R_OK)) {
+        fprintf(stderr, FILE_NOT_AVAILABLE_ERROR);
         return;
     }
 
+    if(len == 4 && access(parsedInput[3], R_OK)) {
+        fprintf(stderr, IMAGE_NOT_AVAILABLE_ERROR);
+        return;
+    }
 
     fdTCP = sendQuestionSubmit(parsedInput, newAddrInfoSet);
 
@@ -56,14 +60,6 @@ int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
     char hasImg;
 
     // prep data
-    questionFD =  fopen(parsedInput[2], "r");
-    if(questionFD == NULL)
-        fatal(FILEREAD_ERROR);
-
-    // get file size
-    fseek(questionFD, 0, SEEK_END);
-    questionFileSz = ftell(questionFD);
-    fseek(questionFD, 0L, SEEK_SET);
 
     if ((hasImg = arglen(parsedInput) == 4)) {
         imgFd = fopen(parsedInput[3], "r");
@@ -73,17 +69,23 @@ int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
         // get img extension
         strtok(parsedInput[3], ".");
         imgExt = strtok(NULL, ".");
-        printf("img extension: %s\n", imgExt);
+        printf("[DBG]: img extension: %s\n", imgExt);
         if(imgExt == NULL || strlen(imgExt) != 3) {
             printf(INVALID_QS_IMGEXT);
+            fclose(imgFd);
             return -1;
         }
-
-        // img size
-        fseek(imgFd, 0, SEEK_END);
-        imgSz = ftell(imgFd);
-        fseek(imgFd, 0L, SEEK_SET);
+        imgSz = fileSize(imgFd);
     }
+
+    questionFD = fopen(parsedInput[2], "r");
+    if(questionFD == NULL)
+        fatal(FILEREAD_ERROR);
+
+    // get file size
+    fseek(questionFD, 0, SEEK_END);
+    questionFileSz = ftell(questionFD);
+    fseek(questionFD, 0L, SEEK_SET);
 
     fdTCP = socket(newAddrInfoSet.res_TCP->ai_family, newAddrInfoSet.res_TCP->ai_socktype,
     newAddrInfoSet.res_TCP->ai_protocol);

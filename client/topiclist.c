@@ -51,7 +51,7 @@ void receiveTopicList(int fdUDP, char** topicList) {
         return;
     }
 
-    memset(topicList, 0, sizeof(topicList));
+    memset(topicList, 0, 100);
     for(i = 0; i < topicNumber; i++) {
         if(i == topicNumber - 1)
             stripnewLine(args[i+2]);

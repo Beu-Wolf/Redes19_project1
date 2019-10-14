@@ -106,6 +106,7 @@ int main(int argc, char* argv[]) {
     if(fdUDP == -1) fatal(SOCK_CREATE_ERROR);
 
     userID = -1;
+    selectedTopic = NULL;
 
     inpSize = INPUT_SIZE;
     input = (char*)malloc(inpSize * sizeof(char));
