@@ -77,7 +77,7 @@ static int receiveAnswer(int fd) {
     num = n + 1;
     if (n == ERROR) return n;
 
-    if (n == MAXANSWERS) {
+    if (n >= MAXANSWERS) {
         fprintf(stderr, "The question is already full!\n");
         free(path);
         return FULL;
