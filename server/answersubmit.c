@@ -74,6 +74,7 @@ static int receiveAnswer(int fd) {
     }
 
     n = numAnswers(path);
+    num = n + 1;
     if (n == ERROR) return n;
 
     if (n == MAXANSWERS) {
@@ -91,8 +92,6 @@ static int receiveAnswer(int fd) {
         free(path);
         return ERROR;
     }
-
-    num = n + 1;
 
     n = storeAnswer(fd, path, num);
     if (n == ERROR){
@@ -130,7 +129,7 @@ static int numAnswers(char *path) {
     return count;
 }
 
-static int storeAnswer(int fd, char *path, int n) {
+static int storeAnswer(int fd, char *path, int num) {
     char *answer = strdup(path);
     char *data = strdup(path);
     char *image = strdup(path);
@@ -141,7 +140,7 @@ static int storeAnswer(int fd, char *path, int n) {
     int ret;
 
     answer = safestrcat(answer, "/");
-    sprintf(tmp, "%s_%02d", question, n);
+    sprintf(tmp, "%s_%02d", question, num);
     answer = safestrcat(answer, tmp);
     answer = safestrcat(answer, ".txt");
     data = safestrcat(data, "/"DATAFILE);
