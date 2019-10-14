@@ -52,7 +52,7 @@ int sendAnswerSubmit(int fd, char *text, char *image) {
     }
 
     if (image) {
-        imageFile = fopen(text, "r");
+        imageFile = fopen(image, "r");
         if (imageFile == NULL) {
             fprintf(stderr, "Error opening image: %s\n", text);
             return -1;

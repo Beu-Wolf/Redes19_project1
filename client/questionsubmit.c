@@ -110,7 +110,7 @@ int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
       // 3
     if(hasImg) {
         memset(buffer, 0, FINFO_BUFF_SIZE);
-        sprintf(buffer, "%d %s %ld ", 1, imgExt, imgSz);
+        sprintf(buffer, " %d %s %ld ", 1, imgExt, imgSz);
         sendTCPstring(fdTCP, buffer, strlen(buffer));
 
         sendTCPfile(fdTCP, imgFd);
@@ -133,8 +133,21 @@ void receiveQuestionSubmit(int fdTCP) {
     int size = BUFFER_SIZE;
 
     recvTCPline(fdTCP, &buffer,&size);
-
+    printf("Buffer: |%s|\n", buffer);
     args = tokenize(buffer);
+
+    if(!strcmp(args[0], "ERR")) {
+        printf(SERVER_ERROR);
+        close(fdTCP);
+        return;
+    }
+
+    if(arglen(args) < 2) {
+        printf("TODO: Verificar erros de protocolo\n");
+        close(fdTCP);
+        return;
+    }
+
     stripnewLine(args[1]);
     if(!strcmp(args[1], "OK"))
         printf("Question successfully submited\n");
@@ -144,8 +157,7 @@ void receiveQuestionSubmit(int fdTCP) {
         printf("Question already exists in selected topic\n");
     else if (!strcmp(args[1], "FUL"))
         printf("Selected topic already has max number of questions\n");
-    else if(!strcmp(args[1], "ERR"))
-        printf(SERVER_ERROR);
+
 
     close(fdTCP);
     return;

@@ -15,22 +15,22 @@ static char *questionUser(char *p) {
     return user;
 }
 
-char* getImageInfo(char* p, char* imageFlag) {
+char* getImageInfo(char* p) {
     char* cleaner;                                   //to consume userID in first line of datafile
-    char* imageExt;                     
+    char* imageExt;                 
     char* path = strdup(p);
     path = safestrcat(path, "/"DATAFILE);
 
 
     FILE* dataFile = fopen(path, "r");
     if(!dataFile) fatal(FILE_NOT_AVAILABLE_ERROR);
-    fscanf(dataFile, "%ms\n %c %ms", &cleaner, imageFlag, &imageExt);
+    if(fscanf(dataFile, "%ms %ms", &cleaner, &imageExt) < 2) {
+        imageExt = NULL;
+    }
 
     fclose(dataFile);
     free(path);
-    if(!strcmp(imageFlag, "0")) {
-        return NULL;
-    }
+
 
     return imageExt;
     
@@ -114,10 +114,9 @@ void processQuestionGet(int fdTCP) {
 
     fclose(questionFD);
 
-    char imageFlag;
     char* imageExt;
 
-    imageExt = getImageInfo(path, &imageFlag);
+    imageExt = getImageInfo(path);
     if(imageExt != NULL)
         printf("%s\n", imageExt);
 

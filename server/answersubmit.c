@@ -4,7 +4,7 @@
 
 static int receiveAnswer(int fd);
 static int numAnswers(char *path);
-static int storeAnswer(int fd, char *path);
+static int storeAnswer(int fd, char *path, int n);
 
 static char *userID;
 static char *topic;
@@ -54,6 +54,7 @@ static int receiveAnswer(int fd) {
     char *path = strdup(TOPICSDIR"/");
     char tmp[BUFFER_SIZE];
     int n;
+    int num;
 
     path = safestrcat(path, topic);
 
@@ -72,33 +73,34 @@ static int receiveAnswer(int fd) {
         return ERROR;
     }
 
-     n = numAnswers(path);
-     if (n == ERROR) return n;
+    n = numAnswers(path);
+    num = n + 1;
+    if (n == ERROR) return n;
 
-     if (n == MAXANSWERS) {
-         fprintf(stderr, "The question is already full!\n");
-         free(path);
-         return FULL;
-     }
+    if (n == MAXANSWERS) {
+        fprintf(stderr, "The question is already full!\n");
+        free(path);
+        return FULL;
+    }
 
-     sprintf(tmp, "/answer_%02d", n+1);
-     path = safestrcat(path, tmp);
+    sprintf(tmp, "/%s_%02d", question, n+1);
+    path = safestrcat(path, tmp);
 
-     n = mkdir(path, 0755);
-     if (n == -1) {
-         fprintf(stderr, "Error creating answer directory!\n");
-         free(path);
-         return ERROR;
-     }
+    n = mkdir(path, 0755);
+    if (n == -1) {
+        fprintf(stderr, "Error creating answer directory!\n");
+        free(path);
+        return ERROR;
+    }
 
-     n = storeAnswer(fd, path);
-     if (n == ERROR){
-         free(path);
-         return n;
-     }
+    n = storeAnswer(fd, path, num);
+    if (n == ERROR){
+        free(path);
+        return n;
+    }
 
-     free(path);
-     return OK;
+    free(path);
+    return OK;
 }
 
 static int numAnswers(char *path) {
@@ -127,18 +129,22 @@ static int numAnswers(char *path) {
     return count;
 }
 
-static int storeAnswer(int fd, char *path) {
+static int storeAnswer(int fd, char *path, int num) {
     char *answer = strdup(path);
     char *data = strdup(path);
     char *image = strdup(path);
     char tmp[20];
     long fileSize;
     bool error = false;
-    int n;
+    int ret;
 
-    answer = safestrcat(answer, "/"ANSWERFILE);
+    answer = safestrcat(answer, "/");
+    sprintf(tmp, "%s_%02d", question, num);
+    answer = safestrcat(answer, tmp);
+    answer = safestrcat(answer, ".txt");
     data = safestrcat(data, "/"DATAFILE);
-    image = safestrcat(image, "/"IMAGEFILE);
+    image = safestrcat(image, "/");
+    image = safestrcat(image, tmp);
 
     FILE *answerFile = fopen(answer, "w");
     FILE *dataFile = fopen(data, "w");
@@ -149,22 +155,22 @@ static int storeAnswer(int fd, char *path) {
     fprintf(dataFile, "%s", userID);
 
     /* Absorb space between answer file and image flag*/
-    n = recv(fd, tmp, 1, 0);
-    if (n == 0 || *tmp != ' ') {
+    ret = recv(fd, tmp, 1, 0);
+    if (ret == 0 || *tmp != ' ') {
         error = true;
         goto clean;
     }
 
-    n = recv(fd, tmp, 1, 0);
-    if (n == 1 && *tmp == '1') {
+    ret = recv(fd, tmp, 1, 0);
+    if (ret == 1 && *tmp == '1') {
         FILE *imageFile;
         char *isize;
         char *iext;
         long imageSize;
 
         /* Absorb space between aimg and iext */
-        n = recv(fd, tmp, 1, 0);
-        if (n == 0 || *tmp != ' ') {
+        ret = recv(fd, tmp, 1, 0);
+        if (ret == 0 || *tmp != ' ') {
             error = true;
             goto clean;
         }
@@ -174,6 +180,11 @@ static int storeAnswer(int fd, char *path) {
         recvTCPword(fd, &iext, NULL);
         fprintf(dataFile, " %s", iext);
 
+        image = safestrcat(image, ".");
+        image = safestrcat(image, iext);
+
+        imageFile = fopen(image, "w");
+
         recvTCPword(fd, &isize, NULL);
         imageSize = toNonNegative(isize);
 
@@ -182,14 +193,14 @@ static int storeAnswer(int fd, char *path) {
         fclose(imageFile);
         free(isize);
         free(iext);
-    } else if (n != 1 || *tmp != '0') {
+    } else if (ret != 1 || *tmp != '0') {
         error = true;
         goto clean;
     }
 
     /* Absorb newline */
-    n = recv(fd, tmp, 1, 0);
-    if (n == 0 || *tmp != '\n') {
+    ret = recv(fd, tmp, 1, 0);
+    if (ret == 0 || *tmp != '\n') {
         error = true;
         goto clean;
     }

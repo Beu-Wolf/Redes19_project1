@@ -60,6 +60,10 @@ int getImageFlag(int fdTCP, int size) {
     char* hasImageStr;
     int hasImage;
 
+    char space[2];
+
+    //clean space between text file and image flag
+    recv(fdTCP, space, 1, 0);
 
     recvTCPword(fdTCP, &hasImageStr, &size);
     printf("Has Image flag |%s|\n", hasImageStr);
@@ -234,8 +238,6 @@ void processQuestionSubmit(int fdTCP) {
     size = 2;                                           //flag size + 1;
     hasImage = getImageFlag(fdTCP, size);
 
-    fprintf(questionDatafile, "\n%d", hasImage);
-
     if(hasImage == -1) {
         strcpy(response, "QUR NOK\n");                  //send not ok message
         fclose(questionDatafile);
@@ -252,8 +254,7 @@ void processQuestionSubmit(int fdTCP) {
             return;
         }
 
-        fprintf(questionDatafile, " ");
-        fputs(imgExt, questionDatafile);
+        fprintf(questionDatafile, " %s", imgExt);
 
         
         fclose(questionDatafile);
