@@ -112,14 +112,13 @@ int main(int argc, char* argv[]) {
     if(input == NULL) fatal(ALLOC_ERROR);
     while(1) {
         readCommand(&input, &inpSize);
-        // printf("read: |%s|\n", input);
         parsedInput = tokenize(input);
         cmd = parsedInput[0];
 
-        // printArgs(parsedInput);
-
-        if(!cmd)
-          continue;
+        if(!cmd) {
+            free(parsedInput);
+            continue;
+        }
 
         if(!strcmp(cmd, "reg") || !strcmp(cmd, "register"))
             processRegister(fdUDP, parsedInput, newAddrInfoSet);
@@ -131,7 +130,7 @@ int main(int argc, char* argv[]) {
             processTopicSelect(parsedInput, topicList);
 
         } else if(!strcmp(cmd, "tp") || !strcmp(cmd, "topic_propose")) {
-            processTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
+            processTopicPropose(fdUDP, parsedInput, newAddrInfoSet, topicList);
 
         } else if(!strcmp(cmd, "ql") || !strcmp(cmd, "question_list")) {
             processQuestionList(fdUDP, parsedInput, newAddrInfoSet, questionList);
@@ -146,7 +145,7 @@ int main(int argc, char* argv[]) {
             processAnswerSubmit(parsedInput, newAddrInfoSet);
 
         } else if(!strcmp(cmd, "exit")) {
-          break;
+            break;
 
         } else {
             printf("command not valid. Please try again\n");

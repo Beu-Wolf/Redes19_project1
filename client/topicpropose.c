@@ -1,7 +1,7 @@
 #include "clientcommands.h"
 
 
-void processTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet){
+void processTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet, char** topicList){
     if(!isRegistered()) {
       fprintf(stderr, NOT_REGISTERED_ERROR);
       return;
@@ -16,7 +16,7 @@ void processTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrIn
       return;
     }
     sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
-    receiveTopicPropose(fdUDP);
+    receiveTopicPropose(fdUDP, topicList, parsedInput[1]);
 }
 
 void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
@@ -31,7 +31,8 @@ void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoS
         fatal(strerror(errno));
 }
 
-void receiveTopicPropose(int fdUDP) {
+void receiveTopicPropose(int fdUDP, char** topicList, char* topicName) {
+    int i;
     char receivedMessage[BUFFER_SIZE];
     char** args;
 
@@ -50,6 +51,10 @@ void receiveTopicPropose(int fdUDP) {
 
     stripnewLine(args[1]);
     if(!strcmp(args[1], "OK")) {
+        for(i = 0; topicList[i] != 0; i++);
+        topicList[i] = strdup(topicName);
+        if(topicList[i] == NULL) fatal(STRDUP_ERROR);
+        selectedTopic = topicList[i];
         printf("Topic successfuly created!\n");
     } else if(!strcmp(args[1], "DUP")) {
         printf("Topic already exists\n");
