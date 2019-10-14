@@ -28,7 +28,7 @@
 struct sigaction newAction, oldAction;
 sigset_t ss;
 
-void handleSIGCHILD(int s) {
+void handleSIGCHILD() {
     pid_t pid;
     int status;
     write(0, "waiting\n", 9);

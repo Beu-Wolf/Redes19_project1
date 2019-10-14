@@ -19,6 +19,7 @@
 #define GETADDRINFO_ERROR "Getting address info"
 #define FORK_ERROR "in fork"
 #define SELECT_ERROR "in select"
+#define STRDUP_ERROR "in strdup"
 #define WAIT_ERROR "in wait child"
 #define SERVER_ERROR "Error in server, please try again"
 #define RECV_TCP_ERROR "Error reading from TCP socket"
