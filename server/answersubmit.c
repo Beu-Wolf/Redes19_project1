@@ -77,7 +77,7 @@ static int receiveAnswer(int fd) {
     num = n + 1;
     if (n == ERROR) return n;
 
-    if (n == MAXANSWERS) {
+    if (n >= MAXANSWERS) {
         fprintf(stderr, "The question is already full!\n");
         free(path);
         return FULL;
@@ -133,7 +133,6 @@ static int storeAnswer(int fd, char *path, int num) {
     char *answer = strdup(path);
     char *data = strdup(path);
     char *image = strdup(path);
-    char *aimg;
     char tmp[20];
     long fileSize;
     bool error = false;
@@ -162,12 +161,21 @@ static int storeAnswer(int fd, char *path, int num) {
         goto clean;
     }
 
-    recvTCPword(fd, &aimg, NULL);
-    if (!strcmp(aimg, "1")) {
+    ret = recv(fd, tmp, 1, 0);
+    if (ret == 1 && *tmp == '1') {
         FILE *imageFile;
         char *isize;
         char *iext;
         long imageSize;
+
+        /* Absorb space between aimg and iext */
+        ret = recv(fd, tmp, 1, 0);
+        if (ret == 0 || *tmp != ' ') {
+            error = true;
+            goto clean;
+        }
+
+        imageFile = fopen(image, "w");
 
         recvTCPword(fd, &iext, NULL);
         fprintf(dataFile, " %s", iext);
@@ -185,7 +193,7 @@ static int storeAnswer(int fd, char *path, int num) {
         fclose(imageFile);
         free(isize);
         free(iext);
-    } else if (strcmp(aimg, "0")) { /* not "0" either */
+    } else if (ret != 1 || *tmp != '0') {
         error = true;
         goto clean;
     }

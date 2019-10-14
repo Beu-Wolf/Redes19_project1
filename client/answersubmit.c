@@ -94,6 +94,35 @@ int sendAnswerSubmit(int fd, char *text, char *image) {
 }
 
 int recvAnswerSubmit(int fd) {
-    /* TODO: handle server response. */
-    return fd;
+    char *msg;
+    char **tokens;
+    recvTCPline(fd, &msg, NULL);
+
+    tokens = tokenize(msg);
+
+    if (arglen(tokens) != 2 || strcmp(tokens[0], "ANR")) {
+        fprintf(stderr, "Invalid server response.\n");
+        return -1;
+    }
+
+    stripnewLine(tokens[1]);
+
+    if (!strcmp(tokens[1], "OK")) {
+        printf("Answer submitted.\n");
+    } else if (!strcmp(tokens[1], "NOK")) {
+        /* TODO: is this a good message? */
+        printf("Operation not permitted.\n");
+    } else if (!strcmp(tokens[1], "FUL")) {
+        printf("Answer list full.\n");
+    } else if (!strcmp(tokens[1], "ERR")) {
+        printf("Server error.\n");
+    } else {
+        fprintf(stderr, "Invalid server response.\n");
+        return -1;
+    }
+
+    free(tokens);
+    free(msg);
+
+    return 0;
 }
