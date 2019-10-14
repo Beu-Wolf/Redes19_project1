@@ -60,6 +60,10 @@ int getImageFlag(int fdTCP, int size) {
     char* hasImageStr;
     int hasImage;
 
+    char space[2];
+
+    //clean space between text file and image flag
+    recv(fdTCP, space, 1, 0);
 
     recvTCPword(fdTCP, &hasImageStr, &size);
     printf("Has Image flag |%s|\n", hasImageStr);
