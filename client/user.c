@@ -79,7 +79,7 @@ void setAddrStruct(service* newService, addressInfoSet* newAddrInfoSet){
 }
 
 char isRegistered() {
-  return userID != 0;
+  return userID != -1;
 }
 
 
@@ -104,6 +104,8 @@ int main(int argc, char* argv[]) {
             newAddrInfoSet.res_UDP->ai_socktype, newAddrInfoSet.res_UDP->ai_protocol);
 
     if(fdUDP == -1) fatal(SOCK_CREATE_ERROR);
+
+    userID = -1;
 
     inpSize = INPUT_SIZE;
     input = (char*)malloc(inpSize * sizeof(char));
