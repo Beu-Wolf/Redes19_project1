@@ -51,8 +51,8 @@ void receiveTopicList(int fdUDP, char** topicList) {
         return;
     }
 
+    memset(topicList, 0, sizeof(topicList));
     for(i = 0; i < topicNumber; i++) {
-
         if(i == topicNumber - 1)
             stripnewLine(args[i+2]);
 
@@ -61,7 +61,7 @@ void receiveTopicList(int fdUDP, char** topicList) {
         topicUserID = strtok(NULL, ":");
 
 
-        printf("%d - %s (proposed by %s)\n", i, topicName, topicUserID);
+        printf("%02d - %s (proposed by %s)\n", i, topicName, topicUserID);
     }
     free(args);
 }
