@@ -169,7 +169,7 @@ void interact() {
             processQuestionGet(parsedInput, questionList);
 
         } else if(!strcmp(cmd, "qs") || !strcmp(cmd, "question_submit")) {
-            processQuestionSubmit(parsedInput);
+            processQuestionSubmit(parsedInput, questionList);
 
         } else if(!strcmp(cmd, "as") || !strcmp(cmd, "answer_submit")) {
             processAnswerSubmit(parsedInput);
@@ -254,12 +254,13 @@ int main(int argc, char* argv[]) {
             processQuestionGet(parsedInput, questionList, newAddrInfoSet);
 
         } else if(!strcmp(cmd, "qs") || !strcmp(cmd, "question_submit")) {
-            processQuestionSubmit(parsedInput, newAddrInfoSet);
+            processQuestionSubmit(parsedInput, newAddrInfoSet, questionList);
 
         } else if(!strcmp(cmd, "as") || !strcmp(cmd, "answer_submit")) {
             processAnswerSubmit(parsedInput, newAddrInfoSet);
 
         } else if(!strcmp(cmd, "exit")) {
+            close(fdUDP);
             break;
 
         } else {

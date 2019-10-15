@@ -44,6 +44,9 @@
 #define INVALID_QS_IMGEXT "Invalid image extension. Please select file with a permitted file extension\n"
 #define INVALID_QG_ARGS "Invalid arguments.\nUsage: question_get <question>/qg <question_number>\n"
 
+#define MAX(A,B) ((A)>= (B) ? (A):(B))
+#define MIN(A,B) ((A)<= (B) ? (A):(B))
+
 // Protocol consts
 #define TOPIC_MAXLEN 10
 #define QUESTION_MAXLEN 10
@@ -51,6 +54,7 @@
 #define MAXQUESTIONS 99
 #define MAXANSWERS 99
 
+void printTopicList(char** topicList);
 
 void printArgs(char** buffer);
 void fatal(const char* buffer);

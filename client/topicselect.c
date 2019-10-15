@@ -32,12 +32,13 @@ void processTopicSelect(char** parsedInput, char** topicList){
 
     // find topic
     stripnewLine(parsedInput[1]);
-    for(int i = 0; topicList[i] != 0; i++) {
-      if((abbrev && i == wantedNumber) || (!abbrev && !strcmp(parsedInput[1], topicList[i]))) {
-        selectedTopic = topicList[i];
+    for(int i = 1; topicList[i-1] != 0; i++) {  
+      if((abbrev && i == wantedNumber) || (!abbrev && !strcmp(parsedInput[1], topicList[i-1]))) {
+        selectedTopic = topicList[i-1];
         printf("Selected topic: %s\n", selectedTopic);
         return;
       }
     }
+    printTopicList(topicList);
     printf("Please select a valid topic\n");
 }

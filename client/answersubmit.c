@@ -92,7 +92,7 @@ int sendAnswerSubmit(int fd, char *text, char *image) {
         sendTCPstring(fd, buffer, strlen(buffer));
         sendTCPfile(fd, imageFile);
     } else {
-        sendTCPstring(fd, "0", 1);
+        sendTCPstring(fd, " 0", 2);
     }
 
     sendTCPstring(fd, "\n", 1);

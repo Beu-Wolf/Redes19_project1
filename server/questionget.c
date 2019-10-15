@@ -4,6 +4,12 @@
 static char *question;
 static char *topic;
 
+static void sendAnswers(int fd, char *path);
+static void sendAnswerData(int fd, char *path, char *answerName);
+static void sendAnswerFile(int fd, char *file);
+
+static int answerCmp(const void *a, const void *b);
+
 static char *questionUser(char *p) {
     char *user;
     char *path = strdup(p);
@@ -147,4 +153,127 @@ void processQuestionGet(int fdTCP) {
         sendTCPstring(fdTCP, " 0", 2);
     }
 
+    sendAnswers(fdTCP, path);
+    sendTCPstring(fdTCP, "\n", 1);
+}
+
+static void sendAnswers(int fd, char *path) {
+    DIR *questionDir = opendir(path);
+    struct dirent *answer;
+    char tmp[BUFFER_SIZE];
+
+    char *answers[MAXANSWERS+1] = {0};
+
+    if (questionDir == NULL) {
+        /* TODO: what to do here? */
+        fprintf(stderr, "Error opening directory %s\n", path);
+    }
+
+    int numAnswers = 0;
+    while ((answer = readdir(questionDir))) {
+        char *name = answer->d_name;
+        if (!strcmp(name, ".")
+                || !strcmp(name, "..")
+                || answer->d_type != DT_DIR) {
+            continue;
+        }
+
+        answers[numAnswers] = strdup(name);
+        numAnswers++;
+    }
+
+    qsort(answers, numAnswers, sizeof(char*), answerCmp);
+
+    sprintf(tmp, " %d", numAnswers);
+    sendTCPstring(fd, tmp, strlen(tmp));
+
+    int lim = MIN(numAnswers, 10);
+    for (int i = 0; i < lim; i++) {
+        sendAnswerData(fd, path, answers[i]);
+    }
+
+    for (int i = 0; i < numAnswers; i++) {
+        free(answers[i]);
+    }
+}
+
+static void sendAnswerData(int fd, char *path, char *answerName) {
+    char *answerPath = strdup(path);
+    char answerUser[8];
+    char answerImageExt[8];
+    char *answerText;
+    char *answerImage;
+    char *answerData;
+    char *answerNum;
+    char tmp[BUFFER_SIZE];
+    int ret;
+    bool hasImage = false;
+    FILE *answerDataFile;
+
+    answerPath = safestrcat(answerPath, "/");
+    answerPath = safestrcat(answerPath, answerName);
+    answerPath = safestrcat(answerPath, "/");
+
+    answerData = strdup(answerPath);
+    answerData = safestrcat(answerData, DATAFILE);
+
+    answerDataFile = fopen(answerData, "r");
+    ret = fscanf(answerDataFile, "%s %s", answerUser, answerImageExt);
+    fclose(answerDataFile);
+
+    if (ret == 2) {
+        hasImage = true;
+    }
+
+    /* The number is the last 2 chars of the string */
+    answerNum = answerName + strlen(answerName) - 2;
+
+    sprintf(tmp, " %s %s ", answerNum, answerUser);
+    sendTCPstring(fd, tmp, strlen(tmp));
+
+    answerText = strdup(answerPath);
+    answerText = safestrcat(answerText, answerName);
+    answerText = safestrcat(answerText, ".txt");
+
+    sendAnswerFile(fd, answerText);
+
+    if (hasImage) {
+        answerImage = strdup(answerPath);
+        answerImage = safestrcat(answerImage, answerName);
+        answerImage = safestrcat(answerImage, ".");
+        answerImage = safestrcat(answerImage, answerImageExt);
+
+        sprintf(tmp, " 1 %s ", answerImageExt);
+        sendTCPstring(fd, tmp, strlen(tmp));
+
+        sendAnswerFile(fd, answerImage);
+
+        free(answerImage);
+    } else {
+        sendTCPstring(fd, " 0", 2);
+    }
+
+    free(answerPath);
+    free(answerData);
+    free(answerText);
+}
+
+/* Sends file size and file contents */
+static void sendAnswerFile(int fd, char *path) {
+    FILE *file = fopen(path, "r");
+    long size = fileSize(file);
+    char tmp[20];
+
+    sprintf(tmp, "%ld ", size);
+    sendTCPstring(fd, tmp, strlen(tmp));
+    sendTCPfile(fd, file);
+
+    fclose(file);
+}
+
+static int answerCmp(const void *a, const void *b) {
+    char *sa = *(char **)a;
+    char *sb = *(char **)b;
+
+    return strcmp(sb, sa);
 }

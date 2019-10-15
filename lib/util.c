@@ -10,10 +10,6 @@
 #define INPUT_SIZE 128
 #define FILE_READ_SIZE 512
 
-#define MAX(A,B) ((A)>= (B) ? (A):(B))
-#define MIN(A,B) ((A)<= (B) ? (A):(B))
-
-
 void fatal(const char* buffer) {
     fprintf(stderr, "%s\n", buffer);
     perror("Error");
@@ -26,6 +22,12 @@ void printArgs(char** buffer) {
     while(buffer[i] != NULL) {
         printf("[%d] -> %s\n", i, buffer[i]);
         i++;
+    }
+}
+
+void printTopicList(char** topicList) {
+    for(int i = 0; topicList[i] != 0; i++){
+      printf("%02d - %s\n", i+1, topicList[i]);
     }
 }
 

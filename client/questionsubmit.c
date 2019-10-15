@@ -2,7 +2,7 @@
 
 #define FINFO_BUFF_SIZE 50 
 
-void processQuestionSubmit(char** parsedInput) {
+void processQuestionSubmit(char** parsedInput, char** questionList) {
     int len = arglen(parsedInput);
     int fdTCP;
 
@@ -46,7 +46,7 @@ void processQuestionSubmit(char** parsedInput) {
     if(fdTCP == -1)
         return;
 
-    receiveQuestionSubmit(fdTCP);
+    receiveQuestionSubmit(fdTCP, parsedInput, questionList);
     close(fdTCP);
 }
 
@@ -127,7 +127,7 @@ int sendQuestionSubmit(char** parsedInput) {
     return 0;
 }
 
-void receiveQuestionSubmit(int fdTCP) {
+void receiveQuestionSubmit(int fdTCP, char** parsedInput, char**questionList) {
     char* buffer;
     char** args;
     int size = BUFFER_SIZE;
@@ -149,8 +149,14 @@ void receiveQuestionSubmit(int fdTCP) {
     }
 
     stripnewLine(args[1]);
-    if(!strcmp(args[1], "OK"))
+    if(!strcmp(args[1], "OK")){
         printf("Question successfully submited\n");
+        int i;
+        for(i = 0; questionList[i] != 0; i++);
+        questionList[i] = strdup(parsedInput[1]);
+        if(questionList[i] == NULL) fatal(STRDUP_ERROR);
+        selectedQuestion = questionList[i];
+    }
     else if(!strcmp(args[1], "NOK"))
         printf("Something went wrong please try again\n");
     else if(!strcmp(args[1], "DUP"))

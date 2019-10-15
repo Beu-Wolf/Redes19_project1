@@ -79,9 +79,9 @@ void processQuestionGet(char** parsedInput, char** questionList);
 int sendQuestionGet();
 
 //Question Submit
-void processQuestionSubmit(char** parsedInput);
+void processQuestionSubmit(char** parsedInput, char** questionList);
 int sendQuestionSubmit(char** parsedInput);
-void receiveQuestionSubmit(int fdUDP);
+void receiveQuestionSubmit(int fdUDP, char** parsedInput, char** questionList);
 
 //Answer Submit
 void processAnswerSubmit(char **args);

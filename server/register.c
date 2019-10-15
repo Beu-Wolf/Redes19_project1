@@ -7,14 +7,14 @@ char* processRegister(char** args) {
     if (!registerStatus) fatal(ALLOC_ERROR);
 
     if(arglen(args) != 2) {
-        strcpy(registerStatus, "ERR\n");
+        strncpy(registerStatus, "ERR\n", 5);
         return registerStatus;
     }
 
     stripnewLine(args[1]);
 
     if(!isPositiveNumber(args[1])) {
-        strcpy(registerStatus, "ERR\n");
+        strncpy(registerStatus, "ERR\n", 5);
         return registerStatus;
     }
 
@@ -22,14 +22,14 @@ char* processRegister(char** args) {
     errno = 0;
     int number = strtol(args[1], NULL, 0);
     if(errno == EINVAL) {
-        strcpy(registerStatus, "ERR\n");
+        strncpy(registerStatus, "ERR\n", 5);
         return registerStatus;
     }
 
     if(number >= 10000 && number <= 99999) {
-        strcpy(registerStatus, "RGR OK\n");
+        strncpy(registerStatus, "RGR OK\n", 8);
     } else {
-        strcpy(registerStatus, "RGR NOK\n");
+        strncpy(registerStatus, "RGR NOK\n", 9);
     }
 
     return registerStatus;
