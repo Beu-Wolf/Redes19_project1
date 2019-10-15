@@ -130,12 +130,12 @@ void processQuestionSubmit(int fdTCP) {
 
 
     char path[BUFFER_SIZE];
-    strcpy(path, TOPICSDIR"/");
+    strncpy(path, TOPICSDIR"/", strlen(TOPICSDIR) + 3);
     strcat(path, topic);                    //Topics folder
 
     DIR* topicDirp = opendir(path);         //Open topics folder
     if(!topicDirp) {
-        strcpy(response, "ERR\n");                  //send error message
+        strncpy(response, "ERR\n", 5);                  //send error message
         sendTCPstring(fdTCP, response, strlen(response));
         return;
     }
@@ -158,7 +158,7 @@ void processQuestionSubmit(int fdTCP) {
         }
 
         if(!strcmp(currQuestion, question)) {
-            strcpy(response, "QUR DUP\n"); 
+            strncpy(response, "QUR DUP\n", 9); 
             printf("Duplicado\n");                 //send duplicate message
             sendTCPstring(fdTCP, response, strlen(response));
             closedir(topicDirp);
@@ -168,7 +168,7 @@ void processQuestionSubmit(int fdTCP) {
         numQuestions++;
 
         if(numQuestions == 99) {
-            strcpy(response, "QUR FUL\n");     
+            strncpy(response, "QUR FUL\n", 9);     
             printf("FULL\n");             //send full message
             sendTCPstring(fdTCP, response, strlen(response));
             closedir(topicDirp);
@@ -186,14 +186,14 @@ void processQuestionSubmit(int fdTCP) {
     n = mkdir(path, 0700);
 
     if(n == -1) {
-            strcpy(response, "QUR NOK\n");                  //send not ok message
+            strncpy(response, "QUR NOK\n", 9);                  //send not ok message
             sendTCPstring(fdTCP, response, strlen(response));
             return;
     }
 
     //create dataFile
     char* questionFolder = (char*) malloc(sizeof(char)*BUFFER_SIZE);
-    strcpy(questionFolder, path);
+    strncpy(questionFolder, path, strlen(path) + 2);
     questionFolder = safestrcat(questionFolder, "/");
     questionFolder = safestrcat(questionFolder, DATAFILE);
 
@@ -209,7 +209,7 @@ void processQuestionSubmit(int fdTCP) {
     fileSize = getFileSize(fdTCP, size);
 
     if(fileSize == -1) {
-        strcpy(response, "QUR NOK\n");                  //send not ok message
+        strncpy(response, "QUR NOK\n", 9);                  //send not ok message
         sendTCPstring(fdTCP, response, strlen(response));
         return;
     }
@@ -218,7 +218,7 @@ void processQuestionSubmit(int fdTCP) {
     //create question txt
 
     char* questionFile = (char*) malloc(sizeof(char)*BUFFER_SIZE);
-    strcpy(questionFile, path);
+    strncpy(questionFile, path, strlen(path) + 2);
     questionFile = safestrcat(questionFile, "/");
     questionFile = safestrcat(questionFile, question);
     questionFile = safestrcat(questionFile, ".txt");
@@ -226,7 +226,7 @@ void processQuestionSubmit(int fdTCP) {
     FILE* questionFilePtr = fopen(questionFile, "w");
 
     if(!questionFilePtr) {
-        strcpy(response, "QUR NOK\n");                  //send not ok message
+        strncpy(response, "QUR NOK\n", 9);                  //send not ok message
         sendTCPstring(fdTCP, response, strlen(response));
         return;
     }
@@ -239,7 +239,7 @@ void processQuestionSubmit(int fdTCP) {
     hasImage = getImageFlag(fdTCP, size);
 
     if(hasImage == -1) {
-        strcpy(response, "QUR NOK\n");                  //send not ok message
+        strncpy(response, "QUR NOK\n", 9);                  //send not ok message
         fclose(questionDatafile);
         sendTCPstring(fdTCP, response, strlen(response));
         return;
@@ -248,7 +248,7 @@ void processQuestionSubmit(int fdTCP) {
         size = 4;                                       //size of imageExtension + 1 
         char* imgExt = getImageExtension(fdTCP, size);
         if(!imgExt) {
-            strcpy(response, "QUR NOK\n");                  //send not ok message
+            strncpy(response, "QUR NOK\n", 9);                  //send not ok message
             sendTCPstring(fdTCP, response, strlen(response));
             fclose(questionDatafile);
             return;
@@ -264,7 +264,7 @@ void processQuestionSubmit(int fdTCP) {
         fileSize = getImageFileSize(fdTCP, size);
 
         if(fileSize == -1) {
-            strcpy(response, "QUR NOK\n");                  //send not ok message
+            strncpy(response, "QUR NOK\n", 9);                  //send not ok message
             sendTCPstring(fdTCP, response, strlen(response));
             return;
         }
@@ -272,7 +272,7 @@ void processQuestionSubmit(int fdTCP) {
 
         //create Image file
         char* imageFile = (char*) malloc(sizeof(char)*BUFFER_SIZE);
-        strcpy(imageFile, path);
+        strncpy(imageFile, path, strlen(path) + 3);
         imageFile = safestrcat(imageFile, "/");
         imageFile = safestrcat(imageFile, question);
         imageFile = safestrcat(imageFile, ".");
@@ -281,7 +281,7 @@ void processQuestionSubmit(int fdTCP) {
         FILE* imageFilePtr = fopen(imageFile, "w");
 
         if(!imageFilePtr) {
-            strcpy(response, "QUR NOK\n");                  //send not ok message
+            strncpy(response, "QUR NOK\n", 9);                  //send not ok message
             sendTCPstring(fdTCP, response, strlen(response));
             return;
         }
@@ -300,7 +300,7 @@ void processQuestionSubmit(int fdTCP) {
 
 
 
-    strcpy(response, "QUR OK\n");                  //send not ok message
+    strncpy(response, "QUR OK\n", 8);                  //send not ok message
     sendTCPstring(fdTCP, response, strlen(response));
     fclose(questionFilePtr);
 
