@@ -78,9 +78,9 @@ void receiveQuestionList(int fdUDP, char **questionList);
 void sendQuestionList(int fdUDP, addressInfoSet newAddrInfoSet);
 
 //Question Submit
-void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
+void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet, char** questionList);
 int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
-void receiveQuestionSubmit(int fdUDP);
+void receiveQuestionSubmit(int fdUDP, char** parsedInput, char** questionList);
 
 //Answer Submit
 void processAnswerSubmit(char **args, addressInfoSet newAddrInfoSet);
