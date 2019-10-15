@@ -1,5 +1,8 @@
 #include "commands.h"
-#define FINFO_BUFF_SIZE 50 
+#define FINFO_BUFF_SIZE 50
+
+static char *question;
+static char *topic;
 
 static char *questionUser(char *p) {
     char *user;
@@ -17,7 +20,7 @@ static char *questionUser(char *p) {
 
 char* getImageInfo(char* p) {
     char* cleaner;                                   //to consume userID in first line of datafile
-    char* imageExt;                 
+    char* imageExt;
     char* path = strdup(p);
     path = safestrcat(path, "/"DATAFILE);
 
@@ -28,23 +31,24 @@ char* getImageInfo(char* p) {
         imageExt = NULL;
     }
 
+    free(cleaner);
     fclose(dataFile);
     free(path);
 
 
     return imageExt;
-    
+
 }
 
 void processQuestionGet(int fdTCP) {
-    char* topic, *question, *buffer;
+    char *buffer;
     int size;
     char errorResponses[9];
     long questionFileSize;
 
     //Read topic and check existance
     size = 11;
-    topic  = getTopic(fdTCP, size);
+    topic = getTopic(fdTCP, size);
     if(!topic) {
         strcpy(errorResponses, "QGR ERR\n");                  //send error message
         sendTCPstring(fdTCP, errorResponses, strlen(errorResponses));
@@ -61,7 +65,6 @@ void processQuestionGet(int fdTCP) {
         sendTCPstring(fdTCP, errorResponses, strlen(errorResponses));
         return;
     }
-
 
     //Read question and get existance
     size = 11;
@@ -96,10 +99,7 @@ void processQuestionGet(int fdTCP) {
         return;
     }
 
-    //get file size
-    fseek(questionFD, 0, SEEK_END);
-    questionFileSize = ftell(questionFD);
-    fseek(questionFD, 0L, SEEK_SET);
+    questionFileSize = fileSize(questionFD);
 
     //send 1st part (protocol, ID, size)
     buffer = (char*) malloc(sizeof(char)*FINFO_BUFF_SIZE);
@@ -108,7 +108,7 @@ void processQuestionGet(int fdTCP) {
 
     sprintf(buffer, "QGR %s %ld ", user, questionFileSize);
     sendTCPstring(fdTCP, buffer, strlen(buffer));
-    
+
     //send question file
     sendTCPfile(fdTCP, questionFD);
 
@@ -117,10 +117,34 @@ void processQuestionGet(int fdTCP) {
     char* imageExt;
 
     imageExt = getImageInfo(path);
-    if(imageExt != NULL)
-        printf("%s\n", imageExt);
+    if(imageExt != NULL) {
+        char imageBuffer[BUFFER_SIZE];
+        char *imagePath = strdup(path);
+        FILE *imageFile;
+        long imageSize;
 
-    
+        imagePath = safestrcat(imagePath, "/");
+        imagePath = safestrcat(imagePath, question);
+        imagePath = safestrcat(imagePath, ".");
+        imagePath = safestrcat(imagePath, imageExt);
 
+        imageFile = fopen(imagePath, "r");
+        if (!imageFile) {
+            /* TODO: What do we do in this situation? */
+            fprintf(stderr, "Error opening %s\n", imagePath);
+        }
+
+        imageSize = fileSize(imageFile);
+
+        snprintf(imageBuffer, BUFFER_SIZE, " 1 %s %ld ", imageExt, imageSize);
+        sendTCPstring(fdTCP, imageBuffer, strlen(imageBuffer));
+
+        sendTCPfile(fdTCP, imageFile);
+
+        free(imagePath);
+        free(imageExt);
+    } else {
+        sendTCPstring(fdTCP, " 0", 2);
+    }
 
 }
