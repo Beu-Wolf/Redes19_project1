@@ -1,7 +1,6 @@
 #include "clientcommands.h"
 
-void processTopicList(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet, char** topicList) {
+void processTopicList(int fdUDP, char** parsedInput, char** topicList) {
 
     if(!isRegistered()) {
       fprintf(stderr, NOT_REGISTERED_ERROR);
@@ -13,15 +12,14 @@ void processTopicList(int fdUDP, char** parsedInput,
       return;
     }
 
-    sendTopicList(fdUDP, newAddrInfoSet);
+    sendTopicList(fdUDP);
     receiveTopicList(fdUDP, topicList);
 }
 
-void sendTopicList(int fdUDP, addressInfoSet newAddrInfoSet) {
+void sendTopicList(int fdUDP) {
     char* sendMsg = "LTP\n";
 
-    if(sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr,
-            newAddrInfoSet.res_UDP->ai_addrlen) == -1)
+    if(sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, udpInfo->ai_addr, udpInfo->ai_addrlen) == -1)
         fatal(strerror(errno));
 }
 
@@ -51,7 +49,7 @@ void receiveTopicList(int fdUDP, char** topicList) {
         return;
     }
 
-    memset(topicList, 0, 100);
+    resetPtrArray(topicList, MAXTOPICS+1);
     for(i = 0; i < topicNumber; i++) {
         if(i == topicNumber - 1)
             stripnewLine(args[i+2]);
@@ -63,5 +61,7 @@ void receiveTopicList(int fdUDP, char** topicList) {
 
         printf("%02d - %s (proposed by %s)\n", i, topicName, topicUserID);
     }
+    free(sendMsg);
     free(args);
 }
+

@@ -1,7 +1,7 @@
 #include "clientcommands.h"
 
 
-void processTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet, char** topicList){
+void processTopicPropose(int fdUDP, char** parsedInput, char** topicList) {
     if(!isRegistered()) {
       fprintf(stderr, NOT_REGISTERED_ERROR);
       return;
@@ -15,19 +15,18 @@ void processTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrIn
       fprintf(stderr, TOPIC_ERROR);
       return;
     }
-    sendTopicPropose(fdUDP, parsedInput, newAddrInfoSet);
+    sendTopicPropose(fdUDP, parsedInput);
     receiveTopicPropose(fdUDP, topicList, parsedInput[1]);
 }
 
-void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
+void sendTopicPropose(int fdUDP, char** parsedInput) {
     char sendMsg[BUFFER_SIZE];
 
     sprintf(sendMsg, "PTP %d %s\n", userID, parsedInput[1]);
 
-    printf("Sending %ld bytes: |%s|\n",  strlen(sendMsg), sendMsg);
+    printf("[DBG] Sending %ld bytes: |%s|\n",  strlen(sendMsg), sendMsg);
 
-    if(sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr,
-            newAddrInfoSet.res_UDP->ai_addrlen) == -1) 
+    if(sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, udpInfo->ai_addr, udpInfo->ai_addrlen) == -1) 
         fatal(strerror(errno));
 }
 
@@ -63,4 +62,5 @@ void receiveTopicPropose(int fdUDP, char** topicList, char* topicName) {
     } else if(!strcmp(args[1], "NOK")) {
         printf("Error while creating topic\n");
     }
+    free(args);
 }

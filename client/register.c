@@ -3,9 +3,7 @@
 /*
  * Validate command and communicate with server
  */
-void processRegister(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet) {
-
+void processRegister(int fdUDP, char** parsedInput) {
     if(isRegistered()) {
         printf("This session is already registered\n");
         return;
@@ -16,19 +14,19 @@ void processRegister(int fdUDP, char** parsedInput,
       return;
     }
 
-    sendRegister(fdUDP, parsedInput, newAddrInfoSet);
+    sendRegister(fdUDP, parsedInput);
     receiveRegister(fdUDP, parsedInput);
 }
 
-void sendRegister(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet) {
+void sendRegister(int fdUDP, char** parsedInput) {
     char sendMsg[BUFFER_SIZE];
 
     memset(sendMsg, 0, BUFFER_SIZE);
     sprintf(sendMsg, "REG %s\n", parsedInput[1]);
     printf("sending %ld bytes: |%s|\n", strlen(sendMsg), sendMsg);
 
-    if(sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, newAddrInfoSet.res_UDP->ai_addr,
-            newAddrInfoSet.res_UDP->ai_addrlen) == -1) fatal(strerror(errno));
+    if(sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, udpInfo->ai_addr, udpInfo->ai_addrlen) == -1)
+        fatal(strerror(errno));
 }
 
 void receiveRegister(int fdUDP, char** parsedInput) {

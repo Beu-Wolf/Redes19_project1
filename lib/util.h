@@ -48,6 +48,7 @@
 #define TOPIC_MAXLEN 10
 #define QUESTION_MAXLEN 10
 #define MAXTOPICS 99
+#define MAXQUESTIONS 99
 #define MAXANSWERS 99
 
 
@@ -57,6 +58,7 @@ void readCommand(char** bufPtr, int* bufSize);
 char **tokenize(char *string);
 int arglen(char **args);
 char *safestrcat(char *dest, char *src);
+void resetPtrArray(char** array, int max);
 
 char isPositiveNumber(char *str);
 long toNonNegative(char *str);

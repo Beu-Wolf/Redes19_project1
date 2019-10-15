@@ -1,6 +1,6 @@
 #include "clientcommands.h"
 
-void processAnswerSubmit(char **args, addressInfoSet newAddrInfoSet) {
+void processAnswerSubmit(char **args) {
     int fd;
     int numArgs = arglen(args);
     char* text, *image;
@@ -30,11 +30,10 @@ void processAnswerSubmit(char **args, addressInfoSet newAddrInfoSet) {
 
     stripnewLine(args[numArgs-1]);
 
-    if((fd = socket(newAddrInfoSet.res_TCP->ai_family, newAddrInfoSet.res_TCP->ai_socktype,
-            newAddrInfoSet.res_TCP->ai_protocol)) == -1)
+    if((fd = socket(tcpInfo->ai_family, tcpInfo->ai_socktype, tcpInfo->ai_protocol)) == -1)
         fatal(SOCK_CREATE_ERROR);
 
-    if(connect(fd, newAddrInfoSet.res_TCP->ai_addr, newAddrInfoSet.res_TCP->ai_addrlen) == -1)
+    if(connect(fd, tcpInfo->ai_addr, tcpInfo->ai_addrlen) == -1)
         fatal(SOCK_CONN_ERROR);
 
     text = args[1];

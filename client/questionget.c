@@ -1,6 +1,6 @@
 #include "clientcommands.h"
 
-void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet newAddrInfoSet) {
+void processQuestionGet(char** parsedInput, char** questionList) {
     int wantedNumber, i, fdTCP;
     char abbrev;
 
@@ -57,7 +57,7 @@ void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet 
         return;
     }
 
-    fdTCP = sendQuestionGet(newAddrInfoSet);
+    fdTCP = sendQuestionGet();
 
     if(fdTCP == -1)
         return;
@@ -68,27 +68,24 @@ void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet 
     */
 }
 
-
-int sendQuestionGet(addressInfoSet newAddrInfoSet) {
-    int fdTCP, n;
+int sendQuestionGet() {
+    int fdTCP;
     char* buffer;
 
     //create socket
-    fdTCP = socket(newAddrInfoSet.res_TCP->ai_family, newAddrInfoSet.res_TCP->ai_socktype,
-    newAddrInfoSet.res_TCP->ai_protocol);
-
+    fdTCP = socket(tcpInfo->ai_family, tcpInfo->ai_socktype, tcpInfo->ai_protocol);
     if(fdTCP == -1) fatal(SOCK_CREATE_ERROR);
 
     //connect socket
-    n = connect(fdTCP, newAddrInfoSet.res_TCP->ai_addr, newAddrInfoSet.res_TCP->ai_addrlen);
-    if(n == -1) fatal(SOCK_CONN_ERROR);
+    if(connect(fdTCP, tcpInfo->ai_addr, tcpInfo->ai_addrlen) == -1)
+        fatal(SOCK_CONN_ERROR);
 
     buffer = (char*) malloc(sizeof(char) * 30);
     if(!buffer) fatal(ALLOC_ERROR);
     memset(buffer, 0, 30);
 
     sprintf(buffer, "GQU %s %s\n", selectedTopic, selectedQuestion);
-    printf("sending: %s", buffer);
+    printf("sending: |%s|", buffer);
 
     sendTCPstring(fdTCP, buffer, strlen(buffer));
     free(buffer);

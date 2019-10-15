@@ -2,7 +2,7 @@
 
 #define FINFO_BUFF_SIZE 50 
 
-void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
+void processQuestionSubmit(char** parsedInput) {
     int len = arglen(parsedInput);
     int fdTCP;
 
@@ -41,7 +41,7 @@ void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
         return;
     }
 
-    fdTCP = sendQuestionSubmit(parsedInput, newAddrInfoSet);
+    fdTCP = sendQuestionSubmit(parsedInput);
 
     if(fdTCP == -1)
         return;
@@ -50,7 +50,7 @@ void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
     close(fdTCP);
 }
 
-int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
+int sendQuestionSubmit(char** parsedInput) {
     long questionFileSz, imgSz;
     int fdTCP, n;
     char* buffer;
@@ -87,12 +87,10 @@ int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet) {
     questionFileSz = ftell(questionFD);
     fseek(questionFD, 0L, SEEK_SET);
 
-    fdTCP = socket(newAddrInfoSet.res_TCP->ai_family, newAddrInfoSet.res_TCP->ai_socktype,
-    newAddrInfoSet.res_TCP->ai_protocol);
-
+    fdTCP = socket(tcpInfo->ai_family, tcpInfo->ai_socktype, tcpInfo->ai_protocol);
     if(fdTCP == -1) fatal(SOCK_CREATE_ERROR);
 
-    n = connect(fdTCP, newAddrInfoSet.res_TCP->ai_addr, newAddrInfoSet.res_TCP->ai_addrlen);
+    n = connect(fdTCP, tcpInfo->ai_addr, tcpInfo->ai_addrlen);
     if(n == -1) fatal(SOCK_CONN_ERROR);
 
 

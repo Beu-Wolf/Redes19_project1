@@ -85,6 +85,15 @@ int arglen(char **args) {
     return count;
 }
 
+void resetPtrArray(char** array, int max) {
+    int i;
+    for(i = 0; i < max && array[i] != NULL; i++) {
+        free(array[i]);
+        array[i] = 0;
+    }
+    memset(array, 0, max);
+}
+
 /* Concatenate strings for an allocated
  * destination string */
 char *safestrcat(char *dest, char *src) {

@@ -1,6 +1,6 @@
 #include "clientcommands.h"
 
-void processQuestionList(int fdUDP, char **args, addressInfoSet newAddrInfoSet, char **questionList) {
+void processQuestionList(int fdUDP, char **args, char **questionList) {
     if (!isRegistered()) {
         fprintf(stderr, NOT_REGISTERED_ERROR);
         return;
@@ -16,28 +16,30 @@ void processQuestionList(int fdUDP, char **args, addressInfoSet newAddrInfoSet, 
         return;
     }
 
-    sendQuestionList(fdUDP, newAddrInfoSet);
+    sendQuestionList(fdUDP);
     receiveQuestionList(fdUDP, questionList);
 }
 
-void sendQuestionList(int fdUDP, addressInfoSet newAddrInfoSet) {
+void sendQuestionList(int fdUDP) {
     char *sendMsg = strdup("LQU ");
 
     sendMsg = safestrcat(sendMsg, selectedTopic);
     sendMsg = safestrcat(sendMsg, "\n");
 
-    if(sendto(fdUDP, sendMsg, strlen(sendMsg), 0,
-            newAddrInfoSet.res_UDP->ai_addr,
-            newAddrInfoSet.res_UDP->ai_addrlen) == -1) fatal(strerror(errno));
+    if(sendto(fdUDP, sendMsg, strlen(sendMsg), 0, udpInfo->ai_addr, udpInfo->ai_addrlen) == -1)
+        fatal(strerror(errno));
 
     free(sendMsg);
 }
 
 void receiveQuestionList(int fdUDP, char **questionList) {
+    char buffer[BUFFER_SIZE];
+    char question[16];
+    char userID[8];
+    char numAnswers[4];
     int questionNum;
     char **args;
-
-    char buffer[BUFFER_SIZE]; // TODO: depends on max number of questions
+    char **questions;
 
     if(recvfrom(fdUDP, buffer, BUFFER_SIZE, 0, NULL, NULL) == -1)
         fatal(UDPRECV_ERROR);
@@ -48,60 +50,37 @@ void receiveQuestionList(int fdUDP, char **questionList) {
     if (arglen(args) < 2) {
         // TODO: handle wrong number of arguments
         printf("Something went wrong. Please try again\n");
-        questionList = NULL; // terminate question list
         free(args);
         return;
-
     }
-    
 
     if (isPositiveNumber(args[1])) {
         questionNum = strtol(args[1], NULL, 10);
     } else {
         // TODO: handle invalid number of questions
         printf("Invalid Number of questions\n");
-        questionList = NULL; // terminate question list
         free(args);
         return;
     }
 
     if(!strcmp(args[1], "0")) {
         printf("No questions to show in selected topic\n");
-        questionList = NULL; // terminate question list
-
         free(args);
         return;
     }
 
-    char** questionListBegin = questionList;
-
-    char **questions = args + 2;
-    char question[16];
-    char userID[16];
-    char numAnswers[8];
-
+    resetPtrArray(questionList, MAXQUESTIONS + 1);
+    questions = &(args[2]);
     for (int i = 0; i < questionNum; i++) {
-        if (sscanf(questions[i], "%[0-9a-zA-Z]:%[0-9]:%[0-9]",
-                    question, userID, numAnswers) == 3) {
-
-            *questionList = strdup(question);
-            questionList++;
-
-            printf("%d: %s (%s answers) by %s\n",
-                    i, question, numAnswers, userID);
-        } else {
-            // TODO: handle invalid question:user:ans sequence
+        if (sscanf(questions[i], "%[0-9a-zA-Z]:%[0-9]:%[0-9]", question, userID, numAnswers) == 3) {
+            questionList[i] = strdup(question);
+            printf("%d: %s (%s answers) by %s\n", i, question, numAnswers, userID);
+        } else { // TODO: handle invalid question:user:ans sequence
             printf("Error while parsing questions. Please try again\n");
-            questionList = NULL; // terminate question list
-
             free(args);
             return;
         }
     }
-
     
-    questionList = questionListBegin;
-
-
     free(args);
 }

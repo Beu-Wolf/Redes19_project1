@@ -41,6 +41,8 @@ typedef struct addressInfoSet {
 } addressInfoSet;
 
 enum flags flags;
+struct addrinfo* tcpInfo;
+struct addrinfo* udpInfo;
 
 int userID;
 
@@ -50,45 +52,41 @@ char* selectedQuestion;
 char isRegistered();
 
 //Register
-void processRegister(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet);
-void sendRegister(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet);
+void processRegister(int fdUDP, char** parsedInput);
+void sendRegister(int fdUDP, char** parsedInput);
 void receiveRegister(int fdUDP, char** parsedInput);
 
 //Topic List
-void processTopicList(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet, char** topicList);
-void sendTopicList(int fdUDP, addressInfoSet newAddrInfoSet);
+void processTopicList(int fdUDP, char** parsedInput, char** topicList);
+void sendTopicList(int fdUDP);
 void receiveTopicList(int fdUDP, char** topicList );
 
 //Topic Select
 void processTopicSelect(char** parsedInput, char** topicList);
 
 //Topic Propose
-void processTopicPropose(int fdUDP, char** parsedInput,
-    addressInfoSet newAddrInfoSet, char** topicList);
-void sendTopicPropose(int fdUDP, char** parsedInput, addressInfoSet newAddrInfoSet);
+void processTopicPropose(int fdUDP, char** parsedInput, char** topicList);
+void sendTopicPropose(int fdUDP, char** parsedInput);
 void receiveTopicPropose(int fdUDP, char** topicList, char* topicName);
 
 //Question List
-void processQuestionList(int fdUDP, char** args,
-		addressInfoSet newAddrInfoSet, char **questionList);
+void processQuestionList(int fdUDP, char** args, char **questionList);
+void sendQuestionList(int fdUDP);
 void receiveQuestionList(int fdUDP, char **questionList);
-void sendQuestionList(int fdUDP, addressInfoSet newAddrInfoSet);
+
+//Question Get
+void processQuestionGet(char** parsedInput, char** questionList);
+int sendQuestionGet();
 
 //Question Submit
-void processQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
-int sendQuestionSubmit(char** parsedInput, addressInfoSet newAddrInfoSet);
+void processQuestionSubmit(char** parsedInput);
+int sendQuestionSubmit(char** parsedInput);
 void receiveQuestionSubmit(int fdUDP);
 
 //Answer Submit
-void processAnswerSubmit(char **args, addressInfoSet newAddrInfoSet);
+void processAnswerSubmit(char **args);
 int sendAnswerSubmit(int fd, char *text, char *image);
 int recvAnswerSubmit(int fd);
 
-//Question Get
-void processQuestionGet(char** parsedInput, char** questionList, addressInfoSet newAddrInfoSet);
-int sendQuestionGet(addressInfoSet newAddrInfoSet);
 
 #endif
