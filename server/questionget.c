@@ -267,6 +267,8 @@ static void sendAnswerFile(int fd, char *path) {
     sprintf(tmp, "%ld ", size);
     sendTCPstring(fd, tmp, strlen(tmp));
     sendTCPfile(fd, file);
+
+    fclose(file);
 }
 
 static int answerCmp(const void *a, const void *b) {
