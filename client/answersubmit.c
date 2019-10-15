@@ -1,9 +1,9 @@
 #include "clientcommands.h"
 
 void processAnswerSubmit(char **args, addressInfoSet newAddrInfoSet) {
-    int fd, n;
-
+    int fd;
     int numArgs = arglen(args);
+    char* text, *image;
 
     if (!isRegistered()) {
         fprintf(stderr, NOT_REGISTERED_ERROR);
@@ -30,23 +30,21 @@ void processAnswerSubmit(char **args, addressInfoSet newAddrInfoSet) {
 
     stripnewLine(args[numArgs-1]);
 
-    fd = socket(newAddrInfoSet.res_TCP->ai_family,
-            newAddrInfoSet.res_TCP->ai_socktype,
-            newAddrInfoSet.res_TCP->ai_protocol);
-    if (fd == -1) fatal(SOCK_CREATE_ERROR);
+    if((fd = socket(newAddrInfoSet.res_TCP->ai_family, newAddrInfoSet.res_TCP->ai_socktype,
+            newAddrInfoSet.res_TCP->ai_protocol)) == -1)
+        fatal(SOCK_CREATE_ERROR);
 
-    n = connect(fd, newAddrInfoSet.res_TCP->ai_addr,
-            newAddrInfoSet.res_TCP->ai_addrlen);
-    if (n == -1) fatal(SOCK_CONN_ERROR);
+    if(connect(fd, newAddrInfoSet.res_TCP->ai_addr, newAddrInfoSet.res_TCP->ai_addrlen) == -1)
+        fatal(SOCK_CONN_ERROR);
 
-    char *text = args[1];
-    char *image = numArgs == 3 ? args[2] : NULL;
+    text = args[1];
+    image = numArgs == 3 ? args[2] : NULL;
 
-    n = sendAnswerSubmit(fd, text, image);
-    if (n == -1) return;
+    if(sendAnswerSubmit(fd, text, image) == -1)
+        return;
 
-    n = recvAnswerSubmit(fd);
-    if (n == -1) return;
+    if(recvAnswerSubmit(fd) == -1)
+        return;
 
     return;
 }
