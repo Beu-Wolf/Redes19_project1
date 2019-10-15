@@ -26,20 +26,6 @@ enum flags {
     GET_BY_NAME,
 };
 
-typedef struct service {
-        char serverIP[BUFFER_SIZE];
-        char port[BUFFER_SIZE];
-} service;
-
-typedef struct addressInfoSet {
-
-    struct addrinfo hints_TCP;
-    struct addrinfo* res_TCP;
-    struct addrinfo hints_UDP;
-    struct addrinfo* res_UDP;
-
-} addressInfoSet;
-
 enum flags flags;
 struct addrinfo* tcpInfo;
 struct addrinfo* udpInfo;
