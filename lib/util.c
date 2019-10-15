@@ -29,6 +29,12 @@ void printArgs(char** buffer) {
     }
 }
 
+void printTopicList(char** topicList) {
+    for(int i = 0; topicList[i] != 0; i++){
+      printf("%02d - %s\n", i+1, topicList[i]);
+    }
+}
+
 // safe read from stdin
 void readCommand(char** bufPtr, int* bufSize) {
     int i;

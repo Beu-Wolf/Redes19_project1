@@ -50,6 +50,7 @@
 #define MAXTOPICS 99
 #define MAXANSWERS 99
 
+void printTopicList(char** topicList);
 
 void printArgs(char** buffer);
 void fatal(const char* buffer);
