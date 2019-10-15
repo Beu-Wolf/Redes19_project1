@@ -61,7 +61,7 @@ void receiveTopicList(int fdUDP, char** topicList) {
         topicUserID = strtok(NULL, ":");
 
 
-        printf("%02d - %s (proposed by %s)\n", i, topicName, topicUserID);
+        printf("%02d - %s (proposed by %s)\n", i+1, topicName, topicUserID);
     }
     free(args);
 }

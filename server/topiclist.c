@@ -15,7 +15,7 @@ char* processTopicList(char** args) {
     if (!topicListStatus) fatal(ALLOC_ERROR);
 
     if(arglen(args) < 1) {
-        strcpy(topicListStatus, "ERR\n");
+        strncpy(topicListStatus, "ERR\n", 5);
         return topicListStatus;
     }
 

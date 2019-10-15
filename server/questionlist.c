@@ -41,7 +41,7 @@ char *processQuestionList(char **args) {
     if (!questionListStatus) exit(1);
 
     if (arglen(args) != 2) {
-        strcpy(questionListStatus, "ERR\n");
+        strncpy(questionListStatus, "ERR\n", 5);
         return questionListStatus;
     }
 
@@ -49,7 +49,7 @@ char *processQuestionList(char **args) {
     stripnewLine(topic);
 
     char topicPath[BUFFER_SIZE];
-    strcpy(topicPath, TOPICSDIR"/");
+    strncpy(topicPath, TOPICSDIR"/", strlen(TOPICSDIR) + 3);
     strcat(topicPath, topic);
 
     DIR *topicDir = opendir(topicPath);

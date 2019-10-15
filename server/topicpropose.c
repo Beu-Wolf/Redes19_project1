@@ -14,7 +14,7 @@ char* processTopicPropose(char** args) {
     // Check number of arguments
     if(arglen(args) != 3) {
         printf("Invalid Protocol!");
-        strcpy(topicProposeStatus, "ERR\n");
+        strncpy(topicProposeStatus, "ERR\n", 5);
         return topicProposeStatus;
     }
 
@@ -22,7 +22,7 @@ char* processTopicPropose(char** args) {
 
     if (!isValidTopic(args[2])) {
         printf("Invalid topic format!\n");
-        strcpy(topicProposeStatus, "ERR\n");
+        strncpy(topicProposeStatus, "ERR\n", 5);
         return topicProposeStatus;
     }
 
@@ -42,7 +42,7 @@ char* processTopicPropose(char** args) {
         if(dirInfo->d_name[0] == '.') continue;   // ignore ".", ".." and hidden files
         if(!strcmp(dirInfo->d_name, args[2])) {
             if(closedir(dirPtr) == -1) fatal(DIRCLOSE_ERROR);
-            strcpy(topicProposeStatus, "PTR DUP\n");
+            strncpy(topicProposeStatus, "PTR DUP\n", 9);
             return topicProposeStatus;
         }
         numDirs++;
@@ -51,7 +51,7 @@ char* processTopicPropose(char** args) {
     // check number of existing topics
     if(numDirs >= MAXTOPICS) {
         if(closedir(dirPtr) == -1) fatal(DIRCLOSE_ERROR);
-        strcpy(topicProposeStatus, "PTR FUL\n");
+        strncpy(topicProposeStatus, "PTR FUL\n", 9);
         return topicProposeStatus;
     }
 
@@ -65,7 +65,7 @@ char* processTopicPropose(char** args) {
     sprintf(pathName, TOPICSDIR"/%s", args[2]);
     if(mkdir(pathName, 0700) == -1) {
         if(closedir(dirPtr) == -1) fatal(DIRCLOSE_ERROR);
-        strcpy(topicProposeStatus, "PTR NOK\n");
+        strncpy(topicProposeStatus, "PTR NOK\n", 9);
         free(pathName);
         return topicProposeStatus;
     }
@@ -75,7 +75,7 @@ char* processTopicPropose(char** args) {
     filePtr = fopen(pathName, "w");
     fputs(args[1], filePtr); // write userID on file
     if(fclose(filePtr)) fatal(DIRCLOSE_ERROR);
-    strcpy(topicProposeStatus, "PTR OK\n");
+    strncpy(topicProposeStatus, "PTR OK\n", 8);
     if(closedir(dirPtr) == -1) fatal(DIRCLOSE_ERROR);
 
     free(pathName);
