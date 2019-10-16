@@ -70,6 +70,7 @@ long toNonNegative(char *str);
 int sendTCPstring(int sockfd, char* buffer, size_t n);
 int recvTCPline(int sockfd, char** buffer, int* size);
 int recvTCPword(int sockfd, char** buffer, int* size);
+char recvTCPchar(int sockfd, char* charPtr);
 
 int sendTCPfile(int sockfd, FILE* filefd);
 int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd);
