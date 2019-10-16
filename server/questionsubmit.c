@@ -14,6 +14,7 @@ char* getTopic(int fdTCP, int size) {
     char* topic;
 
     if(recvTCPword(fdTCP, &topic, &size) > 11) {
+        clearSocket(fdTCP);
         free(topic);
         return NULL;
     }
