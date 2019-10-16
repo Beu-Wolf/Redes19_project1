@@ -13,8 +13,7 @@ int writeQuestion(int fdTCP, char* userId, char* path) {
     char tmp[20];
 
     question = safestrcat(question, ".txt");
-
-    printf("%s\n", question);
+    
 
     if((n = recvTCPword(fdTCP, &qsize, NULL)) < 1 || n > 10) {
         printf("Error receiving questionFile size\n");
