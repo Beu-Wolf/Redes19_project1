@@ -53,6 +53,7 @@
 #define MAXTOPICS 99
 #define MAXQUESTIONS 99
 #define MAXANSWERS 99
+#define MAX_PORT 0XFFFF
 
 void printTopicList(char** topicList);
 
@@ -64,6 +65,7 @@ int arglen(char **args);
 char *safestrcat(char *dest, char *src);
 void resetPtrArray(char** array, int max);
 
+char validPort(char* str);
 char isPositiveNumber(char *str);
 long toNonNegative(char *str);
 

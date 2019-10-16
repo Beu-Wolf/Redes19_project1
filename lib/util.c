@@ -107,6 +107,10 @@ char *safestrcat(char *dest, char *src) {
     return new;
 }
 
+
+char validPort(char* str) {
+    return isPositiveNumber(str) && atoi(str) <= MAX_PORT;
+}
 // return 0 if string contains non digit ascii
 char isPositiveNumber(char* str) {
     int i = 0;

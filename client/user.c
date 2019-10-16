@@ -68,6 +68,11 @@ void readArguments(int argc, char** argv) {
     }
 
     if(opterr) displayUsage();
+
+    if(!validPort(port)) {
+        fprintf(stderr, "Invalid port number\n");
+        exit(1);
+    }
 }
 
 static void displayUsage (){
