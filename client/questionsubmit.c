@@ -100,7 +100,7 @@ int sendQuestionSubmit(char** parsedInput) {
     if(!buffer) fatal(ALLOC_ERROR);
     memset(buffer, 0, FINFO_BUFF_SIZE);
 
-    sprintf(buffer, "QUS %d %s %s %ld ", userID, selectedTopic, 
+    sprintf(buffer, "QUS %s %s %s %ld ", userID, selectedTopic, 
         parsedInput[1], questionFileSz);
     sendTCPstring(fdTCP, buffer, strlen(buffer));
 

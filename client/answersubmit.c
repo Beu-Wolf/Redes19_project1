@@ -69,7 +69,7 @@ int sendAnswerSubmit(int fd, char *text, char *image) {
     }
 
     size = fileSize(textFile);
-    sprintf(buffer, "ANS %d %s %s %ld ",
+    sprintf(buffer, "ANS %s %s %s %ld ",
             userID, selectedTopic, selectedQuestion, size);
 
     sendTCPstring(fd, buffer, strlen(buffer));

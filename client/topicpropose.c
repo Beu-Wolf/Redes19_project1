@@ -22,10 +22,7 @@ void processTopicPropose(int fdUDP, char** parsedInput, char** topicList) {
 void sendTopicPropose(int fdUDP, char** parsedInput) {
     char sendMsg[BUFFER_SIZE];
 
-    sprintf(sendMsg, "PTP %d %s\n", userID, parsedInput[1]);
-
-    printf("[DBG] Sending %ld bytes: |%s|\n",  strlen(sendMsg), sendMsg);
-
+    sprintf(sendMsg, "PTP %s %s\n", userID, parsedInput[1]);
     if(sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, udpInfo->ai_addr, udpInfo->ai_addrlen) == -1) 
         fatal(strerror(errno));
 }

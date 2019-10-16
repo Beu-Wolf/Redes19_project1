@@ -32,7 +32,7 @@ enum flags flags;
 struct addrinfo* tcpInfo;
 struct addrinfo* udpInfo;
 
-int userID;
+char* userID;
 
 char* selectedTopic;
 char* selectedQuestion;
@@ -65,6 +65,8 @@ void receiveQuestionList(int fdUDP, char **questionList);
 //Question Get
 void processQuestionGet(char** parsedInput, char** questionList);
 int sendQuestionGet();
+void receiveQuestionGet(int fdTCP);
+int writeQuestion(int fdTCP, char* userId, char* path);
 
 //Question Submit
 void processQuestionSubmit(char** parsedInput, char** questionList);

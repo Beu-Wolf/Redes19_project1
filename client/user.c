@@ -31,7 +31,7 @@ char** questionList;
 
 
 char isRegistered() {
-  return userID != -1;
+  return userID != NULL;
 }
 
 int main(int argc, char** argv) {
@@ -82,7 +82,7 @@ void init() {
     int err;
     struct addrinfo hints;
 
-    userID = -1;
+    userID = NULL;
     selectedTopic = NULL;
     selectedQuestion = NULL;
 
@@ -191,9 +191,12 @@ void cleanup() {
     freeaddrinfo(udpInfo);
     free(server);
 
+    if(userID) free(userID);
+
     resetPtrArray(topicList, MAXTOPICS + 1);
     free(topicList);
-    for(int i = 0; questionList[i] != NULL; i++) free(questionList[i]);
+    resetPtrArray(questionList, MAXQUESTIONS+ 1);
+    // for(int i = 0; questionList[i] != NULL; i++) free(questionList[i]);
     free(questionList);
 }
 

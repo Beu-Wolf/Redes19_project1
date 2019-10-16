@@ -23,7 +23,6 @@ void sendRegister(int fdUDP, char** parsedInput) {
 
     memset(sendMsg, 0, BUFFER_SIZE);
     sprintf(sendMsg, "REG %s\n", parsedInput[1]);
-    printf("sending %ld bytes: |%s|\n", strlen(sendMsg), sendMsg);
 
     if(sendto(fdUDP, sendMsg, strlen(sendMsg) , 0, udpInfo->ai_addr, udpInfo->ai_addrlen) == -1)
         fatal(strerror(errno));
@@ -47,8 +46,8 @@ void receiveRegister(int fdUDP, char** parsedInput) {
 
     stripnewLine(args[1]);
     if(!strcmp(args[1], "OK")) {
-        userID = strtol(parsedInput[1], NULL, 0);
-        printf("userID registered (id: %d)\n", userID);
+        userID = strdup(parsedInput[1]);
+        printf("userID registered (id: %s)\n", userID);
     } else if (!strcmp(args[1], "NOK")){
         printf("error: invalid userID\n");
     }
