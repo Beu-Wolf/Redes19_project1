@@ -23,6 +23,7 @@
 #define BUFFER_SIZE 1024
 #define TOPICSDIR "./topics"
 #define DATAFILE  ".data"
+#define LOCKFILE ".lock"
 #define ANSWERFILE "answer"
 #define IMAGEFILE "image"
 
@@ -45,4 +46,7 @@ int getImageFileSize(int fdTCP, int size);
 void processQuestionGet(int fdTCP);
 
 void processAnswerSubmit(int fd);
+
+void questionLock(char *topic, char *question);
+void questionUnlock(void);
 #endif
