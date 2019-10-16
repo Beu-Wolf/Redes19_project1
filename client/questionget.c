@@ -12,6 +12,8 @@ int writeQuestion(int fdTCP, char* userId, char* path) {
     char* qsize;
     char tmp[20];
 
+    memset(tmp, 0, 20);
+
     question = safestrcat(question, ".txt");
     
 
@@ -41,6 +43,8 @@ int writeQuestion(int fdTCP, char* userId, char* path) {
         fclose(questionFilePtr);
         return -1;
     }
+
+    
 
     n = recv(fdTCP, tmp, 1, 0);
     if(n == 1 && *tmp == '1') {
@@ -208,14 +212,14 @@ int sendQuestionGet() {
 }
 
 void receiveQuestionGet(int fdTCP) {
-    char* res;
+    char* res = NULL;
     int n;
     long numAnswers, answerNum;
 
-    char* path;
-    char* Nanswers;
-    char* answerN;
-    char* answerFilePath;
+    char* path = NULL;
+    char* Nanswers = NULL;
+    char* answerN = NULL;
+    char* answerFilePath = NULL;
 
     char tmp[BUFFER_SIZE];
     char space[2];
@@ -270,6 +274,7 @@ void receiveQuestionGet(int fdTCP) {
     path = safestrcat(path, selectedQuestion);
 
     if((n = writeQuestion(fdTCP, qUserID, path)) == -1) {
+        printf("Error writing questionFile\n");
         goto clean;
     }
 
@@ -313,10 +318,10 @@ void receiveQuestionGet(int fdTCP) {
 
     clean:
     closedir(topicDirp);
-    free(qUserID);
-    free(res);
-    free(path);
-    free(Nanswers);
+    if(qUserID != NULL) free(qUserID);
+    if(res != NULL) free(res);
+    if(path != NULL) free(path);
+    if(Nanswers != NULL) free(Nanswers);
 
     
     return;
