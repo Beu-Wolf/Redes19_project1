@@ -325,3 +325,15 @@ long fileSize(FILE *file) {
 
     return size;
 }
+
+void clearSocket(int fdTCP) {
+    char buffer[FILE_READ_SIZE];
+    int n;
+    int toRead = FILE_READ_SIZE;
+
+    while((n = recv(fdTCP, buffer, toRead, 0)) != 0) {
+        if(n == toRead) {
+            toRead += toRead;
+        }
+    }
+}

@@ -84,4 +84,6 @@ int isValidTopic(char* topicName);
 int isValidQuestion(char* questionName);
 long fileSize(FILE *file);
 
+void clearSocket(int fdTCP);
+
 #endif
