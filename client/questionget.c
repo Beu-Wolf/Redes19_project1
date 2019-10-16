@@ -1,5 +1,121 @@
 #include "clientcommands.h"
 
+
+
+
+//Write question file
+int writeQuestion(int fdTCP, char* userId, char* path) {
+    int n;
+    unsigned long long questionFileSize;
+    char* question = strdup(path);
+    char* image = strdup(path);
+    char* qsize;
+    char tmp[20];
+
+    question = safestrcat(question, ".txt");
+
+    printf("%s\n", question);
+
+    if((n = recvTCPword(fdTCP, &qsize, NULL)) < 1 || n > 10) {
+        printf("Error receiving questionFile size\n");
+        free(qsize);
+        free(question);
+        free(image);
+        return -1;
+    }
+
+    questionFileSize = toNonNegative(qsize);
+
+    FILE* questionFilePtr = fopen(question, "w");
+    if(!questionFilePtr) fatal(FILEOPEN_ERROR);
+
+    recvTCPfile(fdTCP, questionFileSize, questionFilePtr); 
+
+    printf("Writing %s by %s\n", question, userId);
+
+    //absorb space between file and image Flag
+    n = recv(fdTCP, tmp, 1, 0);
+    if(n == 0 || *tmp != ' ') {
+        free(qsize);
+        free(question);
+        free(image);
+        fclose(questionFilePtr);
+        return -1;
+    }
+
+    n = recv(fdTCP, tmp, 1, 0);
+    if(n == 1 && *tmp == '1') {
+        
+        char* iext;
+        char* isize;
+        long imageFileSize;
+        FILE* imageFilePtr;
+
+
+        /*Absorb space */
+        n = recv(fdTCP, tmp, 1, 0);
+        if(n == 0 || *tmp != ' '){
+            free(qsize);
+            free(question);
+            free(image);
+            fclose(questionFilePtr);
+            return -1;
+        }
+
+        //get extension
+        recvTCPword(fdTCP, &iext, NULL);
+
+        image = safestrcat(image, ".");
+        image = safestrcat(image, iext);
+
+        imageFilePtr = fopen(image, "w");
+        if(!imageFilePtr) fatal(FILEOPEN_ERROR);
+
+        //get size
+        recvTCPword(fdTCP, &isize, NULL);
+        if(strlen(isize) > 10 || strlen(isize) < 1) {
+            printf("Error receiving image File size\n");
+            free(qsize);
+            free(question);
+            free(image);
+            fclose(questionFilePtr);
+            fclose(imageFilePtr);
+            free(isize);
+            free(iext);
+            return -1;
+        }
+
+        imageFileSize = toNonNegative(isize);
+
+        recvTCPfile(fdTCP, imageFileSize, imageFilePtr);
+
+        printf("Writing image: %s by %s\n", image, userId);
+        
+        fclose(imageFilePtr);
+
+        free(isize);
+        free(iext);
+
+
+
+    } else if(n != 1 || *tmp != '0') {
+        free(qsize);
+        free(question);
+        free(image);
+        fclose(questionFilePtr);
+        return - 1;
+    }
+
+    free(qsize);
+    free(question);
+    free(image);
+    fclose(questionFilePtr);
+
+    
+    return 1;
+
+}
+
 void processQuestionGet(char** parsedInput, char** questionList) {
     int wantedNumber, i, fdTCP;
     char abbrev;
@@ -62,10 +178,9 @@ void processQuestionGet(char** parsedInput, char** questionList) {
     if(fdTCP == -1)
         return;
     
-    /*
+    
     receiveQuestionGet(fdTCP);
     close(fdTCP);
-    */
 }
 
 int sendQuestionGet() {
@@ -92,3 +207,121 @@ int sendQuestionGet() {
 
     return fdTCP;
 }
+
+void receiveQuestionGet(int fdTCP) {
+    char* res;
+    int n;
+    long numAnswers, answerNum;
+
+    char* path;
+    char* Nanswers;
+    char* answerN;
+    char* answerFilePath;
+
+    char tmp[BUFFER_SIZE];
+    char space[2];
+
+    char* qUserID, *aUserID;
+
+    recvTCPword(fdTCP, &res, NULL);
+    printf("Response: %s\n", res);
+
+    //check protocol flag
+    if(strcmp("QGR", res)) {
+        fatal(SERVER_ERROR);
+    }
+
+    //Get 2nd Argument -> Might be userID or ERR
+    recvTCPword(fdTCP, &qUserID, NULL);
+
+    if(!strcmp(qUserID, "EOF\n")) {
+        free(res);
+        printf("No such topic or question\n");
+        return;
+    } else if(!strcmp(qUserID, "ERR\n")) {
+        free(res);
+        printf("Badly formulated request. Please try again\n");
+        return;
+    } else if(strlen(qUserID) != 5) {
+        free(res);
+        printf("Wrong question proposer ID\n");
+        return;
+    }
+
+    path = strdup(selectedTopic);
+
+
+    //Create topic directory to store answers
+    DIR* topicDirp = opendir(path);
+    if(ENOENT == errno) {
+        n = mkdir(path, 0755);
+
+        if (n == -1) {
+            fprintf(stderr, "Error creating topic directory!\n");
+            return;
+        }
+    } else if (!topicDirp) {
+        fatal(DIROPEN_ERROR);
+    }
+
+    printf("Writing to directory %s/\n", selectedTopic);
+
+    path = safestrcat(path, "/");
+
+    path = safestrcat(path, selectedQuestion);
+
+    if((n = writeQuestion(fdTCP, qUserID, path)) == -1) {
+        goto clean;
+    }
+
+    //consume space
+    n = recv(fdTCP, space, 1, 0);
+
+    n = recvTCPword(fdTCP, &Nanswers, NULL);
+    numAnswers = toNonNegative(Nanswers);
+    if(numAnswers < 0 || numAnswers > 10) {
+        printf("To many answers in this question\n");
+        goto clean;
+    }
+
+    printf("NUM ANSWERS: %ld\n", numAnswers);
+    
+    for (int i = 1; i <= numAnswers; i++) {
+        //get answerNum
+
+        answerFilePath = strdup(path);
+        recvTCPword(fdTCP, &answerN, NULL);
+        answerNum = toNonNegative(answerN);
+
+        //get answerID
+
+        recvTCPword(fdTCP, &aUserID, NULL);
+
+        sprintf(tmp, "_%02ld", answerNum);
+        answerFilePath = safestrcat(answerFilePath, tmp);
+        if((n = writeQuestion(fdTCP, aUserID, answerFilePath)) == -1) {
+            printf("Error with image file %d\n", i);
+            goto clean;
+        }
+        free(answerFilePath);
+        free(aUserID);
+        free(answerN);
+
+        //consume space or /n
+
+        n = recv(fdTCP, space, 1, 0);
+    }
+
+    clean:
+    closedir(topicDirp);
+    free(qUserID);
+    free(res);
+    free(path);
+    free(Nanswers);
+
+    
+    return;
+
+
+}
+

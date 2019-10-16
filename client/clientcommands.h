@@ -5,12 +5,14 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <netdb.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <dirent.h>
 #include "../lib/util.h"
 
 #define INPUT_SIZE 1024
@@ -74,5 +76,9 @@ void processAnswerSubmit(char **args);
 int sendAnswerSubmit(int fd, char *text, char *image);
 int recvAnswerSubmit(int fd);
 
+//Question Get
+void processQuestionGet(char** parsedInput, char** questionList);
+int sendQuestionGet();
+void receiveQuestionGet(int fdTCP);
 
 #endif
