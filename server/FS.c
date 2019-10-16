@@ -86,6 +86,19 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    //check if topics directory exists
+    DIR* topicsDir = opendir(TOPICSDIR);
+    if(ENOENT == errno) {
+        if(mkdir(TOPICSDIR, 0755)) {
+            closedir(topicsDir);
+            fatal("Could't make topics folder");
+        }
+    } else if(!topicsDir) {
+        fatal(DIRCREATE_ERROR);
+    } else {
+        closedir(topicsDir);
+    }
+
     // TODO: remove
     printf("Port number: %s\n", port);
 
