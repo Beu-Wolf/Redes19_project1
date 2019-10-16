@@ -27,6 +27,7 @@ char* getQuestion(int fdTCP, int size) {
     char* question;
 
     if(recvTCPword(fdTCP, &question, &size) > 11) {
+        clearSocket(fdTCP);
         free(question);
         return NULL;
     }
@@ -40,6 +41,7 @@ int getFileSize(int fdTCP, int size) {
     int fileSize;
 
     if(recvTCPword(fdTCP, &fileSizeStr, &size) > 11) {
+        clearSocket(fdTCP);
         free(fileSizeStr);
         return -1;
     }
@@ -70,6 +72,7 @@ int getImageFlag(int fdTCP, int size) {
     printf("Has Image flag |%s|\n", hasImageStr);
 
     if(!isPositiveNumber(hasImageStr)) {
+        clearSocket(fdTCP);
         free(hasImageStr);
         return -1;
     }
@@ -84,6 +87,7 @@ char* getImageExtension(int fdTCP, int size) {
     char* imgExt;
 
     if(recvTCPword(fdTCP, &imgExt, &size) != 4) {
+        clearSocket(fdTCP);
         printf("Invalid Extension\n");
         free(imgExt);
         return NULL;
@@ -98,12 +102,14 @@ int getImageFileSize(int fdTCP, int size) {
     int imageFileSize;
 
     if(recvTCPword(fdTCP, &imageFileStr, &size) > 11) {
+        clearSocket(fdTCP);
         free(imageFileStr);
         return -1;
     }
     printf("File Size: |%s|\n", imageFileStr);
 
     if(!isPositiveNumber(imageFileStr)){
+        clearSocket(fdTCP);
         free(imageFileStr);
         return -1;
     }
