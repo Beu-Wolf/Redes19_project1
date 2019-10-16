@@ -56,18 +56,18 @@ void processQuestionGet(int fdTCP) {
     size = 11;
     topic = getTopic(fdTCP, size);
     if(!topic) {
-        strcpy(errorResponses, "QGR ERR\n");                  //send error message
+        strncpy(errorResponses, "QGR ERR\n", 9);                  //send error message
         sendTCPstring(fdTCP, errorResponses, strlen(errorResponses));
         return;
     }
 
     char path[BUFFER_SIZE];
-    strcpy(path, TOPICSDIR"/");
+    strncpy(path, TOPICSDIR"/", 13);
     strcat(path, topic);
 
     DIR* topicDirp = opendir(path);
     if(!topicDirp) {
-        strcpy(errorResponses, "QGR EOF\n");                  //send no topic/question error message
+        strncpy(errorResponses, "QGR EOF\n", 9);                  //send no topic/question error message
         sendTCPstring(fdTCP, errorResponses, strlen(errorResponses));
         return;
     }
@@ -77,7 +77,7 @@ void processQuestionGet(int fdTCP) {
     question = getQuestion(fdTCP, size);
 
     if(!question) {
-        strcpy(errorResponses, "QGR ERR\n");                  //send error message
+        strncpy(errorResponses, "QGR ERR\n", 9);                  //send error message
         sendTCPstring(fdTCP, errorResponses, strlen(errorResponses));
         return;
     }
@@ -85,7 +85,7 @@ void processQuestionGet(int fdTCP) {
     strcat(path, question);
     DIR* questionDirp = opendir(path);
     if(!questionDirp) {
-        strcpy(errorResponses, "QGR EOF\n");                  //send no topic/question error message
+        strncpy(errorResponses, "QGR EOF\n", 9);                  //send no topic/question error message
         sendTCPstring(fdTCP, errorResponses, strlen(errorResponses));
         return;
     }
@@ -100,7 +100,7 @@ void processQuestionGet(int fdTCP) {
 
     FILE* questionFD = fopen(questionFile, "r");
     if(!questionFD) {
-        strcpy(errorResponses, "QGR ERR\n");                  //send error message
+        strncpy(errorResponses, "QGR ERR\n", 9);                  //send error message
         sendTCPstring(fdTCP, errorResponses, strlen(errorResponses));
         return;
     }

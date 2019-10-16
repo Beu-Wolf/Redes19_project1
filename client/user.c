@@ -85,7 +85,6 @@ void init() {
     userID = -1;
     selectedTopic = NULL;
     selectedQuestion = NULL;
-    flags = GET_BY_IP;
 
     // question and topic buffers
     topicList = (char**)malloc(sizeof(char*) * MAXTOPICS + 1);
@@ -104,7 +103,6 @@ void init() {
 
         if(gethostname(server, HOST_NAME_MAX) == -1)
             fatal(GETHOSTNAME_ERROR);
-        flags = GET_BY_NAME;
     }
     // set default port
     if(!port) port = DEFAULT_PORT;
@@ -115,7 +113,7 @@ void init() {
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
-    hints.ai_flags = (flags == GET_BY_NAME ? AI_NUMERICSERV : AI_NUMERICHOST);
+    hints.ai_flags = AI_NUMERICSERV;
     if((err = getaddrinfo(server, port, &hints, &tcpInfo)))
         fatal(gai_strerror(err));
     // set UDP addrinfo
@@ -123,7 +121,7 @@ void init() {
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
-    hints.ai_flags = (flags == GET_BY_NAME ? AI_NUMERICSERV : AI_NUMERICHOST);
+    hints.ai_flags = AI_NUMERICSERV;
     if((err = getaddrinfo(server, port, &hints, &udpInfo)))
         fatal(gai_strerror(err));
 
