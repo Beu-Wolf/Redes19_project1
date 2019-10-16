@@ -177,6 +177,8 @@ int setupServerSocket(char *port, int socktype) {
         listen(fd, 5);
     }
 
+    freeaddrinfo(res);
+
     return fd;
 }
 
