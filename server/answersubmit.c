@@ -30,6 +30,8 @@ void processAnswerSubmit(int fd) {
     printf("question: %s\n", question);
     printf("asize: %s\n", asize);
 
+    questionLock(topic, question);
+
     /* TODO: validate everything */
 
     n = receiveAnswer(fd);
@@ -47,6 +49,9 @@ void processAnswerSubmit(int fd) {
     free(topic);
     free(question);
     free(asize);
+
+    questionUnlock();
+
     return;
 }
 

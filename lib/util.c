@@ -167,13 +167,9 @@ int sendTCPfile(int sockfd, FILE* file) {
     while(feof(file) == 0) {
         memset(buffer, 0, FILE_READ_SIZE);
         n = fread(buffer, sizeof(char), FILE_READ_SIZE - 1, file);
-        printf("[SENDING]%s\n====================================================================\n", buffer);
         sendTCPstring(sockfd, buffer, n);
         sizesent += n;
-
     }
-
-
     free(buffer);
     return 1;
 }
@@ -257,6 +253,10 @@ int recvTCPword(int sockfd, char** bufferaddr, int* allocsize) {
     *bufferaddr = buffer;
     if (allocsize != NULL) *allocsize = alloc;
     return len;
+}
+
+char recvTCPchar(int sockfd, char* charPtr) {
+    return recv(sockfd, charPtr, 1, 0) != -1 ? 1 : 0;
 }
 
 int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){

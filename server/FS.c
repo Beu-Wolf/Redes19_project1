@@ -25,8 +25,7 @@
 
 #define MAX(A,B) ((A)>= (B) ? (A):(B))
 
-struct sigaction newAction, oldAction;
-sigset_t ss;
+char isUp;
 
 void handleSIGCHILD() {
     pid_t pid;
@@ -42,6 +41,10 @@ void handleSIGCHILD() {
     write(0, "Stopped waiting\n", 16);
 }
 
+void handleSIGINT() {
+    write(1, "\nReceived SIGINT. Exiting...\n", 29);
+    isUp = 0;
+}
 
 void receiveConnections(char *port);
 int setupServerSocket(char *port, int socktype);
@@ -49,14 +52,24 @@ void handleTcp(int fd, char* port);
 void handleUdp(int fd, char*port);
 
 int main(int argc, char *argv[]) {
+    DIR* topicsDir;
+    struct sigaction newChildAction, oldChildAction;
+    struct sigaction newIntAction, oldIntAction;
     char *port = DEFAULT_PORT;
 
-    bzero(&newAction, sizeof(struct sigaction));
-    newAction.sa_handler = handleSIGCHILD;
-    if(sigemptyset(&newAction.sa_mask) == -1) fatal("sigemptyset error");
-    newAction.sa_flags = SA_NOCLDSTOP;
+    isUp = 1;
 
-    if(sigaction(SIGCHLD, &newAction, &oldAction) == -1) fatal("error changing signal handler");
+    bzero(&newChildAction, sizeof(struct sigaction));
+    newChildAction.sa_handler = handleSIGCHILD;
+    if(sigemptyset(&newChildAction.sa_mask) == -1) fatal("sigemptyset error");
+    newChildAction.sa_flags = SA_NOCLDSTOP;
+
+    bzero(&newIntAction, sizeof(struct sigaction));
+    newIntAction.sa_handler = handleSIGINT;
+    if(sigemptyset(&newIntAction.sa_mask) == -1) fatal("sigemptyset error");
+
+    if(sigaction(SIGCHLD, &newChildAction, &oldChildAction) == -1) fatal("error changing signal handler");
+    if(sigaction(SIGINT, &newIntAction, &oldIntAction) == -1) fatal("error changing signal handler");
 
     if (argc > 1) {
         short err = 0;
@@ -87,7 +100,7 @@ int main(int argc, char *argv[]) {
     }
 
     //check if topics directory exists
-    DIR* topicsDir = opendir(TOPICSDIR);
+    topicsDir = opendir(TOPICSDIR);
     if(ENOENT == errno) {
         if(mkdir(TOPICSDIR, 0755)) {
             closedir(topicsDir);
@@ -99,13 +112,14 @@ int main(int argc, char *argv[]) {
         closedir(topicsDir);
     }
 
-    // TODO: remove
-    printf("Port number: %s\n", port);
-
     receiveConnections(port);
+
+    if(sigaction(SIGCHLD, &oldChildAction, NULL) == -1) fatal("error changing signal handling");
+    if(sigaction(SIGINT, &oldIntAction, NULL) == -1) fatal("error changing signal handling");
 }
 
 void receiveConnections(char *port) {
+    sigset_t ss;
     int udpSocket, tcpSocket;
     int maxfd, counter;
     fd_set rfds;
@@ -119,13 +133,14 @@ void receiveConnections(char *port) {
     if(sigaddset(&ss, SIGCHLD) == -1) fatal("Synchronizing child");
 
 
-    while (1) {
+    while (isUp) {
         FD_ZERO(&rfds);
         FD_SET(udpSocket, &rfds);
         FD_SET(tcpSocket, &rfds);
 
         counter = select(maxfd+1, &rfds, NULL, NULL, NULL);
         if (counter == -1 && errno == EINTR) {
+            printf("Whoops! Got interrupted ( ͡° ͜ʖ ͡°)\n");
             continue;
         }
 
@@ -135,13 +150,10 @@ void receiveConnections(char *port) {
         if (FD_ISSET(tcpSocket, &rfds))
             handleTcp(tcpSocket, port);
     }
-
-    if(sigaction(SIGCHLD, &oldAction, NULL) == -1) fatal("error changing signal handling");
 }
 
 int setupServerSocket(char *port, int socktype) {
     int fd;
-    int n;
     struct addrinfo hints, *res;
 
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -149,19 +161,19 @@ int setupServerSocket(char *port, int socktype) {
     hints.ai_socktype = socktype;
     hints.ai_flags = AI_PASSIVE | AI_NUMERICSERV;
 
-    n = getaddrinfo(NULL, port, &hints, &res);
-    if (n != 0) fatal(GETADDRINFO_ERROR);
+    if(getaddrinfo(NULL, port, &hints, &res) != 0)
+        fatal(GETADDRINFO_ERROR);
 
-    fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-    if (fd == -1) fatal(SOCK_CREATE_ERROR);
+    if((fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) == -1)
+        fatal(SOCK_CREATE_ERROR);
 
-    n = bind(fd, res->ai_addr, res->ai_addrlen);
-    if (n == -1) fatal(SOCK_BIND_ERROR);
+    if(bind(fd, res->ai_addr, res->ai_addrlen) == -1)
+        fatal(SOCK_BIND_ERROR);
 
-    if (socktype == SOCK_STREAM) {
+    if (socktype == SOCK_STREAM)
         listen(fd, 5);
-    }
 
+    freeaddrinfo(res);
     return fd;
 }
 
