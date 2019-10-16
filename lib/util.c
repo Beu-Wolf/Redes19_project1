@@ -170,7 +170,6 @@ int sendTCPfile(int sockfd, FILE* file) {
         printf("[SENDING]%s\n====================================================================\n", buffer);
         sendTCPstring(sockfd, buffer, n);
         sizesent += n;
-        printf("SentTotal: %ld\n", sizesent);
 
     }
 
@@ -279,7 +278,6 @@ int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
 
         fileSize -= n;
         sizesent += n;
-        printf("SentTotal: %ld\n", sizesent);
     }
     //buffer = ptr;
 
