@@ -76,6 +76,8 @@ void processQuestionGet(int fdTCP) {
     size = 11;
     question = getQuestion(fdTCP, size);
 
+    questionUnlock();
+
     if(!question) {
         strncpy(errorResponses, "QGR ERR\n", 9);                  //send error message
         sendTCPstring(fdTCP, errorResponses, strlen(errorResponses));
@@ -155,6 +157,8 @@ void processQuestionGet(int fdTCP) {
 
     sendAnswers(fdTCP, path);
     sendTCPstring(fdTCP, "\n", 1);
+
+    questionUnlock();
 }
 
 static void sendAnswers(int fd, char *path) {
@@ -184,7 +188,7 @@ static void sendAnswers(int fd, char *path) {
 
     qsort(answers, numAnswers, sizeof(char*), answerCmp);
 
-    sprintf(tmp, " %d", numAnswers);
+    sprintf(tmp, " %d", MIN(numAnswers, 10));
     sendTCPstring(fd, tmp, strlen(tmp));
 
     int lim = MIN(numAnswers, 10);

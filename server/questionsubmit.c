@@ -197,12 +197,15 @@ void processQuestionSubmit(int fdTCP) {
     questionFolder = safestrcat(questionFolder, "/");
     questionFolder = safestrcat(questionFolder, DATAFILE);
 
-                        
 
     FILE *questionDatafile = fopen(questionFolder, "a");
     fputs(userId, questionDatafile);
 
-
+    /* Create question lock */
+    char *lockFile = strdup(path);
+    lockFile = safestrcat(lockFile, "/"LOCKFILE);
+    fclose(fopen(lockFile, "w"));
+    free(lockFile);
 
     //Receive filesize
     size = 11; // size of fileSize plus one
