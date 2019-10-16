@@ -13,7 +13,7 @@ char* getUserId(int fdTCP, int size) {
 char* getTopic(int fdTCP, int size) {
     char* topic;
 
-    if(recvTCPword(fdTCP, &topic, &size) > 10) {
+    if(recvTCPword(fdTCP, &topic, &size) > 11) {
         free(topic);
         return NULL;
     }
@@ -25,7 +25,7 @@ char* getTopic(int fdTCP, int size) {
 char* getQuestion(int fdTCP, int size) {
     char* question;
 
-    if(recvTCPword(fdTCP, &question, &size) > 10) {
+    if(recvTCPword(fdTCP, &question, &size) > 11) {
         free(question);
         return NULL;
     }
@@ -38,7 +38,7 @@ int getFileSize(int fdTCP, int size) {
     char* fileSizeStr;
     int fileSize;
 
-    if(recvTCPword(fdTCP, &fileSizeStr, &size) > 10) {
+    if(recvTCPword(fdTCP, &fileSizeStr, &size) > 11) {
         free(fileSizeStr);
         return -1;
     }
@@ -96,7 +96,7 @@ int getImageFileSize(int fdTCP, int size) {
     char* imageFileStr;
     int imageFileSize;
 
-    if(recvTCPword(fdTCP, &imageFileStr, &size) > 10) {
+    if(recvTCPword(fdTCP, &imageFileStr, &size) > 11) {
         free(imageFileStr);
         return -1;
     }
@@ -127,6 +127,10 @@ void processQuestionSubmit(int fdTCP) {
     // Read topic
     size = 11; // size of userID plus one
     topic = getTopic(fdTCP, size);
+    if(!topic) {
+        printf("Error getting topic\n");
+        return;
+    }
 
 
     char path[BUFFER_SIZE];
