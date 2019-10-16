@@ -69,10 +69,6 @@ void readArguments(int argc, char** argv) {
 
     if(opterr) displayUsage();
 
-    if(!validPort(port)) {
-        fprintf(stderr, "Invalid port number\n");
-        exit(1);
-    }
 }
 
 static void displayUsage (){
@@ -109,8 +105,14 @@ void init() {
         if(gethostname(server, HOST_NAME_MAX) == -1)
             fatal(GETHOSTNAME_ERROR);
     }
+    
     // set default port
     if(!port) port = DEFAULT_PORT;
+
+     if(!validPort(port)) {
+        fprintf(stderr, "Invalid port number\n");
+        exit(1);
+    }
 
 
     // set TCP addrinfo
