@@ -35,7 +35,7 @@ int writeQuestion(int fdTCP, char* userId, char* path) {
     printf("Writing %s by %s\n", question, userId);
 
     //absorb space between file and image Flag
-    n = recv(fdTCP, tmp, 1, 0);
+    n = recvTCPchar(fdTCP, tmp);
     if(n == 0 || *tmp != ' ') {
         free(qsize);
         free(question);
@@ -46,7 +46,7 @@ int writeQuestion(int fdTCP, char* userId, char* path) {
 
     
 
-    n = recv(fdTCP, tmp, 1, 0);
+    n = recvTCPchar(fdTCP, tmp);
     if(n == 1 && *tmp == '1') {
         
         char* iext;
@@ -56,7 +56,7 @@ int writeQuestion(int fdTCP, char* userId, char* path) {
 
 
         /*Absorb space */
-        n = recv(fdTCP, tmp, 1, 0);
+        n = recvTCPchar(fdTCP, tmp);
         if(n == 0 || *tmp != ' '){
             free(qsize);
             free(question);
@@ -279,7 +279,7 @@ void receiveQuestionGet(int fdTCP) {
     }
 
     //consume space
-    n = recv(fdTCP, space, 1, 0);
+    n = recvTCPchar(fdTCP, space);
 
     n = recvTCPword(fdTCP, &Nanswers, NULL);
     numAnswers = toNonNegative(Nanswers);
@@ -313,7 +313,7 @@ void receiveQuestionGet(int fdTCP) {
 
         //consume space or /n
 
-        n = recv(fdTCP, space, 1, 0);
+        n = recvTCPchar(fdTCP, space);
     }
 
     clean:

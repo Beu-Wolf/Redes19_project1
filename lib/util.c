@@ -266,8 +266,16 @@ int recvTCPword(int sockfd, char** bufferaddr, int* allocsize) {
     return len;
 }
 
-char recvTCPchar(int sockfd, char* charPtr) {
-    return recv(sockfd, charPtr, 1, 0) != -1 ? 1 : 0;
+/* Reads a char from tcp into *p.
+ * Returns 1 on success, 0 on failure */
+int recvTCPchar(int fd, char *p) {
+    int ret;
+    ret = recv(fd, p, 1, 0);
+    if (ret == -1) {
+        return 0;
+    }
+
+    return 1;
 }
 
 int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){

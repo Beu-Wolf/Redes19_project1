@@ -30,8 +30,6 @@ void processAnswerSubmit(int fd) {
     printf("question: %s\n", question);
     printf("asize: %s\n", asize);
 
-    questionLock(topic, question);
-
     /* TODO: validate everything */
 
     n = receiveAnswer(fd);
@@ -49,8 +47,6 @@ void processAnswerSubmit(int fd) {
     free(topic);
     free(question);
     free(asize);
-
-    questionUnlock();
 
     return;
 }
@@ -78,6 +74,9 @@ static int receiveAnswer(int fd) {
         return ERROR;
     }
 
+    /* Lock question to avoid answers with the same number */
+    questionLock(topic, question);
+
     n = numAnswers(path);
     num = n + 1;
     if (n == ERROR) return n;
@@ -98,6 +97,8 @@ static int receiveAnswer(int fd) {
         free(path);
         return ERROR;
     }
+
+    questionUnlock();
 
     n = storeAnswer(fd, path, num);
     if (n == ERROR){
@@ -161,13 +162,13 @@ static int storeAnswer(int fd, char *path, int num) {
     fprintf(dataFile, "%s", userID);
 
     /* Absorb space between answer file and image flag*/
-    ret = recv(fd, tmp, 1, 0);
+    ret = recvTCPchar(fd, tmp);
     if (ret == 0 || *tmp != ' ') {
         error = true;
         goto clean;
     }
 
-    ret = recv(fd, tmp, 1, 0);
+    ret = recvTCPchar(fd, tmp);
     if (ret == 1 && *tmp == '1') {
         FILE *imageFile;
         char *isize;
@@ -175,7 +176,7 @@ static int storeAnswer(int fd, char *path, int num) {
         long imageSize;
 
         /* Absorb space between aimg and iext */
-        ret = recv(fd, tmp, 1, 0);
+        ret = recvTCPchar(fd, tmp);
         if (ret == 0 || *tmp != ' ') {
             error = true;
             goto clean;
@@ -205,7 +206,7 @@ static int storeAnswer(int fd, char *path, int num) {
     }
 
     /* Absorb newline */
-    ret = recv(fd, tmp, 1, 0);
+    ret = recvTCPchar(fd, tmp);
     if (ret == 0 || *tmp != '\n') {
         error = true;
         goto clean;
