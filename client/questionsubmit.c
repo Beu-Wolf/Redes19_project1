@@ -114,6 +114,7 @@ int sendQuestionSubmit(char** parsedInput) {
         sendTCPstring(fdTCP, buffer, strlen(buffer));
 
         sendTCPfile(fdTCP, imgFd);
+        fclose(imgFd);
     } else {
         char noImage[] = " 0";
         sendTCPstring(fdTCP, noImage, strlen(noImage));
@@ -122,9 +123,8 @@ int sendQuestionSubmit(char** parsedInput) {
     char newLine = '\n';
     sendTCPstring(fdTCP, &newLine, strlen(&newLine));
     free(buffer);
+    fclose(questionFD);
     return fdTCP;
-    
-    return 0;
 }
 
 void receiveQuestionSubmit(int fdTCP, char** parsedInput, char**questionList) {
@@ -166,6 +166,7 @@ void receiveQuestionSubmit(int fdTCP, char** parsedInput, char**questionList) {
 
 
     close(fdTCP);
+    free(buffer);
+    free(args);
     return;
-
 }

@@ -278,7 +278,6 @@ int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
 
     buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE);
     if(!buffer) fatal(ALLOC_ERROR);
-
     while(fileSize > 0) {
         memset(buffer, 0, FILE_READ_SIZE);
         if( (n = recv(sockfd, buffer, MIN(FILE_READ_SIZE - 1, fileSize), 0)) == -1)
@@ -334,13 +333,9 @@ long fileSize(FILE *file) {
 }
 
 void clearSocket(int fdTCP) {
-    char buffer[FILE_READ_SIZE];
-    int n;
-    int toRead = FILE_READ_SIZE;
-
-    while((n = recv(fdTCP, buffer, toRead, 0)) != 0) {
-        if(n == toRead) {
-            toRead += toRead;
-        }
+    char c[FILE_READ_SIZE];
+    int bRead;
+    while((bRead = read(fdTCP, &c, FILE_READ_SIZE)) != 0 || bRead == -1) {
+        if(bRead == -1) fatal("Clearing socket");
     }
 }
