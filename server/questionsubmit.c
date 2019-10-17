@@ -143,6 +143,7 @@ void processQuestionSubmit(int fdTCP) {
     char path[BUFFER_SIZE];
     strncpy(path, TOPICSDIR"/", strlen(TOPICSDIR) + 3);
     strcat(path, topic);                    //Topics folder
+    free(topic);
 
     DIR* topicDirp = opendir(path);         //Open topics folder
     if(!topicDirp) {
@@ -162,17 +163,15 @@ void processQuestionSubmit(int fdTCP) {
     while((questionEnt = readdir(topicDirp))) {
         char *currQuestion = questionEnt->d_name;
 
-        if (!strcmp(currQuestion, ".")
-                || !strcmp(currQuestion, "..")
-                || !strcmp(currQuestion, DATAFILE)) {
-            continue;
-        }
+        if(currQuestion[0] == '.') continue;
 
         if(!strcmp(currQuestion, question)) {
             strncpy(response, "QUR DUP\n", 9); 
             printf("Duplicado\n");                 //send duplicate message
             sendTCPstring(fdTCP, response, strlen(response));
             closedir(topicDirp);
+            free(userId);
+            free(question);
             return;
         }
 
@@ -269,8 +268,7 @@ void processQuestionSubmit(int fdTCP) {
         }
 
         fprintf(questionDatafile, " %s", imgExt);
-
-        
+       
         fclose(questionDatafile);
 
 
@@ -308,18 +306,11 @@ void processQuestionSubmit(int fdTCP) {
         fclose(questionDatafile);
     }
 
-
-    
-    
-
-
-
     strncpy(response, "QUR OK\n", 8);                  //send not ok message
     sendTCPstring(fdTCP, response, strlen(response));
     fclose(questionFilePtr);
-
     
-    
+    free(question); 
     free(questionFolder);
     free(questionFile);
     free(userId);
