@@ -2,8 +2,8 @@
 #include <fcntl.h>
 
 /* The main purpose of this code is to prevent
- * reading the content of a question (most importantly its answers).
- * Reading/submitting answers should be an atomic operation.
+ * answers being submitted at the same time to get the same number.
+ * Submitting answers should be an atomic operation.
  */
 
 /* TODO: remove debug messages */
