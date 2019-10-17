@@ -223,8 +223,8 @@ void handleTcp(int fd, char* port) {
             printf("Not supported as of now\n");
         }
 
-        close(newfd);
         free(req);
+        close(newfd);
         exit(0);
     }
 
@@ -275,6 +275,7 @@ void handleUdp(int fd, char* port) {
         fatal(strerror(errno));
     }
 
+    free(args);
     free(messageToSend);
     printf("[UDP]===================================================================================\n");
 }

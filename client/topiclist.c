@@ -49,6 +49,7 @@ void receiveTopicList(int fdUDP, char** topicList) {
         return;
     }
 
+    if(selectedTopic) selectedTopic = strdup(selectedTopic);
     resetPtrArray(topicList, MAXTOPICS+1);
     for(i = 0; i < topicNumber; i++) {
         if(i == topicNumber - 1)
@@ -56,6 +57,10 @@ void receiveTopicList(int fdUDP, char** topicList) {
 
         topicName = strtok(args[i+2], ":");
         topicList[i] = strdup(topicName);
+        if(selectedTopic && !strcmp(selectedTopic, topicList[i])) {
+            free(selectedTopic);
+            selectedTopic = topicList[i];
+        }
         topicUserID = strtok(NULL, ":");
 
 

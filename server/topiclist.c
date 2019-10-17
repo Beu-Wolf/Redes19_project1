@@ -45,6 +45,7 @@ char* processTopicList(char** args) {
         topicData = fopen(topicDatafile, "r");
         if (!topicData) fatal(FILEOPEN_ERROR);
         if(!fread(topicUserID,  1, 5, topicData)) fatal(FILEREAD_ERROR);
+        fclose(topicData);
 
         sprintf(topicNameAndUser, " %s:%s", dirInfo->d_name, topicUserID);
         topicsInfo = safestrcat(topicsInfo, topicNameAndUser);
