@@ -69,11 +69,16 @@ void receiveQuestionList(int fdUDP, char **questionList) {
         return;
     }
 
+    if(selectedQuestion) selectedQuestion = strdup(selectedQuestion);
     resetPtrArray(questionList, MAXQUESTIONS + 1);
     questions = &(args[2]);
     for (int i = 0; i < questionNum; i++) {
         if (sscanf(questions[i], "%[0-9a-zA-Z]:%[0-9]:%[0-9]", question, userID, numAnswers) == 3) {
             questionList[i] = strdup(question);
+            if(selectedQuestion && !strcmp(selectedQuestion, questionList[i])) {
+                free(selectedQuestion);
+                selectedQuestion = questionList[i];
+            }
             printf("%d: %s (%s answers) by %s\n", i, question, numAnswers, userID);
         } else { // TODO: handle invalid question:user:ans sequence
             printf("Error while parsing questions. Please try again\n");

@@ -49,6 +49,7 @@ void receiveTopicList(int fdUDP, char** topicList) {
         return;
     }
 
+    // backup old selectedTopic
     if(selectedTopic) selectedTopic = strdup(selectedTopic);
     resetPtrArray(topicList, MAXTOPICS+1);
     for(i = 0; i < topicNumber; i++) {
