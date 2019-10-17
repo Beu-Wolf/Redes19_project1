@@ -162,13 +162,13 @@ static int storeAnswer(int fd, char *path, int num) {
     fprintf(dataFile, "%s", userID);
 
     /* Absorb space between answer file and image flag*/
-    ret = recv(fd, tmp, 1, 0);
+    ret = recvTCPchar(fd, tmp);
     if (ret == 0 || *tmp != ' ') {
         error = true;
         goto clean;
     }
 
-    ret = recv(fd, tmp, 1, 0);
+    ret = recvTCPchar(fd, tmp);
     if (ret == 1 && *tmp == '1') {
         FILE *imageFile;
         char *isize;
@@ -176,7 +176,7 @@ static int storeAnswer(int fd, char *path, int num) {
         long imageSize;
 
         /* Absorb space between aimg and iext */
-        ret = recv(fd, tmp, 1, 0);
+        ret = recvTCPchar(fd, tmp);
         if (ret == 0 || *tmp != ' ') {
             error = true;
             goto clean;
@@ -206,7 +206,7 @@ static int storeAnswer(int fd, char *path, int num) {
     }
 
     /* Absorb newline */
-    ret = recv(fd, tmp, 1, 0);
+    ret = recvTCPchar(fd, tmp);
     if (ret == 0 || *tmp != '\n') {
         error = true;
         goto clean;
