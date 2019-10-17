@@ -90,6 +90,8 @@ int sendQuestionSubmit(char** parsedInput) {
     fdTCP = socket(tcpInfo->ai_family, tcpInfo->ai_socktype, tcpInfo->ai_protocol);
     if(fdTCP == -1) fatal(SOCK_CREATE_ERROR);
 
+    setSocketTimeout(fdTCP, CLIENT_TIMEOUT);
+
     n = connect(fdTCP, tcpInfo->ai_addr, tcpInfo->ai_addrlen);
     if(n == -1) fatal(SOCK_CONN_ERROR);
 

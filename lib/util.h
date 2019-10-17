@@ -86,4 +86,7 @@ long fileSize(FILE *file);
 
 void clearSocket(int fdTCP);
 
+void setSocketTimeout(int fd, int seconds);
+void timedOut();
+
 #endif

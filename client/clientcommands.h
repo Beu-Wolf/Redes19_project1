@@ -19,7 +19,7 @@
 
 #define BUFFER_SIZE 2048
 #define DEFAULT_PORT "58036"
-
+#define CLIENT_TIMEOUT 10
 
 extern char *optarg;
 

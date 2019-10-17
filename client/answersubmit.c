@@ -33,6 +33,8 @@ void processAnswerSubmit(char **args) {
     if((fd = socket(tcpInfo->ai_family, tcpInfo->ai_socktype, tcpInfo->ai_protocol)) == -1)
         fatal(SOCK_CREATE_ERROR);
 
+    setSocketTimeout(fd, CLIENT_TIMEOUT);
+
     if(connect(fd, tcpInfo->ai_addr, tcpInfo->ai_addrlen) == -1)
         fatal(SOCK_CONN_ERROR);
 

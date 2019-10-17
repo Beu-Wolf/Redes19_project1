@@ -193,6 +193,7 @@ int recvTCPline(int sockfd, char** bufferaddr, int* allocsize) {
     char* ptr;
     char *buffer;
     int alloc = INPUT_SIZE;
+    int ret;
 
     if(allocsize != NULL && *allocsize != 0) {
         alloc = *allocsize;
@@ -203,7 +204,7 @@ int recvTCPline(int sockfd, char** bufferaddr, int* allocsize) {
     }
 
     ptr = buffer;
-    while(recv(sockfd, ptr, 1, 0) == 1) {
+    while((ret = recv(sockfd, ptr, 1, 0)) == 1) {
         if(*(ptr++) == '\n')
             break; // terminate string and return
 
@@ -214,6 +215,13 @@ int recvTCPline(int sockfd, char** bufferaddr, int* allocsize) {
             alloc *= 2;
         }
     }
+
+    if (ret == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            timedOut();
+        }
+    }
+
     *ptr = '\0';
     *bufferaddr = buffer;
     if (allocsize != NULL) *allocsize = alloc;
@@ -234,6 +242,7 @@ int recvTCPword(int sockfd, char** bufferaddr, int* allocsize) {
     char *buffer;
     int alloc = INPUT_SIZE;
     int len;
+    int ret;
 
     if(allocsize != NULL && *allocsize != 0) {
         alloc = *allocsize;
@@ -246,7 +255,7 @@ int recvTCPword(int sockfd, char** bufferaddr, int* allocsize) {
 
     len = 0;
     ptr = buffer;
-    while(recv(sockfd, ptr, 1, 0) == 1) {
+    while((ret = recv(sockfd, ptr, 1, 0)) == 1) {
         len++;
         if(*ptr == ' ' || *ptr == '\n')
             break;
@@ -257,6 +266,12 @@ int recvTCPword(int sockfd, char** bufferaddr, int* allocsize) {
             if(!(*buffer)) fatal(ALLOC_ERROR);
             ptr = buffer + alloc;
             alloc *= 2;
+        }
+    }
+
+    if (ret == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            timedOut();
         }
     }
 
@@ -272,6 +287,9 @@ int recvTCPchar(int fd, char *p) {
     int ret;
     ret = recv(fd, p, 1, 0);
     if (ret == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            timedOut();
+        }
         return 0;
     }
 
@@ -288,8 +306,12 @@ int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
     if(!buffer) fatal(ALLOC_ERROR);
     while(fileSize > 0) {
         memset(buffer, 0, FILE_READ_SIZE);
-        if( (n = recv(sockfd, buffer, MIN(FILE_READ_SIZE - 1, fileSize), 0)) == -1)
+        if( (n = recv(sockfd, buffer, MIN(FILE_READ_SIZE - 1, fileSize), 0)) == -1) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                timedOut();
+            }
             fatal(RECV_TCP_ERROR);
+        }
 
         if(fwrite(buffer, 1 ,n, filefd) == 0)
             fatal(FPUTS_ERROR);
@@ -346,4 +368,16 @@ void clearSocket(int fdTCP) {
     while((bRead = read(fdTCP, &c, FILE_READ_SIZE)) != 0 || bRead == -1) {
         if(bRead == -1) fatal("Clearing socket");
     }
+}
+
+void setSocketTimeout(int fd, int seconds) {
+    struct timeval t;
+    t.tv_sec = seconds;
+    t.tv_usec = 0;
+
+    setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&t, sizeof(t));
+}
+
+void timedOut() {
+    fatal("Timed out waiting for response.");
 }
