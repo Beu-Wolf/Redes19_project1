@@ -61,21 +61,28 @@ void readCommand(char** bufPtr, int* bufSize) {
 char **tokenize(char *string) {
     int numArgs = 10;
     int i = 0;
+    char *p;
 
     char **args = (char **)malloc(numArgs * sizeof(char *));
     if (!args) fatal(ALLOC_ERROR);
 
-    args[i] = strtok(string, " ");
+    p = string;
+    args[i++] = p;
 
-    while (args[i] != NULL) {
-        i++;
+    p = strchr(p, ' ');
+    while (p != NULL) {
+        *p = '\0';
+        p++;
+        args[i++] = p;
+
         if (i == numArgs) {
             numArgs *= 2;
-            args = realloc(args, numArgs * sizeof(char *));
-            if (!args) fatal(ALLOC_ERROR);
+            args = (char **)realloc(args, numArgs * sizeof(char *));
         }
-        args[i] = strtok(NULL, " ");
+        p = strchr(p, ' ');
     }
+
+    args[i] = NULL;
 
     return args;
 }
