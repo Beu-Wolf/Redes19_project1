@@ -24,14 +24,6 @@ void processAnswerSubmit(int fd) {
     recvTCPword(fd, &question, NULL);
     recvTCPword(fd, &asize, NULL);
 
-    /* TODO: remove */
-    printf("uid: %s\n", userID);
-    printf("topic: %s\n", topic);
-    printf("question: %s\n", question);
-    printf("asize: %s\n", asize);
-
-    /* TODO: validate everything */
-
     n = receiveAnswer(fd);
     if (n == ERROR) {
         response = safestrcat(response, "ERR\n");
