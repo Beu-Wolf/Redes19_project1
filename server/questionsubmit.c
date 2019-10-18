@@ -6,7 +6,6 @@ char* getUserId(int fdTCP, int size) {
     char* userId; 
 
     recvTCPword(fdTCP, &userId, &size); 
-    printf("UserID: |%s|\n", userId);
     return userId;
 }
 
@@ -18,8 +17,6 @@ char* getTopic(int fdTCP, int size) {
         free(topic);
         return NULL;
     }
-    printf("Topic: |%s|\n", topic);
-
     return topic;
 }
 
@@ -31,7 +28,6 @@ char* getQuestion(int fdTCP, int size) {
         free(question);
         return NULL;
     }
-    printf("Question: |%s|\n", question);
 
     return question;
 }
@@ -45,8 +41,6 @@ int getFileSize(int fdTCP, int size) {
         free(fileSizeStr);
         return -1;
     }
-
-    printf("File Size: |%s|\n", fileSizeStr);
 
     if(!isPositiveNumber(fileSizeStr)){
         free(fileSizeStr);
@@ -69,7 +63,6 @@ int getImageFlag(int fdTCP, int size) {
     recvTCPchar(fdTCP, space);
 
     recvTCPword(fdTCP, &hasImageStr, &size);
-    printf("Has Image flag |%s|\n", hasImageStr);
 
     if(!isPositiveNumber(hasImageStr)) {
         clearSocket(fdTCP);
@@ -88,12 +81,10 @@ char* getImageExtension(int fdTCP, int size) {
 
     if(recvTCPword(fdTCP, &imgExt, &size) != 4) {
         clearSocket(fdTCP);
-        printf("Invalid Extension\n");
         free(imgExt);
         return NULL;
     }
 
-    printf("Image Ext: |%s|\n", imgExt);
     return imgExt;
 }
 
@@ -106,7 +97,6 @@ int getImageFileSize(int fdTCP, int size) {
         free(imageFileStr);
         return -1;
     }
-    printf("File Size: |%s|\n", imageFileStr);
 
     if(!isPositiveNumber(imageFileStr)){
         clearSocket(fdTCP);
@@ -167,7 +157,6 @@ void processQuestionSubmit(int fdTCP) {
 
         if(!strcmp(currQuestion, question)) {
             strncpy(response, "QUR DUP\n", 9); 
-            printf("Duplicado\n");                 //send duplicate message
             sendTCPstring(fdTCP, response, strlen(response));
             closedir(topicDirp);
             free(userId);
@@ -179,7 +168,6 @@ void processQuestionSubmit(int fdTCP) {
 
         if(numQuestions == 99) {
             strncpy(response, "QUR FUL\n", 9);     
-            printf("FULL\n");             //send full message
             sendTCPstring(fdTCP, response, strlen(response));
             closedir(topicDirp);
             return;
@@ -189,7 +177,6 @@ void processQuestionSubmit(int fdTCP) {
     closedir(topicDirp);
 
     //create folder
-
     strcat(path, "/");
     strcat(path, question);
 
