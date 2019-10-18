@@ -36,7 +36,6 @@ void handleSIGCHILD() {
             if(errno == ECHILD) break;
             fatal(WAIT_ERROR);
         }
-
     }
     write(0, "Stopped waiting\n", 16);
 }
@@ -182,7 +181,6 @@ void handleTcp(int fd, char* port) {
     socklen_t addrlen = sizeof addr;
     char messageSender[INET_ADDRSTRLEN];
 
-    // if(sigprocmask(SIG_BLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
     newfd = accept(fd, (struct sockaddr*) &addr, &addrlen);
 
     printf("[TCP]=(%s:%s)=============================================================\n",
@@ -207,8 +205,6 @@ void handleTcp(int fd, char* port) {
 
         recvTCPword(newfd, &req, &size);                                          //consume space
 
-        printf("REQUEST: |%s|\n", req);
-
         if(!strcmp("QUS", req)) {
             processQuestionSubmit(newfd);
         } else if(!strcmp("GQU", req)) {
@@ -225,8 +221,6 @@ void handleTcp(int fd, char* port) {
     }
 
     close(newfd);
-
-    // if(sigprocmask(SIG_UNBLOCK, &ss, NULL) == -1) fatal("Synchronizing child");
 }
 
 void handleUdp(int fd, char* port) {
@@ -250,10 +244,8 @@ void handleUdp(int fd, char* port) {
 
     printf("[UDP]=(%s:%s)=============================================================\n",
             inet_ntop(AF_INET, (struct sockaddr_in *) &addr.sin_addr, messageSender, INET_ADDRSTRLEN),  port);
-    printf("|%s|\n", buffer);
 
     args = tokenize(buffer);
-
     if (!strcmp(args[0], "REG")) {
         messageToSend = processRegister(args);
     } else if (!strcmp(args[0], "PTP")) {
@@ -264,7 +256,6 @@ void handleUdp(int fd, char* port) {
         messageToSend = processQuestionList(args);
     }
 
-    printf("[Sending response]\n|%s|\n", messageToSend);
     n = sendto(fd, messageToSend, strlen(messageToSend), 0,
             (struct sockaddr *)&addr, addrlen);
     if(n == -1) {
