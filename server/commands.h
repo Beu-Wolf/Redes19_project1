@@ -27,13 +27,21 @@
 #define ANSWERFILE "answer"
 #define IMAGEFILE "image"
 
+// FS
+void handleSIGCHLD();
+void handleSIGINT();
+void receiveConnections(char *port);
+int setupServerSocket(char *port, int socktype);
+void handleTcp(int fd, char* port);
+void handleUdp(int fd, char*port);
 
+// UDP
 char *processRegister(char **args);
 char *processTopicPropose(char **args);
 char *processTopicList(char **args);
 char *processQuestionList(char **args);
 
-//TCP
+// TCP
 void processQuestionSubmit(int fdTCP);
 char* getUserId(int fdTCP, int size);
 char* getTopic(int fdTCP, int size);

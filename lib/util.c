@@ -10,13 +10,18 @@
 #define INPUT_SIZE 128
 #define FILE_READ_SIZE 512
 
+/*
+ *   Prints error messages and exits
+ */
 void fatal(const char* buffer) {
     fprintf(stderr, "%s\n", buffer);
     perror("Error");
     exit(1);
 }
 
-// TODO: Remove (debug function)
+/*
+ *   Prints array of strings
+ */
 void printArgs(char** buffer) {
     int i = 0;
     while(buffer[i] != NULL) {
@@ -25,13 +30,19 @@ void printArgs(char** buffer) {
     }
 }
 
+/*
+ *   Prints topic List
+ */
 void printTopicList(char** topicList) {
     for(int i = 0; topicList[i] != 0; i++){
       printf("%02d - %s\n", i+1, topicList[i]);
     }
 }
 
-// safe read from stdin
+
+/*
+ *   Safe read from stdin
+ */
 void readCommand(char** bufPtr, int* bufSize) {
     int i;
     char c;
@@ -39,7 +50,7 @@ void readCommand(char** bufPtr, int* bufSize) {
     // prompt
     write(1, "$ ", 2);
 
-    // read from stdin (char by char) reallocates if necessary
+    // read char by char and reallocates if necessary
     i = 0;
     while((c = getchar()) != '\n' && c != '\0' && c != EOF) {
         (*bufPtr)[i++] = c;
@@ -58,6 +69,11 @@ void readCommand(char** bufPtr, int* bufSize) {
     (*bufPtr)[i] = '\0';
 }
 
+/*
+ *   Returns NULL terminated array of pointers
+ *   Each pointer points to a word of string
+ *   (Allocates array. Has to be freed)
+ */
 char **tokenize(char *string) {
     int numArgs = 10;
     int i = 0;
@@ -87,6 +103,10 @@ char **tokenize(char *string) {
     return args;
 }
 
+
+/*
+ *   Return number of args
+ */
 int arglen(char **args) {
     int count = 0;
     while (*(args++) != NULL) count++;
@@ -94,6 +114,9 @@ int arglen(char **args) {
     return count;
 }
 
+/*
+ *   Free and clear array of pointers
+ */
 void resetPtrArray(char** array, int max) {
     int i;
     for(i = 0; i < max && array[i] != NULL; i++) {
@@ -103,8 +126,10 @@ void resetPtrArray(char** array, int max) {
     memset(array, 0, max);
 }
 
-/* Concatenate strings for an allocated
- * destination string */
+/*
+ *   Concatenate strings for an allocated
+ *   destination string
+ */
 char *safestrcat(char *dest, char *src) {
     int destlen = strlen(dest);
     int srclen = strlen(src);
@@ -115,10 +140,17 @@ char *safestrcat(char *dest, char *src) {
 }
 
 
+/*
+ *   Return if str represents a valid port number
+ */
 char validPort(char* str) {
     return isPositiveNumber(str) && atoi(str) <= MAX_PORT;
 }
-// return 0 if string contains non digit ascii
+
+/*
+ *   Return if str represents a non-negative number
+ *   (if it only contains digits)
+ */
 char isPositiveNumber(char* str) {
     int i = 0;
     while(str[i] != '\0') {
@@ -128,8 +160,9 @@ char isPositiveNumber(char* str) {
     return 1;
 }
 
-/* Convert string to non negative number
- * Returns -1 on error
+/*
+ *   Convert string to non negative number
+ *   Returns -1 on error
  */
 long toNonNegative(char *str) {
     errno = 0;
@@ -142,18 +175,17 @@ long toNonNegative(char *str) {
     return n;
 }
 
-/* Accepts socket FD and a \0 terminated string.
- * The function makes sure every byte is sent.
- * Returns 1 on success, 0 on failure
+/*
+ *   Accepts socket FD and a \0 terminated string.
+ *   The function makes sure every byte is sent.
+ *   Returns 1 on success, 0 on failure
  */
 int sendTCPstring(int sockfd, char* buffer, size_t n) {
     int sentBytes, bytesToSend;
     bytesToSend = n;
 
     while(bytesToSend > 0) {
-        sentBytes = send(sockfd, buffer, bytesToSend, MSG_NOSIGNAL);                                                //Ignore SIGPIPE when sending large files, because
-                                                                                                                    // we need to read server response when something goes wrong
-                                                                                                                    //TODO: Is there a better way
+        sentBytes = send(sockfd, buffer, bytesToSend, MSG_NOSIGNAL); // Ignore SIGPIPE
         if(sentBytes == -1){
             return 0;
         }
@@ -163,14 +195,18 @@ int sendTCPstring(int sockfd, char* buffer, size_t n) {
     return 1;
 }
 
+
+/*
+ *   Accepts socket FD and a file pointer.
+ *   The function makes sure every byte is sent.
+ *   Returns 1 on success, 0 on failure
+ */
 int sendTCPfile(int sockfd, FILE* file) {
     char* buffer;
     clearerr(file);
     size_t n;
 
     long sizesent = 0;
-
-
 
     buffer = (char*) malloc(sizeof(char)*FILE_READ_SIZE);
     if(!buffer) fatal(ALLOC_ERROR);
@@ -185,9 +221,10 @@ int sendTCPfile(int sockfd, FILE* file) {
     return 1;
 }
 
-/* Acceps socket FD, a buffer and its size
- * Reads from socket until '\n' read. reallocates buffer if needed
- * Returns number of bytes read
+/*
+ *   Acceps socket FD, a buffer and its size
+ *   Reads from socket until '\n' read. reallocates buffer if needed
+ *   Returns number of bytes read
  */
 int recvTCPline(int sockfd, char** bufferaddr, int* allocsize) {
     char* ptr;
@@ -228,14 +265,15 @@ int recvTCPline(int sockfd, char** bufferaddr, int* allocsize) {
     return strlen(buffer);
 }
 
-/* Get a word from a tcp socket.
- * Allocate a buffer and store its address in the bufferaddr argument.
- * The initial allocation size is given by the value pointed to by the
- * allocsize argument.
- * Return the length of the received word.
- * The total allocated size, which might not correspond to the length
- * of the word, is stored in the allocsize value-result argument.
- * The buffer should be freed by the caller.
+/*
+ *   Get a word from a tcp socket.
+ *   Allocate a buffer and store its address in the bufferaddr argument.
+ *   The initial allocation size is given by the value pointed to by the
+ *   allocsize argument.
+ *   Return the length of the received word.
+ *   The total allocated size, which might not correspond to the length
+ *   of the word, is stored in the allocsize value-result argument.
+ *   The buffer should be freed by the caller.
  */
 int recvTCPword(int sockfd, char** bufferaddr, int* allocsize) {
     char *ptr;
@@ -281,8 +319,10 @@ int recvTCPword(int sockfd, char** bufferaddr, int* allocsize) {
     return len;
 }
 
-/* Reads a char from tcp into *p.
- * Returns 1 on success, 0 on failure */
+/*
+ *   Reads a char from tcp into *p.
+ *   Returns 1 on success, 0 on failure
+ */
 int recvTCPchar(int fd, char *p) {
     int ret;
     ret = recv(fd, p, 1, 0);
@@ -296,6 +336,11 @@ int recvTCPchar(int fd, char *p) {
     return 1;
 }
 
+/*
+ *   Receives a file from TCP
+ *   (receives fileSize bytes only)
+ *   Returns 1 on success, 0 on failure
+ */
 int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
     char* buffer;
     int n;
@@ -325,6 +370,10 @@ int recvTCPfile(int sockfd, unsigned long long fileSize, FILE* filefd){
     return 1;
 }
 
+
+/*
+ *   Terminates string on \n
+ */
 void stripnewLine(char* str) {
     int i = 0;
 
@@ -332,14 +381,24 @@ void stripnewLine(char* str) {
     str[i] = '\0';
 }
 
+/*
+ *   Returns if valid topic name
+ */
 int isValidTopic(char* topicName) {
     return validate(topicName, TOPIC_MAXLEN);
 }
 
+/*
+ *   Returns if valid question name
+ */
 int isValidQuestion(char* questionName) {
     return validate(questionName, QUESTION_MAXLEN);
 }
 
+/*
+ *   Returns if alphanumeric string
+ *   with no more than maxlen characters
+ */
 int validate(char* name, int maxlen) {
     int i = 0;
     while(name[i] != '\0' && i < maxlen) {
@@ -351,6 +410,9 @@ int validate(char* name, int maxlen) {
     return i < maxlen || (i == maxlen && name[i] == '\0');
 }
 
+/*
+ *   return filesize
+ */
 long fileSize(FILE *file) {
     long saved, size;
 
@@ -362,6 +424,9 @@ long fileSize(FILE *file) {
     return size;
 }
 
+/*
+ *   Clear socket contents
+ */
 void clearSocket(int fdTCP) {
     char c[FILE_READ_SIZE];
     int bRead;
@@ -370,6 +435,9 @@ void clearSocket(int fdTCP) {
     }
 }
 
+/*
+ *   set socket timeout
+ */
 void setSocketTimeout(int fd, int seconds) {
     struct timeval t;
     t.tv_sec = seconds;
@@ -378,6 +446,9 @@ void setSocketTimeout(int fd, int seconds) {
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&t, sizeof(t));
 }
 
+/*
+ * timeout callback
+ */
 void timedOut() {
     fatal("Timed out waiting for response.");
 }

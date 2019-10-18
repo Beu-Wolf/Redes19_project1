@@ -46,10 +46,6 @@ void handleSIGINT() {
     isUp = 0;
 }
 
-void receiveConnections(char *port);
-int setupServerSocket(char *port, int socktype);
-void handleTcp(int fd, char* port);
-void handleUdp(int fd, char*port);
 
 int main(int argc, char *argv[]) {
     DIR* topicsDir;
