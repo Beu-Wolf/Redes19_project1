@@ -25,7 +25,7 @@ static char *questionUser(char *p) {
 }
 
 char* getImageInfo(char* p) {
-    char* cleaner;                                   //to consume userID in first line of datafile
+    char* cleaner;  //to consume userID in first line of datafile
     char* imageExt;
     char* path = strdup(p);
     path = safestrcat(path, "/"DATAFILE);
@@ -138,7 +138,6 @@ void processQuestionGet(int fdTCP) {
 
         imageFile = fopen(imagePath, "r");
         if (!imageFile) {
-            /* TODO: What do we do in this situation? */
             fprintf(stderr, "Error opening %s\n", imagePath);
         }
 
@@ -169,7 +168,6 @@ static void sendAnswers(int fd, char *path) {
     char *answers[MAXANSWERS+1] = {0};
 
     if (questionDir == NULL) {
-        /* TODO: what to do here? */
         fprintf(stderr, "Error opening directory %s\n", path);
     }
 
