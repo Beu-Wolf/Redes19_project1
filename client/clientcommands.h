@@ -23,17 +23,9 @@
 
 extern char *optarg;
 
-enum flags {
-    GET_BY_IP,
-    GET_BY_NAME,
-};
-
-enum flags flags;
 struct addrinfo* tcpInfo;
 struct addrinfo* udpInfo;
-
 char* userID;
-
 char* selectedTopic;
 char* selectedQuestion;
 

@@ -69,7 +69,6 @@ int sendQuestionSubmit(char** parsedInput) {
         // get img extension
         strtok(parsedInput[3], ".");
         imgExt = strtok(NULL, ".");
-        printf("[DBG]: img extension: %s\n", imgExt);
         if(imgExt == NULL || strlen(imgExt) != 3) {
             printf(INVALID_QS_IMGEXT);
             fclose(imgFd);
@@ -135,7 +134,6 @@ void receiveQuestionSubmit(int fdTCP, char** parsedInput, char**questionList) {
     int size = BUFFER_SIZE;
 
     recvTCPline(fdTCP, &buffer,&size);
-    printf("Buffer: |%s|\n", buffer);
     args = tokenize(buffer);
 
     if(!strcmp(args[0], "ERR")) {
@@ -145,7 +143,6 @@ void receiveQuestionSubmit(int fdTCP, char** parsedInput, char**questionList) {
     }
 
     if(arglen(args) < 2) {
-        printf("TODO: Verificar erros de protocolo\n");
         close(fdTCP);
         return;
     }

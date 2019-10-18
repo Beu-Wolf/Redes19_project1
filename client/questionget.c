@@ -205,7 +205,6 @@ int sendQuestionGet() {
     memset(buffer, 0, 30);
 
     sprintf(buffer, "GQU %s %s\n", selectedTopic, selectedQuestion);
-    printf("sending: |%s|", buffer);
 
     sendTCPstring(fdTCP, buffer, strlen(buffer));
     free(buffer);
@@ -325,9 +324,6 @@ void receiveQuestionGet(int fdTCP) {
     if(path != NULL) free(path);
     if(Nanswers != NULL) free(Nanswers);
 
-    
     return;
-
-
 }
 

@@ -135,7 +135,6 @@ void receiveConnections(char *port) {
 
         counter = select(maxfd+1, &rfds, NULL, NULL, NULL);
         if (counter == -1 && errno == EINTR) {
-            printf("Whoops! Got interrupted ( ͡° ͜ʖ ͡°)\n");
             continue;
         }
 

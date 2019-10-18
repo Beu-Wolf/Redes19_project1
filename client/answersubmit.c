@@ -81,9 +81,6 @@ int sendAnswerSubmit(int fd, char *text, char *image) {
         size = fileSize(imageFile);
         char *ext = image + strlen(image) - 1 - 3;
 
-        /* TODO: remove this */
-        printf("Extension: %s\n", ext);
-
         if (*ext != '.') {
             fprintf(stderr, "Invalid image extension\n");
             return -1;
@@ -121,8 +118,7 @@ int recvAnswerSubmit(int fd) {
     if (!strcmp(tokens[1], "OK")) {
         printf("Answer submitted.\n");
     } else if (!strcmp(tokens[1], "NOK")) {
-        /* TODO: is this a good message? */
-        printf("Operation not permitted.\n");
+        printf("Could not perform operation\n");
     } else if (!strcmp(tokens[1], "FUL")) {
         printf("Answer list full.\n");
     } else if (!strcmp(tokens[1], "ERR")) {

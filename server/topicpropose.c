@@ -26,7 +26,6 @@ char* processTopicPropose(char** args) {
         return topicProposeStatus;
     }
 
-    // TODO: Verify this pls... Very maroscated I believe
     dirPtr = opendir(TOPICSDIR);
     if(!dirPtr && errno == ENOENT) { // if not existent dir, create new one
         if(mkdir(TOPICSDIR, 0755))

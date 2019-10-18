@@ -48,7 +48,6 @@ void receiveQuestionList(int fdUDP, char **questionList) {
     args = tokenize(buffer);
 
     if (arglen(args) < 2) {
-        // TODO: handle wrong number of arguments
         printf("Something went wrong. Please try again\n");
         free(args);
         return;
@@ -57,7 +56,6 @@ void receiveQuestionList(int fdUDP, char **questionList) {
     if (isPositiveNumber(args[1])) {
         questionNum = strtol(args[1], NULL, 10);
     } else {
-        // TODO: handle invalid number of questions
         printf("Invalid Number of questions\n");
         free(args);
         return;
@@ -80,7 +78,7 @@ void receiveQuestionList(int fdUDP, char **questionList) {
                 selectedQuestion = questionList[i];
             }
             printf("%d: %s (%s answers) by %s\n", i, question, numAnswers, userID);
-        } else { // TODO: handle invalid question:user:ans sequence
+        } else {
             printf("Error while parsing questions. Please try again\n");
             free(args);
             return;
