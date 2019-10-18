@@ -203,7 +203,6 @@ void cleanup() {
     resetPtrArray(topicList, MAXTOPICS + 1);
     free(topicList);
     resetPtrArray(questionList, MAXQUESTIONS+ 1);
-    // for(int i = 0; questionList[i] != NULL; i++) free(questionList[i]);
     free(questionList);
 }
 
